@@ -1,70 +1,81 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the
-// README at: https://github.com/devcontainers/templates/tree/main/src/javascript-node
 {
-	"name": "Node.js & Python",
-	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/javascript-node:1-18-bullseye",
+    "name": "Node.js & Python",
+    "image": "mcr.microsoft.com/devcontainers/javascript-node:1-18-bullseye",
 
-	"features": {
-		"ghcr.io/devcontainers/features/python:1": {
-			"version": "3.9"
-		}
-	},
+    "features": {
+        "ghcr.io/devcontainers/features/python:1": {
+            "version": "3.9"
+        }
+    },
 
-	// Configure tool-specific properties.
-	"customizations": {
-		// Configure properties specific to VS Code.
-		"vscode": {
-			"settings": {
-				"editor.formatOnSave": true,
-				"editor.codeActionsOnSave": {
-					"source.fixAll": "explicit",
-					"source.organizeImports": "explicit"
-				},
-				"files.autoSave": "afterDelay",
-				"files.autoSaveDelay": 3000,
-				"eslint.enable": true,
-				"npm.packageManager": "yarn",
-				"eslint.validate": [
-					"javascript",
-					"javascriptreact",
-					"typescript",
-					"typescriptreact"
-				],
-				"python.formatting.provider": "black",
-				"python.linting.enabled": true,
-				"python.linting.pylintEnabled": true,
-				"[python]": {
-					"editor.defaultFormatter": "ms-python.python",
-					"editor.formatOnSave": true
-				}
-			},
-			"extensions": [
-				"streetsidesoftware.code-spell-checker",
-				"ms-python.python",
-				"ms-python.vscode-pylance",
-				"esbenp.prettier-vscode",
-				"dbaeumer.vscode-eslint",
-				"ms-azuretools.vscode-docker",
-				"GitHub.copilot",
-				"GitHub.copilot-chat",
-				"GitHub.copilot-labs",
-				"ms-edgedevtools.vscode-edge-devtools",
-				"Continue.continue",
-				"swagatachaudhuri.github-copilot-tools-pack",
-				"github.copilot-workspace",
-				"eamodio.gitlens",
-				"ms-python.black-formatter",
-				"ms-python.isort"
-			]
-		}
-	},
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "editor.formatOnSave": true,
+                "editor.codeActionsOnSave": {
+                    "source.fixAll": "explicit",
+                    "source.organizeImports": "explicit"
+                },
+                "files.autoSave": "afterDelay",
+                "files.autoSaveDelay": 3000,
+                "eslint.enable": true,
+                "npm.packageManager": "yarn",
+                "eslint.validate": [
+                    "javascript",
+                    "javascriptreact", 
+                    "typescript",
+                    "typescriptreact"
+                ],
+                "python.formatting.provider": "black",
+                "python.linting.enabled": true,
+                "python.linting.pylintEnabled": true,
+                "[python]": {
+                    "editor.defaultFormatter": "ms-python.python",
+                    "editor.formatOnSave": true
+                },
+                "[javascript]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode",
+                    "editor.formatOnSave": true
+                },
+                "[typescript]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode",
+                    "editor.formatOnSave": true
+                },
+                "[javascriptreact]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode",
+                    "editor.formatOnSave": true
+                },
+                "[typescriptreact]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode",
+                    "editor.formatOnSave": true
+                }
+            },
+            "extensions": [
+                "streetsidesoftware.code-spell-checker",
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "esbenp.prettier-vscode",
+                "dbaeumer.vscode-eslint",
+                "ms-azuretools.vscode-docker",
+                "GitHub.copilot",
+                "GitHub.copilot-chat",
+                "GitHub.copilot-labs",
+                "ms-edgedevtools.vscode-edge-devtools",
+                "Continue.continue",
+                "swagatachaudhuri.github-copilot-tools-pack",
+                "github.copilot-workspace",
+                "eamodio.gitlens",
+                "ms-python.black-formatter",
+                "ms-python.isort"
+            ]
+        }
+    },
 
-	"workspaceFolder": "/workspaces/ERA",
-	
-	"mounts": [
-		"source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached,readonly"
-	],
+    "workspaceFolder": "/workspaces/ERA",
+    
+    "mounts": [
+        "source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached,readonly"
+    ],
     "portsAttributes": {
         "3000": {
             "label": "Hello Remote World",
