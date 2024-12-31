@@ -5,11 +5,8 @@
 		"lib": ["es2020"],
 		"outDir": "out",
 		"sourceMap": true,
-		"strict": true,
-		"rootDir": "src"
+		"rootDir": ".",
+		"strict": true
 	},
-	"exclude": [
-		"node_modules",
-		".vscode-test"
-	]
+	"exclude": ["node_modules", ".vscode-test"]
 }

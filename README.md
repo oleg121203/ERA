@@ -1,21 +1,16 @@
-# Virtual Document Sample
+# Basic multi root API samples
 
-This is a sample extension that shows how to add virtual documents to the editor.
+This extension adds an entry to the status bar that shows the name of the currently active file. To exercise multi root APIs it:
+- only enables itself when more than one `WorkspaceFolder` is opened using `workspace.workspaceFolders` API
+- shows the name of the `WorkspaceFolder` the file is from (if any) using `workspace.getWorkspaceFolder()` API
+- updates when there are changes to the number of `WorkspaceFolder` via the `workspace.onDidChangeWorkspaceFolders()` API
+- registers a setting `multiRootSample.statusColor` with a scope of `resource` to configure a color per `WorkspaceFolder` to use for the status bar item
 
-![cowsay](https://github.com/Microsoft/vscode-extension-samples/blob/main/virtual-document-sample/cowsay.gif)
+![Show the folder of the active file](https://raw.githubusercontent.com/Microsoft/vscode-extension-samples/main/basic-multi-root-sample/preview.gif)
 
+## Running the example
 
-## VS Code API
-
-### `vscode` module
-
-- [`workspace.registerTextDocumentContentProvider`](https://code.visualstudio.com/api/references/vscode-api#workspace.registerTextDocumentContentProvider)
-- [`commands.registerCommand`](https://code.visualstudio.com/api/references/vscode-api#commands.registerCommand)
-- [`window.showInputBox`](https://code.visualstudio.com/api/references/vscode-api#window.showInputBox)
-
-## Running the Sample
-
-- Run `npm install` in terminal to install dependencies
-- Run the `Launch Extension` target in the Debug View. This will:
-	- Start a task `npm: watch` to compile the code
-	- Run the extension in a new VS Code window
+- Open this example in VS Code
+- `npm install`
+- `npm run compile`
+- `F5` to start debugging
