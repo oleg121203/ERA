@@ -33,29 +33,36 @@ if [ ! -f "./snake_js/background.jpg" ]; then
 fi
 
 # Обновленные пути к фоновых изображениям
-cp ./snake_js/assets/background2.jpg ./snake_js/background2.jpg 2>/dev/null || echo -е "${RED}Файл background2.jpg не найден в папке snake_js/assets!${NC}"
-cp ./snake_js/assets/background3.jpg ./snake_js/background3.jpg 2>/dev/null || echo -е "${RED}Файл background3.jpg не найден в папке snake_js/assets!${NC}"
+cp ./snake_js/assets/background2.jpg ./snake_js/background2.jpg 2>/dev/null || echo -e "${RED}Файл background2.jpg не найден в папке snake_js/assets!${NC}"
+cp ./snake_js/assets/background3.jpg ./snake_js/background3.jpg 2>/dev/null || echo -e "${RED}Файл background3.jpg не найден в папке snake_js/assets!${NC}"
 
-echo -е "${GREEN}Background images copied successfully!${NC}"
+echo -e "${GREEN}Background images copied successfully!${NC}"
 
 # Копирование звуковых файлов в формате MP3 в snake_js/sounds
 mkdir -p ./snake_js/sounds
-cp ./snake_js/assets/eat.mp3 ./snake_js/sounds/eat.mp3 2>/dev/null || echo -е "${RED}Файл eat.mp3 не найден в папке snake_js/assets!${NC}"
-cp ./snake_js/assets/game_over.mp3 ./snake_js/sounds/game_over.mp3 2>/dev/null || echo -е "${RED}Файл game_over.mp3 не найден в папке snake_js/assets!${NC}"
+cp ./snake_js/assets/eat.mp3 ./snake_js/sounds/eat.mp3 2>/dev/null || echo -e "${RED}Файл eat.mp3 не найден в папке snake_js/assets!${NC}"
+cp ./snake_js/assets/game_over.mp3 ./snake_js/sounds/game_over.mp3 2>/dev/null || echo -e "${RED}Файл game_over.mp3 не найден в папке snake_js/assets!${NC}"
 
-echo -е "${GREEN}Sound files copied to snake_js/sounds successfully!${NC}"
+echo -e "${GREEN}Sound files copied to snake_js/sounds successfully!${NC}"
 
 # Создание скриптов запуска
 echo "Creating launch scripts..."
 
+# Обновить скрипт запуска для Node.js сервера:
 # JavaScript версия
 cat > start_js.sh << 'EOF'
 #!/bin/bash
 cd snake_js
-python -m http.server 3000
+npm start
 EOF
 
 chmod +x start_js.sh
 
-echo -е "${GREEN}Installation complete!${NC}"
+# Обновить package.json для запуска серверного скрипта
+# В разделе "scripts" добавить:
+# "start": "node server.js"# Добавьте в раздел dependencies формы:# "express-rate-limit": "^5.5.1"
+# После обновления package.json, выполните:
+npm install
+
+echo -e "${GREEN}Installation complete!${NC}"
 echo "To start JavaScript version: ./start_js.sh"

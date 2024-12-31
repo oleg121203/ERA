@@ -86,6 +86,9 @@ const startServer = () => {
         console.log('Запуск без middleware безопасности');
     }
 
+    // Обслуживание статических файлов из директории snake_js
+    app.use(express.static(path.join(__dirname, 'snake_js')));
+
     // Локальный сервер на 3000
     app.get('/', (req, res) => {
         res.send('Hello remote world!\n');
@@ -103,8 +106,8 @@ const startServer = () => {
     });
 
     // Запуск обоих серверов
-    https.createServer(SSL_CONFIG, app).listen(PORT, HOST);
-    console.log(`Локальный HTTPS сервер запущен на https://${HOST}:${PORT}`);
+    app.listen(PORT, HOST);
+    console.log(`Локальный HTTP сервер запущен на http://${HOST}:${PORT}`);
 
     https.createServer(SSL_CONFIG, remoteApp).listen(REMOTE_PORT, HOST);
     console.log(`Защищенный удаленный HTTPS сервер запущен на https://${HOST}:${REMOTE_PORT}`);

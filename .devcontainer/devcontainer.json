@@ -52,8 +52,6 @@
             },
             "extensions": [
                 "streetsidesoftware.code-spell-checker",
-                // "ms-python.python",
-                // "ms-python.vscode-pylance",
                 "esbenp.prettier-vscode",
                 "dbaeumer.vscode-eslint",
                 "ms-azuretools.vscode-docker",
@@ -65,9 +63,8 @@
                 "swagatachaudhuri.github-copilot-tools-pack",
                 "github.copilot-workspace",
                 "eamodio.gitlens",
-                // "ms-python.black-formatter",
-                // "ms-python.isort",
-                "ms-vscode.vscode-speech-language-pack-ru-ru"
+                "ms-vscode.vscode-speech-language-pack-ru-ru",
+                "hbenl.vscode-jasmine-test-adapter"
             ]
         }
     },

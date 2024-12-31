@@ -1,0 +1,12 @@
+{
+  "name": "snake-game-client",
+  "version": "1.0.0",
+  "description": "Snake Game Client",
+  "main": "game.js",
+  "scripts": {
+    "start": "python -m http.server 4000 --bind 0.0.0.0"
+  },
+  "dependencies": {
+    "socket.io-client": "^4.0.0"
+  }
+}

@@ -10,7 +10,7 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-image: url('./background.jpg'); /* Обновлено для явного указания пути */
+            background-image: url('./background.jpg'); /* Проверьте этот путь */
             background-size: cover;
             background-repeat: no-repeat; /* Добавлено для предотвращения повторения изображения */
             background-position: center; /* Добавлено для центрирования изображения */
@@ -100,27 +100,31 @@
             margin-bottom: 30px; /* Увеличено с предыдущего значения */
         }
         .controls {
-            position: absolute;
-            bottom: 20px;
+            position: fixed; /* Изменено с absolute на fixed */
+            bottom: 40px; /* Увеличено значение для большего отступа снизу */
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             gap: 10px;
+            z-index: 1000; /* Добавлен z-index чтобы кнопка была поверх всех элементов */
         }
         
         .btn {
-            padding: 10px 20px;
-            font-size: 16px;
+            padding: 15px 30px; /* Увеличены отступы для лучшей видимости */
+            font-size: 18px; /* Увеличен размер шрифта */
+            background-color: rgba(52, 152, 219, 0.9); /* Добавлена прозрачность */
+            color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            background-color: #3498db;
-            color: #fff;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Добавлена тень */
         }
         
         .btn:hover {
-            background-color: #2980b9;
+            background-color: rgba(41, 128, 185, 1);
+            transform: translateY(-2px); /* Эффект приподнятия при наведении */
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
         }
         
         .btn:disabled {
@@ -381,7 +385,54 @@
         .score-player1, .score-player2 {
             font-size: 20px;
         }
+
+        /* Стили для кнопок управления */
+        .controls {
+            position: fixed; /* Изменено с absolute на fixed */
+            bottom: 80px; /* Увеличено значение для большего отступа снизу */
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 1000; /* Добавлен z-index чтобы кнопка была поверх всех элементов */
+            margin-top: 20px; /* Добавляем отступ сверху */
+        }
+
+        .btn {
+            padding: 15px 40px; /* Увеличиваем отступы для кнопки */
+            font-size: 20px; /* Увеличиваем размер шрифта */
+            background-color: rgba(52, 152, 219, 0.9);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            background-color: rgba(41, 128, 185, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        /* Скрытие кнопки "Стоп" при загрузке */
+        #stopBtn {
+            display: none;
+        }
     </style>
+    <script>
+        // Обработка ошибок загрузки скриптов
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            console.error('Error: ' + msg + '\nURL: ' + url + '\nLine: ' + lineNo);
+            return false;
+        };
+    </script>
 </head>
 <body class="light-theme">
     <button class="settings-toggle" id="toggleSettings">Настройки</button>
@@ -397,16 +448,17 @@
             <!-- Добавление контейнера для зеленых лучей -->
             <div class="sun-rays"></div>
             <canvas id="gameCanvas" width="800" height="600"></canvas>
-            <div class="score" id="score">Score: 0</div>
-            <div class="score" id="score2">Score: 0</div>
-            <!-- Кнопки управления -->
-            <div class="controls">
-                <!-- Кнопка Старт/Стоп -->
-                <button class="btn" id="startStopBtn">Старт</button>
-                <!-- Кнопка Пауза/Продолжить -->
-                <button class="btn" id="pauseResumeBtn" disabled>Пауза</button>
+            <div class="score-container">
+                <div class="score-player1">
+                    <span id="player1-label">Игрок:</span>
+                    <span id="score">0</span>
+                </div>
+                <div class="score-player2">
+                    <span id="player2-label">Играки:</span>
+                    <span id="score2">0</span>
+                </div>
             </div>
-            <!-- Добавление области сообщений -->
+            <!-- Заменим div с кнопками управления на более простую версию -->
             <div class="message-overlay" id="messageOverlay">Готовимся к старту...</div>
         </div>
         
@@ -417,184 +469,131 @@
         </div>
     </div>
 
-    <!-- Отображение счета игроков -->
-    <div class="score-container">
-        <div class="score-player1">
-            <span id="player1-label">Игрок:</span>
-            <span id="score">0</span>
-        </div>
-        <div class="score-player2">
-            <span id="player2-label">Играки:</span>
-            <span id="score2">0</span>
+    <!-- Добавим кнопку после game-container -->
+    <div class="controls-wrapper">
+        <div class="controls">
+            <button class="btn" id="gameControlBtn">Старт</button>
         </div>
     </div>
-    
+
     <div class="settings" id="settingsPanel">
         <form id="settingsForm">
-            <label for="speed">Скорость змейки:</label>
-            <input type="range" id="speed" name="speed" min="5" max="30" value="20">
-            
-            <label for="snakeColor">Цвет змейки:</label>
-            <input type="color" id="snakeColor" value="#2ecc71">
-            
-            <label for="backgroundImage">Фоновое изображение:</label>
-            <select id="backgroundImage">
-                <option value="background.jpg">Стандартный</option>
-                <option value="background2.jpg">Игра</option>
-                <option value="background3.jpg">Мультик</option>
-            </select>
-            
-            <label for="snakeSpeed">Уровень скорости:</label>
-            <input type="range" id="snakeSpeed" name="snakeSpeed" min="1" max="10" value="5">
-            
-            <!-- Дополнительные настройки -->
-            <label for="sound">Звук:</label>
-            <input type="checkbox" id="sound" name="sound" checked>
-            
-            <label for="theme">Тема:</label>
-            <select id="theme">
-                <option value="light">Светлая</option>
-                <option value="dark">Темная</option>
-            </select>
-            
-            <!-- Новые настройки для форм и видов змеи -->
-            <label for="snakeShape">Форма змеи:</label>
-            <select id="snakeShape" name="snakeShape">
-                <option value="classic">Классическая</option>
-                <option value="round">Круглая</option>
-                <option value="triangle">Треугольная</option>
-                <option value="custom">Пользовательская</option>
-            </select>
-            
-                <option value="triangle">Треугольная</option>
-            <label for="snakePattern">Узор змеи:</label>
-            <select id="snakePattern" name="snakePattern">
-                <option value="solid">Сплошной</option>
-                <option value="striped">Полосатый</option>
-                <option value="dotted">Точечный</option>
-                <option value="gradient">Градиент</option>
-                <option value="classic">Классическая</option>
-                <option value="round">Круглая</option>
-                <option value="rounded-rectangle">Закругленный прямоугольник</option>
-                <option value="ellipse">Эллипс</option>
-                <option value="custom" selected>Сплошной</option> <!-- Выбор по умолчанию -->
-            </select>
-            
-            <label for="gridSize">Размер сетки:</label>
-            <input type="range" id="gridSize" name="gridSize" min="10" max="40" value="20">
-            
-            <label for="gameDifficulty">Сложность игры:</label>
-            <select id="gameDifficulty" name="gameDifficulty">
-                <option value="easy">Легкая</option>
-                <option value="medium" selected>Средняя</option> <!-- Выбор по умолчанию -->
-                <option value="hard">Сложная</option>
-            </select>
-            
-            <label for="playersCount">Количество игроков:</label>
-            <select id="playersCount" name="playersCount">
-                <option value="1">1</option>
-                <option value="2">2</option>
-            </select>
-            
+            <section></section>
+                <h2>Настройки игры</h2>
+                <label for="playersCount">Количество игроков:</label>
+                <select id="playersCount" name="playersCount">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                </select>
+
+                <label for="gameDifficulty">Сложность игры:</label>
+                <select id="gameDifficulty" name="gameDifficulty">
+                    <option value="easy">Легкая</option>
+                    <option value="medium" selected>Средняя</option>
+                    <option value="hard">Сложная</option>
+                </select>
+
+                <label for="speed">Скорость змейки:</label>
+                <input type="range" id="speed" name="speed" min="5" max="30" value="20">
+
+                <label for="gridSize">Размер сетки:</label>
+                <input type="range" id="gridSize" name="gridSize" min="10" max="40" value="20">
+            </section>
+            <section>
+                <h2>Настройки вида</h2>
+                <label for="snakeColor">Цвет змейки:</label>
+                <input type="color" id="snakeColor" value="#2ecc71">
+
+                <label for="backgroundImage">Фоновое изображение:</label>
+                <select id="backgroundImage">
+                    <option value="background.jpg">Стандартный</option>
+                    <option value="background2.jpg">Игра</option>
+                    <option value="background3.jpg">Мультик</option>
+                </select>
+
+                <label for="snakePattern">Узор змеи:</label>
+                <select id="snakePattern" name="snakePattern">
+                    <option value="classic">Классическая</option>
+                    <option value="round">Круглая</option>
+                    <option value="rounded-rectangle">Закругленный прямоугольник</option>
+                    <option value="ellipse">Эллипс</option>
+                    <option value="custom" selected>Сплошной</option>
+                </select>
+            </section>
+            <section>
+                <h2>Настройки звука и эффектов</h2>
+                <label for="sound">Звук:</label>
+                <div>
+                    <label>
+                        <input type="radio" name="sound" value="true" checked> Вкл
+                    </label>
+                    <label>
+                        <input type="radio" name="sound" value="false"> Выкл
+                    </label>
+                </div>
+
+                <label for="enable3DEffect">3D-эффект:</label>
+                <div>
+                    <label>
+                        <input type="radio" name="enable3DEffect" value="true" checked> Вкл
+                    </label>
+                    <label>
+                        <input type="radio" name="enable3DEffect" value="false"> Выкл
+                    </label>
+                </div>
+
+                <label for="theme">Тема:</label>
+                <select id="theme">
+                    <option value="light">Светлая</option>
+                    <option value="dark">Темная</option>
+                </select>
+            </section>
+            <section>
+                <label for="language">Выберите язык:</label>
+                <select id="language" name="language">
+                    <option value="ru" selected>Русский</option>
+                    <option value="en">English</option>
+                </select>
+            </section>
             <!-- Установка фонового изображения по умолчанию -->
             <input type="hidden" id="backgroundImage" value="./background.jpg">
 
-            <!-- Добавление выбора языка -->
-            <label for="language">Выберите язык:</label>
-            <select id="language" name="language">
-                <option value="ru" selected>Русский</option>
-                <option value="en">English</option>
-            </select>
-            
             <button type="submit">Применить настройки</button>
         </form>
     </div>
-    <script src="game.js"></script>
+    <script src="./game.js"></script>
     <script>
-        // Управление выдвижной панелью настроек
-        const toggleButton = document.getElementById('toggleSettings');
-        const settingsPanel = document.getElementById('settingsPanel');
-        
-        toggleButton.addEventListener('click', () => {
-            settingsPanel.classList.toggle('active');
-        });
-
-        // Закрытие панели настроек при сохранении
-        document.getElementById('settingsForm').addEventListener('submit', function() {
-            settingsPanel.classList.remove('active');
-        });
-
+        // Оставим только обработчики UI, не связанные с игровой логикой
         document.addEventListener('DOMContentLoaded', function() {
+            // Управление панелью настроек
+            const toggleButton = document.getElementById('toggleSettings');
+            const settingsPanel = document.getElementById('settingsPanel');
+
+            toggleButton.addEventListener('click', () => {
+                settingsPanel.classList.toggle('active');
+            });
+
+            // Закрытие панели настроек при сохранении
+            document.getElementById('settingsForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                settingsPanel.classList.remove('active');
+            });
+
             // Запуск 3D-анимации при загрузке
             const gameArea = document.querySelector('.game-area');
             gameArea.classList.add('animate');
-        });
 
-        // Управление выбором языка
-        document.getElementById('language').addEventListener('change', function() {
-            const lang = this.value;
-            if (lang === 'ru') {
-                document.getElementById('player1-label').textContent = 'Игрок:';
-                document.getElementById('player2-label').textContent = 'Играки:';
-                // Дополнительно можно обновить другие элементы интерфейса
-            } else if (lang === 'en') {
-                document.getElementById('player1-label').textContent = 'Player:';
-                document.getElementById('player2-label').textContent = 'Players:';
-                // Дополнительно можно обновить другие элементы интерфейса
-            }
-        });
-
-        // Заменяем обработчики отдельных кнопок на один обработчик для новой кнопки
-        const gameControlBtn = document.getElementById('gameControlBtn');
-
-        gameControlBtn.addEventListener('click', () => {
-            switch (gameControlBtn.textContent) {
-                case 'Старт':
-                    startGame();
-                    gameControlBtn.textContent = 'Пауза';
-                    break;
-                case 'Пауза':
-                    pauseGame();
-                    gameControlBtn.textContent = 'Продолжить';
-                    break;
-                case 'Продолжить':
-                    resumeGame();
-                    gameControlBtn.textContent = 'Пауза';
-                    break;
-                case 'Стоп':
-                    stopGame();
-                    gameControlBtn.textContent = 'Старт';
-                    break;
-                default:
-                    gameControlBtn.textContent = 'Старт';
-            }
-        });
-
-        // Обработчики новых кнопок
-        const startStopBtn = document.getElementById('startStopBtn');
-        const pauseResumeBtn = document.getElementById('pauseResumeBtn');
-
-        startStopBtn.addEventListener('click', () => {
-            if (startStopBtn.textContent === 'Старт') {
-                startGame();
-                startStopBtn.textContent = 'Стоп';
-                pauseResumeBtn.disabled = false;
-            } else {
-                stopGame();
-                startStopBtn.textContent = 'Старт';
-                pauseResumeBtn.textContent = 'Пауза';
-                pauseResumeBtn.disabled = true;
-            }
-        });
-
-        pauseResumeBtn.addEventListener('click', () => {
-            if (pauseResumeBtn.textContent === 'Пауза') {
-                pauseGame();
-                pauseResumeBtn.textContent = 'Продолжить';
-            } else {
-                resumeGame();
-                pauseResumeBtn.textContent = 'Пауза';
-            }
+            // Управление выбором языка
+            document.getElementById('language').addEventListener('change', function() {
+                const lang = this.value;
+                if (lang === 'ru') {
+                    document.getElementById('player1-label').textContent = 'Игрок:';
+                    document.getElementById('player2-label').textContent = 'Играки:';
+                } else if (lang === 'en') {
+                    document.getElementById('player1-label').textContent = 'Player:';
+                    document.getElementById('player2-label').textContent = 'Players:';
+                }
+            });
         });
     </script>
 </body>
