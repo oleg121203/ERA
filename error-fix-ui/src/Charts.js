@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Box, Typography, Paper } from '@mui/material';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
+import apiClient from './apiClient'; // Исправленный относительный путь
 
 const options = {
   responsive: true,
@@ -30,9 +31,13 @@ function Charts() {
   useEffect(() => {
     // Пример получения данных для графиков с сервера
     const fetchChartData = async () => {
-      const response = await fetch('/chart-data');
-      const data = await response.json();
-      setChartData(data);
+      try {
+        const response = await apiClient.get('/chart-data');
+        const data = response.data;
+        setChartData(data);
+      } catch (error) {
+        console.error("Error fetching chart data:", error);
+      }
     };
 
     fetchChartData();

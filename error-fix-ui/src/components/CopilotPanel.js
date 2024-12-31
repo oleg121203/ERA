@@ -1,12 +1,19 @@
 import React, { useState } from 'react';
 import { Box, Paper, Typography } from '@mui/material';
-import PromptEditor from './PromptEditor';
+import PromptEditor from './PromptEditor'; // Убедитесь, что путь и регистр букв правильные
+import apiClient from '../apiClient'; // Исправленный путь
 
 export default function CopilotPanel() {
     const [messages, setMessages] = useState([]);
 
-    const handleSendPrompt = (copilotResponse) => {
-        setMessages([...messages, { text: copilotResponse, sender: 'copilot' }]);
+    const handleSendPrompt = async (copilotResponse) => {
+        try {
+            const response = await apiClient.post('/api/copilot', { prompt: copilotResponse });
+            setMessages([...messages, { text: response.data.response, sender: 'copilot' }]);
+        } catch (error) {
+            console.error('Copilot API Error:', error.response?.data || error.message);
+            // Обработка ошибки, возможно, уведомление пользователя
+        }
     };
 
     return (

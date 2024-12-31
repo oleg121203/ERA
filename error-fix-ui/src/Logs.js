@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { 
-  Box, 
-  Typography, 
   Paper,
   Table,
   TableBody,
@@ -17,9 +16,12 @@ function Logs() {
 
   useEffect(() => {
     const fetchLogs = async () => {
-      const response = await fetch('/logs');
-      const data = await response.json();
-      setLogs(data);
+      try {
+        const response = await axios.get('/logs');
+        setLogs(response.data);
+      } catch (error) {
+        console.error('Error fetching logs:', error);
+      }
     };
 
     fetchLogs();

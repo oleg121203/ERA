@@ -45,8 +45,8 @@ function App() {
   // Добавляем обработчик для переключателя автофикса с дополнительным логированием
   const handleAutoFixChange = async (event) => {
     const enabled = event.target.checked;
-    setAutoFix(enabled);
-    console.log(`Автоматичне виправлення ${enabled ? 'увімкнено' : 'вимкнено'}`); // Логирование изменений
+    setAutoFix(enabled); // Update local state immediately
+    console.log(`Autofix ${enabled ? 'enabled' : 'disabled'}`); // Logging changes
     try {
       await axios.post('/auto-fix', { enabled });
       setNotification({
@@ -55,7 +55,7 @@ function App() {
         type: 'info'
       });
     } catch (err) {
-      console.error('Ошибка при изменении режима автширования:', err); // Логирование ошибки
+      console.error('Error changing autofix mode:', err); // Logging the error
       setNotification({
         open: true,
         message: 'Помилка при зміні режиму автовиправлення',
@@ -67,11 +67,11 @@ function App() {
   useEffect(() => {
     // Установите начальное значение автофикса на сервере
     axios.post('/auto-fix', { enabled: true })
-      .then(() => {
-        console.log('Автоматичне виправлення увімкнено');
+      .then(response => {
+        console.log('Autofix enabled', response);
       })
       .catch(err => {
-        console.error('Помилка при встановленні авто виправлення:', err);
+        console.error('Error setting autofix:', err);
         setNotification({
           open: true,
           message: 'Помилка при встановленні авто виправлення',

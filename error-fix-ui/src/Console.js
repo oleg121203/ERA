@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Box, Paper, Typography, IconButton, Grid, Stack } from '@mui/material';
+import { Box, Paper, Typography, IconButton, Stack } from '@mui/material';
 import { Clear, Save, PlayArrow, Pause, Fullscreen, FullscreenExit, Terminal } from '@mui/icons-material';
 
 const ConsoleWindow = ({ 
@@ -210,7 +210,7 @@ function Console() {
       scrollToBottom(backendRef);
       scrollToBottom(frontendRef);
     }
-  }, [backendLogs, frontendLogs, isPaused]);
+  }, [backendLogs, frontendLogs, isPaused, scrollToBottom]);
 
   const saveLogs = (logs, type) => {
     const blob = new Blob([JSON.stringify(logs, null, 2)], { type: 'application/json' });
