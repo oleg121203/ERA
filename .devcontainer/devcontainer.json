@@ -1,76 +1,117 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the
-// README at: https://github.com/devcontainers/templates/tree/main/src/javascript-node
 {
-	"name": "Node.js & Python",
-	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/javascript-node:1-18-bullseye",
+  "name": "Node.js & Python",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-18-bullseye",
 
-	"features": {
-		"ghcr.io/devcontainers/features/python:1": {
-			"version": "3.9"
-		}
-	},
-
-	// Configure tool-specific properties.
-	"customizations": {
-		// Configure properties specific to VS Code.
-		"vscode": {
-			"settings": {
-				"editor.formatOnSave": true,
-				"editor.codeActionsOnSave": {
-					"source.fixAll": "explicit",
-					"source.organizeImports": "explicit"
-				},
-				"files.autoSave": "afterDelay",
-				"files.autoSaveDelay": 3000,
-				"eslint.enable": true,
-				"npm.packageManager": "yarn",
-				"eslint.validate": [
-					"javascript",
-					"javascriptreact",
-					"typescript",
-					"typescriptreact"
-				],
-				"python.formatting.provider": "black",
-				"python.linting.enabled": true,
-				"python.linting.pylintEnabled": true,
-				"[python]": {
-					"editor.defaultFormatter": "ms-python.python",
-					"editor.formatOnSave": true
-				}
-			},
-			"extensions": [
-				"streetsidesoftware.code-spell-checker",
-				"ms-python.python",
-				"ms-python.vscode-pylance",
-				"esbenp.prettier-vscode",
-				"dbaeumer.vscode-eslint",
-				"ms-azuretools.vscode-docker",
-				"GitHub.copilot",
-				"GitHub.copilot-chat",
-				"GitHub.copilot-labs",
-				"ms-edgedevtools.vscode-edge-devtools",
-				"Continue.continue",
-				"swagatachaudhuri.github-copilot-tools-pack",
-				"github.copilot-workspace",
-				"eamodio.gitlens",
-				"ms-python.black-formatter",
-				"ms-python.isort"
-			]
-		}
-	},
-
-	"workspaceFolder": "/workspaces/ERA",
-	
-	"mounts": [
-		"source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached,readonly"
-	],
-    "portsAttributes": {
-        "3000": {
-            "label": "Hello Remote World",
-            "onAutoForward": "notify"
-        }
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.9",
+      "installTools": true
     },
-    "initializeCommand": "git config --global user.name 'Oleg Kizyma' && git config --global user.email 'oleg1203@gmail.com'",
-    "postCreateCommand": "yarn install && pip install black autopep8 isort pylint"
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "18"
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+        "editor.formatOnType": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll": "always",
+          "source.fixAll.eslint": "always",
+          "source.organizeImports": "always",
+          "source.sortMembers": "always"
+        },
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "files.autoSave": "afterDelay",
+        "files.autoSaveDelay": 1000,
+        "eslint.enable": true,
+        "eslint.run": "onType",
+        "eslint.format.enable": true,
+        "eslint.lintTask.enable": true,
+        "eslint.codeActionsOnSave.mode": "all",
+        "npm.packageManager": "yarn",
+        "eslint.validate": [
+          "javascript",
+          "javascriptreact",
+          "typescript",
+          "typescriptreact"
+        ],
+        "python.formatting.provider": "black",
+        "python.linting.enabled": true,
+        "python.linting.pylintEnabled": true,
+        "[python]": {
+          "editor.defaultFormatter": "ms-python.python",
+          "editor.formatOnSave": true
+        },
+        "[javascript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.formatOnSave": true
+        },
+        "[typescript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.formatOnSave": true
+        },
+        "[javascriptreact]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.formatOnSave": true
+        },
+        "[typescriptreact]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.formatOnSave": true
+        },
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "git.enableSmartCommit": true,
+        "files.eol": "\n"
+      },
+      "extensions": [
+        "streetsidesoftware.code-spell-checker",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "ms-azuretools.vscode-docker",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "GitHub.copilot-labs",
+        "ms-edgedevtools.vscode-edge-devtools",
+        "Continue.continue",
+        "swagatachaudhuri.github-copilot-tools-pack",
+        "github.copilot-workspace",
+        "eamodio.gitlens",
+        "ms-vscode.vscode-speech-language-pack-ru-ru",
+        "hbenl.vscode-jasmine-test-adapter",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.black-formatter",
+        "formulahendry.auto-rename-tag",
+        "formulahendry.auto-close-tag",
+        "christian-kohler.path-intellisense",
+        "visualstudioexptteam.vscodeintellicode"
+      ]
+    }
+  },
+
+  "workspaceFolder": "/workspaces/ERA",
+
+  "mounts": [
+    "source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached,readonly"
+  ],
+
+  "remoteUser": "node",
+  "updateRemoteUserUID": true,
+
+  "portsAttributes": {
+    "3000": {
+      "label": "Hello Remote World",
+      "onAutoForward": "notify"
+    }
+  },
+
+  "postStartCommand": "npm install -g typescript ts-node",
+  "postCreateCommand": "yarn install && pip install black autopep8 isort pylint",
+
+  "initializeCommand": "git config --global user.name 'Oleg Kizyma' && git config --global user.email 'oleg1203@gmail.com'",
+
+  "forwardPorts": [3000, 4000]
 }
