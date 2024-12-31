@@ -3,22 +3,35 @@
     "image": "mcr.microsoft.com/devcontainers/javascript-node:1-18-bullseye",
 
     "features": {
-        // "ghcr.io/devcontainers/features/python:1": {
-        //     "version": "3.9"
-        // }
+        "ghcr.io/devcontainers/features/python:1": {
+            "version": "3.9",
+            "installTools": true
+        },
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "18"
+        }
     },
 
     "customizations": {
         "vscode": {
             "settings": {
                 "editor.formatOnSave": true,
+                "editor.formatOnPaste": true,
+                "editor.formatOnType": true,
                 "editor.codeActionsOnSave": {
-                    "source.fixAll": "explicit",
-                    "source.organizeImports": "explicit"
+                    "source.fixAll": "always",
+                    "source.fixAll.eslint": "always",
+                    "source.organizeImports": "always",
+                    "source.sortMembers": "always"
                 },
+                "editor.defaultFormatter": "esbenp.prettier-vscode",
                 "files.autoSave": "afterDelay",
-                "files.autoSaveDelay": 3000,
+                "files.autoSaveDelay": 1000,
                 "eslint.enable": true,
+                "eslint.run": "onType",
+                "eslint.format.enable": true,
+                "eslint.lintTask.enable": true,
+                "eslint.codeActionsOnSave.mode": "all",
                 "npm.packageManager": "yarn",
                 "eslint.validate": [
                     "javascript",
@@ -26,13 +39,13 @@
                     "typescript",
                     "typescriptreact"
                 ],
-                // "python.formatting.provider": "black",
-                // "python.linting.enabled": true,
-                // "python.linting.pylintEnabled": true,
-                // "[python]": {
-                //     "editor.defaultFormatter": "ms-python.python",
-                //     "editor.formatOnSave": true
-                // },
+                "python.formatting.provider": "black",
+                "python.linting.enabled": true,
+                "python.linting.pylintEnabled": true,
+                "[python]": {
+                    "editor.defaultFormatter": "ms-python.python",
+                    "editor.formatOnSave": true
+                },
                 "[javascript]": {
                     "editor.defaultFormatter": "esbenp.prettier-vscode",
                     "editor.formatOnSave": true
@@ -48,7 +61,10 @@
                 "[typescriptreact]": {
                     "editor.defaultFormatter": "esbenp.prettier-vscode",
                     "editor.formatOnSave": true
-                }
+                },
+                "terminal.integrated.defaultProfile.linux": "bash",
+                "git.enableSmartCommit": true,
+                "files.eol": "\n"
             },
             "extensions": [
                 "streetsidesoftware.code-spell-checker",
@@ -64,7 +80,14 @@
                 "github.copilot-workspace",
                 "eamodio.gitlens",
                 "ms-vscode.vscode-speech-language-pack-ru-ru",
-                "hbenl.vscode-jasmine-test-adapter"
+                "hbenl.vscode-jasmine-test-adapter",
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-python.black-formatter",
+                "formulahendry.auto-rename-tag",
+                "formulahendry.auto-close-tag",
+                "christian-kohler.path-intellisense",
+                "visualstudioexptteam.vscodeintellicode"
             ]
         }
     },
@@ -74,15 +97,22 @@
     "mounts": [
         "source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached,readonly"
     ],
+
+    "remoteUser": "node",
+    "updateRemoteUserUID": true,
+
     "portsAttributes": {
         "3000": {
             "label": "Hello Remote World",
             "onAutoForward": "notify"
         }
     },
+
+    "postStartCommand": "npm install -g typescript ts-node",
+    "postCreateCommand": "yarn install && pip install black autopep8 isort pylint",
+    
     "initializeCommand": "git config --global user.name 'Oleg Kizyma' && git config --global user.email 'oleg1203@gmail.com'",
-    "postCreateCommand": "yarn install",
-    // "postCreateCommand": "yarn install && pip install black autopep8 isort pylint",
+    
     "forwardPorts": [
         3000,
         4000

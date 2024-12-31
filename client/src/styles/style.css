@@ -43,3 +43,31 @@
 #stopBtn {
     display: none;
 }
+
+body {
+    margin: 0;
+    padding: 0;
+    background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+#game-container {
+    position: relative;
+}
+
+#gameCanvas {
+    border: 2px solid #333;
+    background: #111;
+}
+
+#score {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    color: #fff;
+    font-size: 24px;
+    font-family: Arial, sans-serif;
+}

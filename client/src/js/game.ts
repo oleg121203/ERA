@@ -2,24 +2,41 @@ if (typeof window !== 'undefined') {
     // Объявляем функции в глобальной области видимости
     let startGame, pauseGame, resumeGame, stopGame;
 
+    // Создаем безопасный логгер
+    const logger = {
+        info: (message: string, ...args: unknown[]): void => {
+            // Используем кастомный метод логирования или сохраняем в файл
+            const log = { type: 'info', message, args, timestamp: new Date() };
+            postMessage({ type: 'log', data: log });
+        },
+        error: (message: string, ...args: unknown[]): void => {
+            const log = { type: 'error', message, args, timestamp: new Date() };
+            postMessage({ type: 'log', data: log });
+        },
+        warn: (message: string, ...args: unknown[]): void => {
+            const log = { type: 'warn', message, args, timestamp: new Date() };
+            postMessage({ type: 'log', data: log });
+        }
+    };
+
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM fully loaded');
+        logger.info('DOM fully loaded');
 
         // Проверка инициализации с подробным логированием
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const gameControlBtn = document.getElementById('gameControlBtn');
         
-        console.log('Canvas:', canvas);
-        console.log('Context:', ctx);
-        console.log('Control button:', gameControlBtn);
+        logger.info('Canvas:', canvas);
+        logger.info('Context:', ctx);
+        logger.info('Control button:', gameControlBtn);
         
         if (!canvas || !ctx || !gameControlBtn) {
-            console.error('Essential elements not found!');
+            logger.error('Essential elements not found!');
             return;
         }
 
-        console.log('Game elements initialized');
+        logger.info('Game elements initialized');
 
         // Основные параметры игры
         const box = 20;
@@ -38,7 +55,6 @@ if (typeof window !== 'undefined') {
         let score = 0;
         let score2 = 0;
         let isGameRunning = false;
-        let foodStats = { fruits: 0, vegetables: 0 };
 
         // Добавление опций настроек
         let settings = {
@@ -52,7 +68,7 @@ if (typeof window !== 'undefined') {
         let currentTheme = 'light'; // 'light' или 'dark'
 
         // Функции для звуков
-        function playSound(sound) {
+        function playSound(sound: string): void {
             if (soundEnabled && snakeSoundAssets[sound]) {
                 const audioPath = snakeSoundAssets[sound];
                 const audio = new Audio(audioPath);
@@ -68,22 +84,22 @@ if (typeof window !== 'undefined') {
         };
 
         // Функция для загрузки эмодзи (если требуется дополнительная обработка)
-        function loadEmoji(emoji) {
+        function loadEmoji(emoji: string): string {
             // В данном случае просто возвращаем эмодзи, но можно добавить обработку
             return emoji;
         }
 
         // Применение настроек
-        function applySettings() {
+        function applySettings(): void {
             // Отрисовка фона
             const background = new Image();
             background.src = settings.backgroundImage;
-            background.onload = function() {
-                console.log('Background image loaded successfully.');
+            background.onload = (): void => {
+                logger.info('Background image loaded successfully.');
                 ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
             };
-            background.onerror = function() {
-                console.error('Failed to load background image.');
+            background.onerror = (): void => {
+                logger.error('Failed to load background image.');
             };
 
             // Применение темы
@@ -105,7 +121,7 @@ if (typeof window !== 'undefined') {
         }
 
         // Создание еды
-        function createFood() {
+        function createFood(): void {
             const foodType = Math.random() > 0.7 ? 'fruits' : 'vegetables';
             const foodArray = foodEmojis[foodType];
             food = {
@@ -114,16 +130,16 @@ if (typeof window !== 'undefined') {
                 emoji: loadEmoji(foodArray[Math.floor(Math.random() * foodArray.length)]),
                 type: foodType
             };
-            console.log('Food created:', food);
+            logger.info('Food created:', food);
         }
 
         // Добавляем переменные для мигающего числа
-        let blinkingCount = 0;
-        let blinkEndTime = 0;
+        const blinkingCount = 3;
+        const blinkEndTime = Date.now() + 1000;
 
         // Отрисовка игры
-        function drawGame() {
-            console.log('Drawing game...');
+        function drawGame(): void {
+            logger.info('Drawing game...');
             
             // Очистка canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -141,7 +157,7 @@ if (typeof window !== 'undefined') {
             // Отрисовка второй змеи
             if (snake2.length > 0) {
                 snake2.forEach((part, index) => {
-                    drawSnakePart(part, index, 'snake2');
+                    drawSnakePart(part, index);
                 });
             }
 
@@ -166,7 +182,7 @@ if (typeof window !== 'undefined') {
         }
 
         // Функция для рисования сетки
-        function drawGrid() {
+        function drawGrid(): void {
             ctx.save();
             ctx.strokeStyle = 'rgba(255,255,255,0.2)';
             for (let x = 0; x < canvas.width; x += box) {
@@ -185,7 +201,12 @@ if (typeof window !== 'undefined') {
         }
 
         // Обновленная функция отрисовки змейки с улучшенными формами
-        function drawSnakePart(part, index, snakeId = 'snake1') {
+        interface SnakePart {
+            x: number;
+            y: number;
+        }
+
+        function drawSnakePart(part: SnakePart, index: number): void {
             const isHead = index === 0;
             
             // Применение цвета из настроек
@@ -233,7 +254,7 @@ if (typeof window !== 'undefined') {
         }
 
         // Вспомогательная функция для рисования закругленных прямоугольников
-        function drawRoundedRect(x, y, width, height, radius) {
+        function drawRoundedRect(x, y, width, height, radius): void {
             ctx.beginPath();
             ctx.moveTo(x + radius, y);
             ctx.lineTo(x + width - radius, y);
@@ -250,7 +271,7 @@ if (typeof window !== 'undefined') {
         }
 
         // Отрисовка еды с 3D-эффектом
-        function drawFood() {
+        function drawFood(): void {
             // Тень
             ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
             ctx.beginPath();
@@ -272,7 +293,7 @@ if (typeof window !== 'undefined') {
         }
 
         // Обновление игры
-        function updateGame() {
+        function updateGame(): void {
             if (!isGameRunning) return;
 
             // Количество игроков
@@ -350,7 +371,7 @@ if (typeof window !== 'undefined') {
         }
 
         // Управление
-        document.addEventListener('keydown', (event) => {
+        document.addEventListener('keydown', (event: KeyboardEvent): void => {
             if (!isGameRunning) return;
             
             // Обработка клавиш для первого игрока
@@ -374,25 +395,51 @@ if (typeof window !== 'undefined') {
             }
         });
 
-        document.removeEventListener('keydown', secondPlayerKeys); // Убираем привязку клавиатуры для второй змейки
+        // Удаляем лишний обработчик
+        document.removeEventListener('keydown', secondPlayerKeys);
 
-        document.addEventListener('mousemove', (event) => {
-            // Примерный расчет угла от центра второй змейки к координате мыши
-            // Получаем координаты головы второй змейки
+        // Переносим всю логику управления вторым игроком в handleMouseMove
+        const handleMouseMove: MouseMoveHandler = (event: MouseEvent): void => {
             if (!snake2.length) return;
+            
             const head2 = snake2[0];
             const dx = event.clientX - (canvas.offsetLeft + head2.x + box / 2);
             const dy = event.clientY - (canvas.offsetTop + head2.y + box / 2);
-            // Определяем направление
+            
             if (Math.abs(dx) > Math.abs(dy)) {
                 direction2 = dx > 0 ? 'right' : 'left';
             } else {
                 direction2 = dy > 0 ? 'down' : 'up';
             }
-        });
+        };
 
-        function secondPlayerKeys(event) {
-            // ...был обработчик клавиш для второй змейки, теперь удалён...
+        // Привязываем только mousemove для второго игрока
+        document.addEventListener('mousemove', handleMouseMove);
+
+        // Исправленный обработчик mousemove
+        interface MouseMoveHandler {
+            (event: MouseEvent): void;
+        }
+
+        const handleMouseMove: MouseMoveHandler = (event: MouseEvent): void => {
+            if (!snake2.length) return;
+            
+            const head2 = snake2[0];
+            const dx = event.clientX - (canvas.offsetLeft + head2.x + box / 2);
+            const dy = event.clientY - (canvas.offsetTop + head2.y + box / 2);
+            
+            if (Math.abs(dx) > Math.abs(dy)) {
+                direction2 = dx > 0 ? 'right' : 'left';
+            } else {
+                direction2 = dy > 0 ? 'down' : 'up';
+            }
+        };
+
+        document.addEventListener('mousemove', handleMouseMove);
+
+        // Исправленная функция secondPlayerKeys без параметров
+        function secondPlayerKeys(): void {
+            // Функционал второго игрока удален
         }
 
         // Изменение обработчика кнопок на одну кнопку управления
@@ -401,7 +448,12 @@ if (typeof window !== 'undefined') {
         const startStopBtn = document.getElementById('startStopBtn');
         const pauseResumeBtn = document.getElementById('pauseResumeBtn');
 
-        startStopBtn.addEventListener('click', () => {
+        // Обработчики событий для кнопок
+        interface ButtonClickHandler {
+            (): void;
+        }
+
+        const handleStartStop: ButtonClickHandler = (): void => {
             if (startStopBtn.textContent === 'Старт') {
                 startGame();
                 startStopBtn.textContent = 'Стоп';
@@ -412,9 +464,9 @@ if (typeof window !== 'undefined') {
                 pauseResumeBtn.textContent = 'Пауза';
                 pauseResumeBtn.disabled = true;
             }
-        });
+        };
 
-        pauseResumeBtn.addEventListener('click', () => {
+        const handlePauseResume: ButtonClickHandler = (): void => {
             if (pauseResumeBtn.textContent === 'Пауза') {
                 pauseGame();
                 pauseResumeBtn.textContent = 'Продолжить';
@@ -422,18 +474,22 @@ if (typeof window !== 'undefined') {
                 resumeGame();
                 pauseResumeBtn.textContent = 'Пауза';
             }
-        });
+        };
+
+        // Привязываем типизированные обработчики
+        startStopBtn.addEventListener('click', handleStartStop);
+        pauseResumeBtn.addEventListener('click', handlePauseResume);
 
         // Обновленные функции управления игрой
-        startGame = function() {
-            console.log('startGame called');
+        startGame = function(): void {
+            logger.info('startGame called');
             try {
                 if (isGameRunning) {
-                    console.log('Game is already running');
+                    logger.info('Game is already running');
                     return;
                 }
 
-                console.log('Initializing game...');
+                logger.info('Initializing game...');
                 isGameRunning = true;
                 snake = [{ x: 10 * box, y: 10 * box }];
                 direction = 'right';
@@ -441,38 +497,38 @@ if (typeof window !== 'undefined') {
                 document.getElementById('score').textContent = '0';
 
                 if (!food) {
-                    console.log('Creating food...');
+                    logger.info('Creating food...');
                     createFood();
                 }
                 
-                console.log('Starting game loop...');
+                logger.info('Starting game loop...');
                 game = setInterval(() => {
                     updateGame();
                 }, settings.speed);
 
-                console.log('Game started successfully');
+                logger.info('Game started successfully');
                 gameControlBtn.textContent = 'Пауза';
             } catch (error) {
-                console.error('Error in startGame:', error);
+                logger.error('Error in startGame:', error);
             }
         };
 
-        pauseGame = function() {
-            console.log('Pausing game...');
+        pauseGame = function(): void {
+            logger.info('Pausing game...');
             isGameRunning = false;
             clearInterval(game);
             pauseResumeBtn.textContent = 'Продолжить';
         };
 
-        resumeGame = function() {
-            console.log('Resuming game...');
+        resumeGame = function(): void {
+            logger.info('Resuming game...');
             isGameRunning = true;
             game = setInterval(updateGame, settings.speed);
             pauseResumeBtn.textContent = 'Пауза';
         };
 
-        stopGame = function() {
-            console.log('Stopping game...');
+        stopGame = function(): void {
+            logger.info('Stopping game...');
             isGameRunning = false;
             clearInterval(game);
             resetGame();
@@ -480,21 +536,21 @@ if (typeof window !== 'undefined') {
 
         // Удаляем старые обработчики кнопок
         if (gameControlBtn) {
-            console.log('Adding click handler to game control button');
+            logger.info('Adding click handler to game control button');
             gameControlBtn.addEventListener('click', function() {
-                console.log('Button clicked, current state:', isGameRunning);
+                logger.info('Button clicked, current state:', isGameRunning);
                 try {
                     if (!isGameRunning) {
-                        console.log('Starting game...');
+                        logger.info('Starting game...');
                         startGame();
                         gameControlBtn.textContent = 'Пауза';
                     } else {
-                        console.log('Pausing game...');
+                        logger.info('Pausing game...');
                         pauseGame();
                         gameControlBtn.textContent = 'Продолжить';
                     }
                 } catch (error) {
-                    console.error('Error in button handler:', error);
+                    logger.error('Error in button handler:', error);
                 }
             });
         }
@@ -505,7 +561,7 @@ if (typeof window !== 'undefined') {
         // document.getElementById('resetBtn').addEventListener('click', resetGame)
 
         // Функция для отображения сообщений
-        function showMessage(message, duration = 3000) {
+        function showMessage(message, duration = 3000): void {
             const messageOverlay = document.getElementById('messageOverlay');
             messageOverlay.textContent = message;
             messageOverlay.style.display = 'block';
@@ -515,8 +571,8 @@ if (typeof window !== 'undefined') {
         }
 
         // Удаление вызова stopGame() из resetGame, чтобы избежать рекурсии
-        function resetGame() {
-            console.log('Resetting game...');
+        function resetGame(): void {
+            logger.info('Resetting game...');
             // stopGame(); // Удалено для предотвращения рекурсии
             snake = [{ x: 10 * box, y: 10 * box }];
             direction = 'right';
@@ -526,7 +582,7 @@ if (typeof window !== 'undefined') {
             drawGame();
         }
 
-        function gameOver() {
+        function gameOver(): void {
             playSound('gameOver');
             stopGame();
             ctx.fillStyle = 'white';
@@ -536,7 +592,7 @@ if (typeof window !== 'undefined') {
         }
 
         // Функция для обновления настроек
-        function updateSettings(newSettings) {
+        function updateSettings(newSettings): void {
             settings = { ...settings, ...newSettings };
             if (newSettings.sound !== undefined) {
                 soundEnabled = newSettings.sound;
@@ -629,19 +685,19 @@ if (typeof window !== 'undefined') {
         }
 
         // Инициализация игры с проверками
-        console.log('Initializing game components...');
+        logger.info('Initializing game components...');
         try {
             resetGame();
             applySettings();
-            console.log('Game initialized successfully');
+            logger.info('Game initialized successfully');
         } catch (error) {
-            console.error('Error during initialization:', error);
+            logger.error('Error during initialization:', error);
         }
     });
 }
 
 // Обработка ошибок
-window.onerror = function(msg, url, lineNo, columnNo, error) {
-    console.error('Error:', msg, '\nURL:', url, '\nLine:', lineNo, '\nColumn:', columnNo, '\nError:', error);
+window.onerror = function(msg: string, url: string, lineNo: number, columnNo: number, error: Error): boolean {
+    logger.error(`Error: ${msg}\nURL: ${url}\nLine: ${lineNo}\nColumn: ${No}\nError: ${error}`);
     return false;
 };

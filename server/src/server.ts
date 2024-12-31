@@ -5,14 +5,20 @@
 
 'use strict';
 
-const express = require('express');
-const rateLimit = require('express-rate-limit');
-const hpp = require('hpp');
-const helmet = require('helmet');
-const cors = require('cors');
-const https = require('https');
-const fs = require('fs');
-const path = require('path');
+import express from 'express';
+import { WebSocket, WebSocketServer } from 'ws';
+import https from 'https';
+import fs from 'fs';
+import path from 'path';
+import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import hpp from 'hpp';
+import settings from './config/settings';
+import { Logger } from './utils/logger';
+import { execSync } from 'child_process';
+
+const logger = new Logger();
 
 // Constants
 const PORT = 3000;
@@ -27,39 +33,36 @@ const SSL_CONFIG = {
 };
 
 // Проверка и установка зависимостей
-const checkAndInstallDeps = async () => {
+const checkAndInstallDeps = async (): Promise<void> => {
     if (!INSTALL_DEPENDENCIES) {
-        console.log('Пропуск проверки зависимостей...');
-        return Promise.resolve();
+        logger.info('Пропуск проверки зависимостей...');
+        return;
     }
 
     try {
-        require('cors');
-        require('helmet');
-        require('express-rate-limit');
-        require('hpp');
-        console.log('Зависимости уже установлены');
-        return Promise.resolve();
+        // Используем import вместо require
+        await import('cors');
+        await import('helmet');
+        await import('express-rate-limit');
+        await import('hpp');
+        logger.info('Зависимости уже установлены');
     } catch (err) {
-        console.log('Установка необходимых пакетов...');
-        return new Promise((resolve, reject) => {
-            require('child_process').exec('yarn add cors helmet express-rate-limit hpp', (error) => {
-                if (error) {
-                    console.error('Ошибка установки:', error);
-                    reject(error);
-                    return;
-                }
-                console.log('Пакеты успешно установлены');
-                resolve();
-            });
-        });
+        logger.info('Установка необходимых пакетов...');
+        try {
+            execSync('yarn add cors helmet express-rate-limit hpp');
+            logger.info('Пакеты успешно установлены');
+        } catch (error) {
+            logger.error('Ошибка установки:', error);
+            throw error;
+        }
     }
 };
 
 // Запуск серверов
-const startServer = () => {
+const startServer = (): void => {
     const app = express();
     const remoteApp = express();
+    const wss = new WebSocketServer({ port: settings.wsPort });
 
     try {
         // Базовая защита
@@ -83,7 +86,7 @@ const startServer = () => {
         remoteApp.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
     } catch (err) {
-        console.log('Запуск без middleware безопасности');
+        logger.info('Запуск без middleware безопасности');
     }
 
     // Обслуживание статических файлов из директории snake_js
@@ -100,20 +103,35 @@ const startServer = () => {
     });
 
     // Обработка ошибок
-    remoteApp.use((err, req, res, next) => {
-        console.error(err.stack);
-        res.status(500).send('Что-то пошло не так!');
+    remoteApp.use((err: Error, req: express.Request, res: express.Response): void => {
+        logger.error(err.message);
+        res.status(500).send('Internal Server Error');
     });
 
     // Запуск обоих серверов
     app.listen(PORT, HOST);
-    console.log(`Локальный HTTP сервер запущен на http://${HOST}:${PORT}`);
+    logger.info(`Локальный HTTP сервер запущен на http://${HOST}:${PORT}`);
 
     https.createServer(SSL_CONFIG, remoteApp).listen(REMOTE_PORT, HOST);
-    console.log(`Защищенный удаленный HTTPS сервер запущен на https://${HOST}:${REMOTE_PORT}`);
+    logger.info(`Защищенный удаленный HTTPS сервер запущен на https://${HOST}:${REMOTE_PORT}`);
+
+    wss.on('connection', (ws: WebSocket) => {
+        handleConnection(ws);
+    });
+
+    app.listen(settings.port, () => {
+        logger.info(`Server running on port ${settings.port}`);
+    });
+};
+
+const handleConnection = (ws: WebSocket): void => {
+    logger.info('New connection established');
+    ws.on('message', (): void => {
+        // Пустой обработчик, если сообщения не используются
+    });
 };
 
 // Запуск приложения
 checkAndInstallDeps()
     .then(() => startServer())
-    .catch(err => console.error('Ошибка запуска сервера:', err));
+    .catch(err => logger.error('Ошибка запуска сервера:', err));
