@@ -332,3 +332,8 @@ ASALocalRun/
 *.DS_Store
 
 out
+
+# Node.js
+node_modules/
+dist/
+.env
