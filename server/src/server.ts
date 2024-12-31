@@ -26,12 +26,6 @@ const REMOTE_PORT = 4000;
 const HOST = '0.0.0.0';
 const INSTALL_DEPENDENCIES = true;
 
-// Добавляем конфигурацию SSL
-const SSL_CONFIG = {
-    key: fs.readFileSync(path.join(__dirname, 'ssl', 'key.pem')),
-    cert: fs.readFileSync(path.join(__dirname, 'ssl', 'cert.pem'))
-};
-
 // Проверка и установка зависимостей
 const checkAndInstallDeps = async (): Promise<void> => {
     if (!INSTALL_DEPENDENCIES) {
@@ -62,7 +56,20 @@ const checkAndInstallDeps = async (): Promise<void> => {
 const startServer = (): void => {
     const app = express();
     const remoteApp = express();
-    const wss = new WebSocketServer({ port: settings.wsPort });
+    const wss = new WebSocketServer({ port: Number(settings.wsPort) });
+
+    const keyPath = path.join(__dirname, 'ssl', 'key.pem');
+    const certPath = path.join(__dirname, 'ssl', 'cert.pem');
+
+    if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
+        logger.error('SSL files not found in dist. Ensure copy-ssl script is run.');
+        process.exit(1);
+    }
+
+    const SSL_CONFIG = {
+        key: fs.readFileSync(keyPath),
+        cert: fs.readFileSync(certPath)
+    };
 
     try {
         // Базовая защита
@@ -94,7 +101,7 @@ const startServer = (): void => {
 
     // Локальный сервер на 3000
     app.get('/', (req, res) => {
-        res.send('Hello remote world!\n');
+        res.send('ERA Server is running');
     });
 
     // Удаленный сервер на 4000
@@ -109,8 +116,11 @@ const startServer = (): void => {
     });
 
     // Запуск обоих серверов
-    app.listen(PORT, HOST);
-    logger.info(`Локальный HTTP сервер запущен на http://${HOST}:${PORT}`);
+    const server = https.createServer(SSL_CONFIG, app);
+
+    server.listen(PORT, () => {
+        logger.info(`Server is running on https://localhost:${PORT}`);
+    });
 
     https.createServer(SSL_CONFIG, remoteApp).listen(REMOTE_PORT, HOST);
     logger.info(`Защищенный удаленный HTTPS сервер запущен на https://${HOST}:${REMOTE_PORT}`);

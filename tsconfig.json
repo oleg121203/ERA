@@ -1,21 +1,13 @@
 {
   "compilerOptions": {
-    "target": "es2020",
+    "target": "es2016",
     "module": "commonjs",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "rootDir": ".",
-    "baseUrl": ".",
-    "paths": {
-      "@shared/*": ["shared/*"],
-      "@client/*": ["client/src/*"],
-      "@server/*": ["server/src/*"]
-    },
-    "outDir": "dist",
-    "sourceMap": true,
-    "declaration": true
+    "rootDir": "./",
+    "outDir": "./dist"
   },
   "include": [
     "client/src/**/*",

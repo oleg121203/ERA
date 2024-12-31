@@ -1,6 +1,6 @@
 if (typeof window !== 'undefined') {
     // Объявляем функции в глобальной области видимости
-    let startGame, pauseGame, resumeGame, stopGame;
+    let startGame: () => void, pauseGame: () => void, resumeGame: () => void, stopGame: () => void;
 
     // Создаем безопасный логгер
     const logger = {
@@ -23,7 +23,7 @@ if (typeof window !== 'undefined') {
         logger.info('DOM fully loaded');
 
         // Проверка инициализации с подробным логированием
-        const canvas = document.getElementById('gameCanvas');
+        const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement | null;
         const ctx = canvas.getContext('2d');
         const gameControlBtn = document.getElementById('gameControlBtn');
         
@@ -47,11 +47,11 @@ if (typeof window !== 'undefined') {
         };
 
         let snake = [{ x: 10 * box, y: 10 * box }];
-        let snake2 = [];
-        let food = null;
+        let snake2: { x: number; y: number }[] = [];
+        let food: { x: number; y: number; emoji?: string } | null = null;
         let direction = 'right';
         let direction2 = 'left';
-        let game = null;
+        let game: number | undefined;
         let score = 0;
         let score2 = 0;
         let isGameRunning = false;
@@ -421,20 +421,6 @@ if (typeof window !== 'undefined') {
             (event: MouseEvent): void;
         }
 
-        const handleMouseMove: MouseMoveHandler = (event: MouseEvent): void => {
-            if (!snake2.length) return;
-            
-            const head2 = snake2[0];
-            const dx = event.clientX - (canvas.offsetLeft + head2.x + box / 2);
-            const dy = event.clientY - (canvas.offsetTop + head2.y + box / 2);
-            
-            if (Math.abs(dx) > Math.abs(dy)) {
-                direction2 = dx > 0 ? 'right' : 'left';
-            } else {
-                direction2 = dy > 0 ? 'down' : 'up';
-            }
-        };
-
         document.addEventListener('mousemove', handleMouseMove);
 
         // Исправленная функция secondPlayerKeys без параметров
@@ -701,3 +687,16 @@ window.onerror = function(msg: string, url: string, lineNo: number, columnNo: nu
     logger.error(`Error: ${msg}\nURL: ${url}\nLine: ${lineNo}\nColumn: ${No}\nError: ${error}`);
     return false;
 };
+
+async function handleRequest() {
+    try {
+        // ...existing code...
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            console.error('Ошибка авторизации: ', error.message);
+            // Обработка ошибки авторизации
+        } else {
+            console.error('Ошибка при выполнении запроса: ', error.message);
+        }
+    }
+}

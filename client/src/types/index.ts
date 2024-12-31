@@ -1,4 +1,4 @@
-import { GameState, GameSettings } from '@shared/types';
+// import { GameState, GameSettings } from '@shared/types'; // Убедитесь в корректности
 
 export interface ClientGameState extends GameState {
     currentFrame: number;

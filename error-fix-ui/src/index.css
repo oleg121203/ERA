@@ -1,0 +1,38 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+[role="log"] {
+  font-family: 'Fira Code', 'Consolas', monospace;
+  line-height: 1.5;
+  padding: 8px;
+}
+
+[role="log"]::-webkit-scrollbar {
+  width: 8px;
+}
+
+[role="log"]::-webkit-scrollbar-track {
+  background: #2e2e2e;
+}
+
+[role="log"]::-webkit-scrollbar-thumb {
+  background: #666;
+  border-radius: 4px;
+}
+
+.fullscreen-console {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  background: #1e1e1e;
+}

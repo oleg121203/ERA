@@ -2,10 +2,13 @@ import { Logger } from '../utils/logger';
 
 const logger = new Logger();
 
-background.onload = function(): void {
-    logger.info('Background image loaded successfully.');
-    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+const settings = {
+    port: process.env.PORT || 3000,
+    wsPort: process.env.WS_PORT || 8080,
+    env: process.env.NODE_ENV || 'development',
+    logLevel: process.env.LOG_LEVEL || 'info'
 };
-background.onerror = function(): void {
-    logger.error('Failed to load background image.');
-};
+
+logger.info('Загружена конфигурация:', settings);
+
+export default settings;

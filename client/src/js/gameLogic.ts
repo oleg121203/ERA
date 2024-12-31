@@ -1,4 +1,13 @@
 export class GameLogic {
+    public score: number;
+    public level: number;
+    public gameOver: boolean;
+    public soundManager: {
+        eat: HTMLAudioElement;
+        gameOver: HTMLAudioElement;
+        start: HTMLAudioElement;
+    };
+
     constructor() {
         this.score = 0;
         this.level = 1;

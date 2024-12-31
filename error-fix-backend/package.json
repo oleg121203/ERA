@@ -1,0 +1,20 @@
+{
+  "name": "error-fix-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "bash start.sh",
+    "kill": "sudo kill $(sudo lsof -t -i:4001) 2>/dev/null || true"
+  },
+  "dependencies": {
+    "axios": "^0.21.4",
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.17.1",
+    "websocket": "^1.0.35"
+  },
+  "author": "",
+  "license": "ISC"
+}
