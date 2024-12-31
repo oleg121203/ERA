@@ -14,6 +14,29 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
+const helpCommands = {
+  '/help': 'Показать список команд',
+  '/code': 'Режим генерации кода',
+  '/explain': 'Объяснить концепцию',
+  '/exit': 'Выход в главное меню'
+};
+
+async function showHelp() {
+  console.log("\n=== Доступные команды ===");
+  Object.entries(helpCommands).forEach(([cmd, desc]) => {
+    console.log(`${cmd}: ${desc}`);
+  });
+}
+
+async function handleCodeGeneration(chat) {
+  console.log("\n=== Режим генерации кода ===");
+  console.log("Укажите язык и опишите что нужно создать");
+  
+  const prompt = await promptUser("🖥️ Задание: ");
+  const result = await chat.sendMessage(`Generate code: ${prompt}`);
+  console.log("\n```\n" + result.response.text() + "\n```\n");
+}
+
 async function promptUser(question) {
   return new Promise((resolve) => {
     rl.question(question, (answer) => {
@@ -26,9 +49,9 @@ async function runChat() {
   try {
     console.log("\n=== Режим чата с Gemini AI ===");
     console.log("Подсказки:");
-    console.log("- Задавайте вопросы на любом языке");
-    console.log("- Используйте 'exit' для возврата в главное меню");
-    console.log("- Для генерации кода укажите язык программирования\n");
+    console.log("- Используйте /help для списка команд");
+    console.log("- /code для генерации кода");
+    console.log("- /exit для выхода в меню\n");
 
     const genAI = new GoogleGenerativeAI(API_KEY);
     const model = genAI.getGenerativeModel({ model: MODEL_NAME });
@@ -44,11 +67,21 @@ async function runChat() {
 
     while (true) {
       const prompt = await promptUser("\n🤖 Ваш запрос: ");
-      if (prompt.toLowerCase() === 'exit') break;
-
-      console.log("\n⏳ Генерирую ответ...");
-      const result = await chat.sendMessage(prompt);
-      console.log("\n📝 Ответ:\n" + result.response.text() + "\n");
+      
+      switch(prompt.toLowerCase()) {
+        case '/help':
+          await showHelp();
+          break;
+        case '/code':
+          await handleCodeGeneration(chat);
+          break;
+        case '/exit':
+          return;
+        default:
+          console.log("\n⏳ Генерирую ответ...");
+          const result = await chat.sendMessage(prompt);
+          console.log("\n📝 Ответ:\n" + result.response.text() + "\n");
+      }
     }
   } catch (error) {
     console.error("❌ Ошибка:", error);
