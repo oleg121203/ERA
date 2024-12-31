@@ -1,14 +1,16 @@
 {
-  "name": "docker_web_app",
+  "name": "snake-game",
   "version": "1.0.0",
-  "description": "Node.js on Docker",
+  "description": "Snake Game in JavaScript and Python",
   "author": "First Last <first.last@example.com>",
   "main": "server.js",
   "private": true,
   "scripts": {
-    "start": "node server.js"
+    "start-js": "cd snake_js && ./start_js.sh"
   },
   "dependencies": {
-    "express": "^4.20.0"
+    "canvas": "^2.11.0",
+    "concurrently": "^7.6.0",
+    "express": "^4.18.2"
   }
 }

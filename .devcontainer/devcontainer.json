@@ -3,9 +3,9 @@
     "image": "mcr.microsoft.com/devcontainers/javascript-node:1-18-bullseye",
 
     "features": {
-        "ghcr.io/devcontainers/features/python:1": {
-            "version": "3.9"
-        }
+        // "ghcr.io/devcontainers/features/python:1": {
+        //     "version": "3.9"
+        // }
     },
 
     "customizations": {
@@ -26,13 +26,13 @@
                     "typescript",
                     "typescriptreact"
                 ],
-                "python.formatting.provider": "black",
-                "python.linting.enabled": true,
-                "python.linting.pylintEnabled": true,
-                "[python]": {
-                    "editor.defaultFormatter": "ms-python.python",
-                    "editor.formatOnSave": true
-                },
+                // "python.formatting.provider": "black",
+                // "python.linting.enabled": true,
+                // "python.linting.pylintEnabled": true,
+                // "[python]": {
+                //     "editor.defaultFormatter": "ms-python.python",
+                //     "editor.formatOnSave": true
+                // },
                 "[javascript]": {
                     "editor.defaultFormatter": "esbenp.prettier-vscode",
                     "editor.formatOnSave": true
@@ -52,8 +52,8 @@
             },
             "extensions": [
                 "streetsidesoftware.code-spell-checker",
-                "ms-python.python",
-                "ms-python.vscode-pylance",
+                // "ms-python.python",
+                // "ms-python.vscode-pylance",
                 "esbenp.prettier-vscode",
                 "dbaeumer.vscode-eslint",
                 "ms-azuretools.vscode-docker",
@@ -65,8 +65,9 @@
                 "swagatachaudhuri.github-copilot-tools-pack",
                 "github.copilot-workspace",
                 "eamodio.gitlens",
-                "ms-python.black-formatter",
-                "ms-python.isort"
+                // "ms-python.black-formatter",
+                // "ms-python.isort",
+                "ms-vscode.vscode-speech-language-pack-ru-ru"
             ]
         }
     },
@@ -83,5 +84,10 @@
         }
     },
     "initializeCommand": "git config --global user.name 'Oleg Kizyma' && git config --global user.email 'oleg1203@gmail.com'",
-    "postCreateCommand": "yarn install && pip install black autopep8 isort pylint"
+    "postCreateCommand": "yarn install",
+    // "postCreateCommand": "yarn install && pip install black autopep8 isort pylint",
+    "forwardPorts": [
+        3000,
+        4000
+    ]
 }

@@ -1,0 +1,41 @@
+/* Угловой 3D-эффект для игрового экрана */
+.game-area {
+    perspective: 1000px;
+    transform-style: preserve-3d;
+    transition: transform 2s ease-in-out;
+    backface-visibility: hidden;
+}
+
+.game-area.animate {
+    transform: rotateY(360deg) rotateX(20deg);
+}
+
+/* Стили для новой кнопки управления */
+.controls {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #3498db;
+    color: #fff;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #2980b9;
+}
+
+.btn:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+}
