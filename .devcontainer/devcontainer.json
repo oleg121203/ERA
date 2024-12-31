@@ -87,7 +87,8 @@
                 "formulahendry.auto-rename-tag",
                 "formulahendry.auto-close-tag",
                 "christian-kohler.path-intellisense",
-                "visualstudioexptteam.vscodeintellicode"
+                "visualstudioexptteam.vscodeintellicode",
+                "google.geminicodeassist"
             ]
         }
     },
