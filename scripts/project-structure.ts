@@ -80,8 +80,8 @@ class ProjectStructureGenerator {
       persistent: true
     });
 
-    watcher.on('all', async (event, path) => {
-      console.log(`Detected ${event} on ${path}`);
+    watcher.on('all', async (event: string, filePath: string) => {
+      console.log(`Detected ${event} on ${filePath}`);
       await this.generateStructure();
     });
   }

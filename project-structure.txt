@@ -8,14 +8,17 @@
 📄 .gitignore
 📁 .vscode
   📄 launch.json
+  📄 tasks.json
 📄 .vscodeignore
 📄 CODE_OF_CONDUCT.md
 📄 LICENSE
+📄 PORTS.md
 📄 README.md
 📄 SECURITY.md
 📄 package-lock.json
 📄 package.json
 📄 project-structure.txt
+📄 requirements.txt
 📁 scripts
   📄 project-structure.ts
 📁 src
@@ -24,6 +27,7 @@
   📁 config
     📄 gemini.config.js
   📄 constants.js
+  📄 extension.ts
   📄 main.js
   📁 test
     📄 .DS_Store
@@ -32,3 +36,4 @@
       📁 test-files
 📄 tsconfig.json
 📄 yarn.lock
+📄 прпрю.txt

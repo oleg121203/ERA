@@ -7,28 +7,22 @@ export function activate(context: vscode.ExtensionContext) {
         const editor = vscode.window.activeTextEditor;
         if (!editor) return;
 
-        const config = vscode.workspace.getConfiguration('era');
-        const currentReadonly = editor.options.readOnly || false;
+        const document = editor.document;
+        const uri = document.uri;
         
-        // Переключаем режим readonly
-        editor.options = { ...editor.options, readOnly: !currentReadonly };
+        // Используем WorkspaceEdit для управления readonly
+        const edit = new vscode.WorkspaceEdit();
+        const currentReadonly = vscode.workspace.fs.isWritableFileSystem(uri.scheme);
         
-        // Если включен режим редактирования, запускаем таймер
-        if (!currentReadonly) {
-            if (autoLockTimeout) {
-                clearTimeout(autoLockTimeout);
-            }
-            
-            const delay = config.get('autoLockDelay', 10000);
-            autoLockTimeout = setTimeout(() => {
-                editor.options = { ...editor.options, readOnly: true };
-                vscode.window.showInformationMessage('Readonly mode enabled automatically');
-            }, delay);
+        if (currentReadonly) {
+            edit.createFile(uri, { overwrite: true, ignoreIfExists: true });
         }
 
-        vscode.window.showInformationMessage(
-            `Readonly mode ${!currentReadonly ? 'disabled' : 'enabled'}`
-        );
+        vscode.workspace.applyEdit(edit).then(() => {
+            vscode.window.showInformationMessage(
+                `Readonly mode ${currentReadonly ? 'enabled' : 'disabled'}`
+            );
+        });
     });
 
     context.subscriptions.push(disposable);
