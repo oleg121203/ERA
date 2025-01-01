@@ -1,7 +1,7 @@
 {
   "name": "era-readonly",
   "displayName": "ERA Readonly Mode",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "publisher": "era",
   "description": "Code analysis and AI assistance using Google Gemini",
   "engines": {
@@ -14,7 +14,7 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "lint": "eslint src --ext ts && pylint src/**/*.py",
-    "watch": "tsc -watch -p ./",
+    "watch": "tsc -p ./ && echo 'Compilation complete'",
     "test": "node ./out/test/runTest.js && python -m pytest",
     "structure": "ts-node scripts/project-structure.ts",
     "structure:watch": "ts-node scripts/project-structure.ts --watch",
@@ -23,7 +23,9 @@
     "code": "ts-node src/extension.ts code",
     "python-install": "pip install -r requirements.txt",
     "python-test": "python -m pytest",
-    "python-lint": "pylint src/**/*.py"
+    "python-lint": "pylint src/**/*.py && flake8 src/**/*.py && mypy src/**/*.py",
+    "python-format": "black src/**/*.py && isort src/**/*.py && autopep8 src/**/*.py",
+    "build": "tsc -p ./"
   },
   "dependencies": {
     "@google/generative-ai": "^0.1.0",
@@ -32,11 +34,11 @@
     "python-shell": "^5.0.0"
   },
   "devDependencies": {
-    "@types/node": "^20",
-    "@types/vscode": "^1.73.0",
+    "@types/node": "^18.x",
+    "@types/vscode": "^1.80.0",
     "@types/jest": "^29.0.0",
     "eslint": "^9.13.0",
-    "typescript": "^5.7.2",
+    "typescript": "^5.0.0",
     "ts-node": "^10.9.2",
     "jest": "^29.0.0",
     "ts-jest": "^29.0.0"

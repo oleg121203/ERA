@@ -22,9 +22,54 @@
     "customizations": {
         "vscode": {
             "settings": {
-                "editor.formatOnSave": true,
-                "editor.formatOnPaste": true,
-                "editor.formatOnType": true,
+                // Отключаем глобальное форматирование
+                "editor.formatOnSave": false,
+                "editor.formatOnPaste": false,
+                "editor.formatOnType": false,
+
+                // Специфичные настройки для языков
+                "[python]": {
+                    "editor.defaultFormatter": "ms-python.black-formatter",
+                    "editor.formatOnSave": true,
+                    "editor.codeActionsOnSave": {
+                        "source.organizeImports": "explicit",
+                        "source.fixAll.pylint": "explicit",
+                        "source.fixAll.flake8": "explicit"
+                    }
+                },
+                "python.linting.enabled": true,
+                "python.linting.pylintEnabled": true,
+                "python.linting.flake8Enabled": true,
+                "python.linting.mypyEnabled": true,
+                "python.sortImports.args": ["--profile", "black"],
+                "python.formatting.blackPath": "black",
+                "python.formatting.blackArgs": ["--line-length", "88"],
+                "isort.args": [
+                    "--profile", "black",
+                    "--line-length", "88"
+                ],
+                "isort.check": true,
+                // Отключаем autopep8 чтобы не конфликтовал с black
+                "python.formatting.autopep8Path": "none",
+                "[typescript]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode",
+                    "editor.formatOnSave": true,
+                    "editor.codeActionsOnSave": {
+                        "source.fixAll.eslint": "explicit"
+                    }
+                },
+                "[javascript]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode",
+                    "editor.formatOnSave": true,
+                    "editor.codeActionsOnSave": {
+                        "source.fixAll.eslint": "explicit"
+                    }
+                },
+
+                // Остальные настройки форматирования отключаем
+                "eslint.format.enable": false,
+                "python.formatting.provider": "none",
+
                 "editor.codeActionsOnSave": {
                     "source.fixAll": "explicit",
                     "source.fixAll.eslint": "explicit",
@@ -36,7 +81,6 @@
                 "files.autoSaveDelay": 5000,
                 "eslint.enable": true,
                 "eslint.run": "onType",
-                "eslint.format.enable": true,
                 "eslint.lintTask.enable": true,
                 "eslint.codeActionsOnSave.mode": "all",
                 "npm.packageManager": "yarn",
@@ -46,21 +90,6 @@
                     "typescript",
                     "typescriptreact"
                 ],
-                "python.formatting.provider": "black",
-                "python.linting.enabled": true,
-                "python.linting.pylintEnabled": true,
-                "[python]": {
-                    "editor.defaultFormatter": "ms-python.python",
-                    "editor.formatOnSave": true
-                },
-                "[javascript]": {
-                    "editor.defaultFormatter": "esbenp.prettier-vscode",
-                    "editor.formatOnSave": true
-                },
-                "[typescript]": {
-                    "editor.defaultFormatter": "esbenp.prettier-vscode",
-                    "editor.formatOnSave": true
-                },
                 "[javascriptreact]": {
                     "editor.defaultFormatter": "esbenp.prettier-vscode",
                     "editor.formatOnSave": true
@@ -95,7 +124,10 @@
                 "formulahendry.auto-close-tag",
                 "christian-kohler.path-intellisense",
                 "visualstudioexptteam.vscodeintellicode",
-                "google.geminicodeassist"
+                "google.geminicodeassist",
+                "ms-python.autopep8",
+                "ms-python.flake8",
+                "ms-python.isort"
             ]
         }
     },
@@ -111,16 +143,18 @@
 
     "portsAttributes": {
         "3000": {
-            "label": "Hello Remote World",
+            "label": "Local Development",
             "onAutoForward": "notify"
+        },
+        "4000": {
+            "label": "Remote Access",
+            "onAutoForward": "notify",
+            "visibility": "public"
         }
     },
 
-    "postStartCommand": "npm install -g typescript ts-node && pip3 install --no-cache-dir black pylint",
-    "postCreateCommand": "npm install && pip3 install -r requirements.txt",
-    "postAttachCommand": {
-        "server": "npm run watch"
-    },
+    "postStartCommand": "python -m pip install --upgrade pip && npm install -g typescript ts-node",
+    "postCreateCommand": "npm install && npm run compile && pip3 install --no-cache-dir --upgrade -r requirements.txt",
     
     "initializeCommand": "git config --global user.name 'Oleg Kizyma' && git config --global user.email 'oleg1203@gmail.com'",
     
