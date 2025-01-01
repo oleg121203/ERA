@@ -1,16 +1,55 @@
-# Basic multi root API samples
+# Gemini AI Assistant
 
-This extension adds an entry to the status bar that shows the name of the currently active file. To exercise multi root APIs it:
-- only enables itself when more than one `WorkspaceFolder` is opened using `workspace.workspaceFolders` API
-- shows the name of the `WorkspaceFolder` the file is from (if any) using `workspace.getWorkspaceFolder()` API
-- updates when there are changes to the number of `WorkspaceFolder` via the `workspace.onDidChangeWorkspaceFolders()` API
-- registers a setting `multiRootSample.statusColor` with a scope of `resource` to configure a color per `WorkspaceFolder` to use for the status bar item
+## Использование
 
-![Show the folder of the active file](https://raw.githubusercontent.com/Microsoft/vscode-extension-samples/main/basic-multi-root-sample/preview.gif)
+### Рекурсивный анализ с автофиксом
+```bash
+node src/main.js analyze ./src --recursive --fix=75 --all --auto-apply
+```
 
-## Running the example
+### Анализ до 2 уровня с подтверждением
+```bash
+node src/main.js analyze ./src --depth=2 --basic --security
+```
 
-- Open this example in VS Code
-- `npm install`
-- `npm run compile`
-- `F5` to start debugging
+### Анализ одного файла с автоподтверждением
+```bash
+node src/main.js analyze ./src/main.js --file --complexity --fix=90 --auto-apply
+```
+
+### Анализ с автоисправлением при 70%
+```bash
+node src/main.js analyze ./src/main.js --security:c=90:i=80:p=85 --basic:c=75:i=60:p=70 --perf:c=80:i=70:p=75 --fix=70 --auto-apply
+```
+
+### Параметры командной строки
+
+- `--auto-apply`: Автоматическое применение исправлений без запроса подтверждения
+- `--fix=N`: Порог уверенности для применения исправлений (0-100)
+- `--depth=N`: Глубина анализа директории (1-3)
+- `--recursive`: Рекурсивный анализ всех файлов
+
+### Типы анализа
+
+- `--basic`: Базовый анализ (Синтаксис, стиль, форматирование)
+- `--security`: Анализ безопасности (Уязвимости, инъекции, проверки)
+- `--perf`: Производительность (Оптимизация, утечки памяти)
+- `--imports`: Анализ импортов (Зависимости, циклические ссылки)
+- `--complexity`: Сложность кода (Цикломатическая сложность)
+- `--tests`: Анализ тестов (Покрытие, качество тестов)
+- `--docs`: Документация (JSDoc, комментарии)
+- `--structure`: Структура (Архитектура, паттерны)
+- `--all`: Полный анализ (Все типы проверок)
+
+
+
+
+# Полный анализ
+node src/main.js analyze ./src --all --fix=70
+
+# Выборочный анализ
+node src/main.js analyze ./src \
+  --security:c=90:i=80:p=85 \
+  --perf:c=80:i=70:p=75 \
+  --imports:c=75:i=60:p=70
+  
