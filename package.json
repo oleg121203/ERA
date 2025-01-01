@@ -24,7 +24,9 @@
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./",
 		"lint": "eslint",
-		"watch": "tsc -watch -p ./"
+		"watch": "tsc -watch -p ./",
+		"structure": "ts-node scripts/project-structure.ts",
+		"structure:watch": "ts-node scripts/project-structure.ts --watch"
 	},
 	"contributes": {
 		"configuration": {
