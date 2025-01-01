@@ -156,7 +156,7 @@
         "init": "python -m pip install --upgrade pip",
         "node-setup": "npm install -g yarn typescript ts-node && yarn global add npm@latest",
         "project-setup": "yarn install && yarn run setup",
-        "start-watch": "yarn structure:watch &"
+        "start-watch": "yarn structure:watch > watch.log 2>&1 &"
     },
     
     "initializeCommand": "git config --global user.name 'Oleg Kizyma' && git config --global user.email 'oleg1203@gmail.com'"

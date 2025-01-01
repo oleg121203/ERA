@@ -8,13 +8,14 @@
 📄 .gitignore
 📁 .vscode
   📄 launch.json
-  📄 tasks.json
 📄 .vscodeignore
 📄 CODE_OF_CONDUCT.md
 📄 LICENSE
 📄 PORTS.md
 📄 README.md
 📄 SECURITY.md
+📄 hgfghf
+📄 hgfh.sh
 📄 package-lock.json
 📄 package.json
 📄 project-structure.txt
@@ -35,5 +36,6 @@
       📄 .DS_Store
       📁 test-files
 📄 tsconfig.json
+📄 watch.log
 📄 yarn.lock
-📄 прпрю.txt
+📄 шгнгшн
