@@ -1,0 +1,34 @@
+📁 .devcontainer
+  📄 devcontainer.json
+📄 .env
+📄 .eslintrc.json
+📄 .gitattributes
+📁 .github
+  📄 dependabot.yml
+📄 .gitignore
+📁 .vscode
+  📄 launch.json
+📄 .vscodeignore
+📄 CODE_OF_CONDUCT.md
+📄 LICENSE
+📄 README.md
+📄 SECURITY.md
+📄 package-lock.json
+📄 package.json
+📄 project-structure.txt
+📁 scripts
+  📄 project-structure.ts
+📁 src
+  📄 .DS_Store
+  📄 analyzer.js
+  📁 config
+    📄 gemini.config.js
+  📄 constants.js
+  📄 main.js
+  📁 test
+    📄 .DS_Store
+    📁 fixtures
+      📄 .DS_Store
+      📁 test-files
+📄 tsconfig.json
+📄 yarn.lock
