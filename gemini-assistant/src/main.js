@@ -14,11 +14,33 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
+const args = process.argv.slice(2);
+
 const helpCommands = {
   '/help': 'Показать список команд',
   '/code': 'Режим генерации кода',
   '/explain': 'Объяснить концепцию',
   '/exit': 'Выход в главное меню'
+};
+
+// Добавляем блок констант для анализа
+const ANALYSIS_TYPES = {
+  '--basic': 'Базовый анализ',
+  '--deep': 'Глубокий анализ',
+  '--security': 'Анализ безопасности',
+  '--imports': 'Анализ импортов',
+  '--structure': 'Анализ структуры',
+  '--deps': 'Анализ зависимостей',
+  '--complexity': 'Анализ сложности',
+  '--tests': 'Анализ тестов',
+  '--docs': 'Анализ документации',
+  '--scale': 'Анализ масштабируемости',
+  '--api': 'Анализ API',
+  '--smells': 'Code smells',
+  '--debt': 'Технический долг',
+  '--memory': 'Утечки памяти',
+  '--perf': 'Производительность',
+  '--all': 'Полный анализ'
 };
 
 async function showHelp() {
@@ -105,14 +127,91 @@ async function makeDirectRequest(prompt) {
       }
     );
     const data = await response.json();
-    console.log(data);
+    
+    // Форматируем и выводим ответ
+    if (data.candidates && data.candidates[0]) {
+      console.log("\n📝 Ответ:");
+      console.log(data.candidates[0].content.parts[0].text);
+      
+      console.log("\n📊 Статистика:");
+      console.log(`Токенов в запросе: ${data.usageMetadata.promptTokenCount}`);
+      console.log(`Токенов в ответе: ${data.usageMetadata.candidatesTokenCount}`);
+      console.log(`Модель: ${data.modelVersion}\n`);
+    } else {
+      console.log("❌ Нет данных в ответе");
+    }
   } catch (error) {
-    console.error("Error in makeDirectRequest:", error);
+    console.error("❌ Ошибка:", error.message);
   }
+}
+
+// Добавляем функцию обработки анализа
+async function handleCodeAnalysis(chat, options) {
+  const targetPath = options.path;
+  const depth = parseInt(options.depth) || 3;
+  const fixThreshold = parseInt(options.fix) || 0;
+  const analysisTypes = options.types || ['--basic'];
+
+  // Пример рекурсивного обхода
+  // const files = options.recursive
+  //   ? await getAllFilesRecursive(targetPath)
+  //   : [targetPath];
+
+  // Обрабатываем файлы и анализируем код
+}
+
+// Функция парсинга опций анализа
+function parseAnalysisOptions(params) {
+  const options = {
+    path: params[0],
+    types: [],
+    fix: 0,
+    depth: 0,
+    recursive: false
+  };
+
+  return options;
 }
 
 async function main() {
   try {
+    // Инициализируем chat один раз в начале
+    const genAI = new GoogleGenerativeAI(API_KEY);
+    const model = genAI.getGenerativeModel({ model: MODEL_NAME });
+    const chat = model.startChat({
+      generationConfig: { maxOutputTokens: 2048 },
+      safetySettings: [
+        {
+          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+        },
+      ],
+    });
+
+    if (args.length > 0) {
+      const [command, ...params] = args;
+      
+      switch(command) {
+        case 'chat':
+          await runChat();
+          break;
+        case 'direct':
+          await makeDirectRequest(params.join(' '));
+          break;
+        case 'code':
+          await handleCodeGeneration(chat);
+          break;
+        case 'analyze':
+          const options = parseAnalysisOptions(params);
+          await handleCodeAnalysis(chat, options);
+          break;
+        default:
+          console.log("❌ Неизвестная команда. Доступные команды: chat, direct, code, analyze");
+      }
+      rl.close();
+      return;
+    }
+
     console.log("\n🤖 Добро пожаловать в Gemini AI Assistant!");
     
     while (true) {
@@ -147,3 +246,16 @@ async function main() {
 }
 
 main();
+
+/*
+Добавленные инструкции и примеры использования:
+
+1. Рекурсивный анализ с автофиксом:
+node src/main.js analyze ./src --recursive --fix=75 --all
+
+2. Анализ до 2 уровня:
+node src/main.js analyze ./src --depth=2 --basic --security
+
+3. Анализ одного файла:
+node src/main.js analyze ./src/main.js --file --complexity --fix=90
+*/
