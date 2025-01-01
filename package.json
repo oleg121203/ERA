@@ -1,77 +1,79 @@
 {
-	"name": "gemini-assistant",
-	"displayName": "Gemini Code Assistant",
-	"description": "Code analysis and AI assistance using Google Gemini",
-	"version": "0.0.1",
-	"publisher": "vscode-samples",
-	"private": true,
-	"license": "MIT",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/Microsoft/vscode-extension-samples"
-	},
-	"engines": {
-		"vscode": "^1.73.0"
-	},
-	"categories": [
-		"Programming Languages",
-		"Linters",
-		"Other"
-	],
-	"activationEvents": [
-		"*"
-	],
-	"main": "./out/src/extension",
-	"scripts": {
-		"vscode:prepublish": "npm run compile",
-		"compile": "tsc -p ./",
-		"lint": "eslint src --ext ts",
-		"watch": "tsc -watch -p ./",
-		"test": "node ./out/test/runTest.js",
-		"structure": "ts-node scripts/project-structure.ts",
-		"structure:watch": "ts-node scripts/project-structure.ts --watch",
-		"analyze": "ts-node src/extension.ts analyze",
-		"direct": "ts-node src/extension.ts direct",
-		"code": "ts-node src/extension.ts code"
-	},
-	"dependencies": {
-		"@google/generative-ai": "^0.1.0",
-		"dotenv": "^16.0.0",
-		"node-fetch": "^3.3.1"
-	},
-	"devDependencies": {
-		"@types/chokidar": "^1.7.5",
-		"@types/jest": "^29.0.0",
-		"@types/node": "^20",
-		"@types/vscode": "^1.73.0",
-		"chokidar": "^4.0.3",
-		"eslint": "^9.13.0",
-		"jest": "^29.0.0",
-		"ts-jest": "^29.0.0",
-		"ts-node": "^10.9.2",
-		"typescript": "^5.7.2"
-	},
-	"contributes": {
-		"commands": [
-			{
-				"command": "gemini-assistant.analyze",
-				"title": "Analyze Code with Gemini"
-			},
-			{
-				"command": "gemini-assistant.direct",
-				"title": "Direct Gemini Query"
-			}
-		],
-		"configuration": {
-			"type": "object",
-			"title": "Gemini Assistant",
-			"properties": {
-				"gemini-assistant.apiKey": {
-					"type": "string",
-					"default": "",
-					"description": "Google Gemini API Key"
-				}
-			}
-		}
-	}
+  "name": "gemini-assistant",
+  "displayName": "Gemini Code Assistant",
+  "description": "Code analysis and AI assistance using Google Gemini",
+  "version": "0.0.1",
+  "publisher": "vscode-samples",
+  "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Microsoft/vscode-extension-samples"
+  },
+  "engines": {
+    "vscode": "^1.73.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Linters",
+    "Other"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./out/src/extension",
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "lint": "eslint src --ext ts && pylint src/**/*.py",
+    "watch": "tsc -watch -p ./",
+    "test": "node ./out/test/runTest.js && python -m pytest",
+    "structure": "ts-node scripts/project-structure.ts",
+    "structure:watch": "ts-node scripts/project-structure.ts --watch",
+    "analyze": "ts-node src/extension.ts analyze",
+    "direct": "ts-node src/extension.ts direct",
+    "code": "ts-node src/extension.ts code",
+    "python-install": "pip install -r requirements.txt",
+    "python-test": "python -m pytest",
+    "python-lint": "pylint src/**/*.py"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.1.0",
+    "dotenv": "^16.0.0",
+    "node-fetch": "^3.3.1",
+    "python-shell": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/vscode": "^1.73.0",
+    "@types/jest": "^29.0.0",
+    "eslint": "^9.13.0",
+    "typescript": "^5.7.2",
+    "ts-node": "^10.9.2",
+    "jest": "^29.0.0",
+    "ts-jest": "^29.0.0"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "gemini-assistant.analyze",
+        "title": "Analyze Code with Gemini"
+      },
+      {
+        "command": "gemini-assistant.direct",
+        "title": "Direct Gemini Query"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Gemini Assistant",
+      "properties": {
+        "gemini-assistant.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Google Gemini API Key"
+        }
+      }
+    }
+  }
 }

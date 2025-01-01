@@ -5,10 +5,17 @@
     "features": {
         "ghcr.io/devcontainers/features/python:1": {
             "version": "3.9",
-            "installTools": true
+            "installTools": true,
+            "installPytest": true,
+            "installPylint": true
         },
         "ghcr.io/devcontainers/features/node:1": {
-            "version": "18"
+            "version": "18",
+            "nodeGypDependencies": true
+        },
+        "ghcr.io/devcontainers/features/git:1": {
+            "version": "latest",
+            "ppa": true
         }
     },
 
@@ -109,8 +116,11 @@
         }
     },
 
-    "postStartCommand": "npm install -g typescript ts-node",
-    "postCreateCommand": "yarn install && pip install black autopep8 isort pylint",
+    "postStartCommand": "npm install -g typescript ts-node && pip3 install --no-cache-dir black pylint",
+    "postCreateCommand": "npm install && pip3 install -r requirements.txt",
+    "postAttachCommand": {
+        "server": "npm run watch"
+    },
     
     "initializeCommand": "git config --global user.name 'Oleg Kizyma' && git config --global user.email 'oleg1203@gmail.com'",
     
