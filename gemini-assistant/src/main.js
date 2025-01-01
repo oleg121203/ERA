@@ -43,6 +43,9 @@ const ANALYSIS_TYPES = {
   '--all': 'Полный анализ'
 };
 
+// Добавляем константы для интерактивного режима
+const INTERACTIVE_FLAGS = ['-i', '--interactive'];
+
 async function showHelp() {
   console.log("\n=== Доступные команды ===");
   Object.entries(helpCommands).forEach(([cmd, desc]) => {
@@ -146,18 +149,20 @@ async function makeDirectRequest(prompt) {
 }
 
 // Добавляем функцию обработки анализа
-async function handleCodeAnalysis(chat, options) {
+async function handleCodeAnalysis(chat, options, interactiveOptions = null) {
   const targetPath = options.path;
   const depth = parseInt(options.depth) || 3;
   const fixThreshold = parseInt(options.fix) || 0;
   const analysisTypes = options.types || ['--basic'];
 
-  // Пример рекурсивного обхода
-  // const files = options.recursive
-  //   ? await getAllFilesRecursive(targetPath)
-  //   : [targetPath];
-
-  // Обрабатываем файлы и анализируем код
+  // Добавляем обработку интерактивного режима
+  if (interactiveOptions?.interactive) {
+    console.log("\n📊 Интерактивный анализ запущен");
+    // Добавляем callbacks для прогресса
+    const { onProgress, onResult } = interactiveOptions;
+    // ...existing analysis code...
+  }
+  // ...existing code...
 }
 
 // Функция парсинга опций анализа
@@ -173,6 +178,7 @@ function parseAnalysisOptions(params) {
   return options;
 }
 
+// Обновляем main() для поддержки интерактивного режима
 async function main() {
   try {
     // Инициализируем chat один раз в начале
@@ -190,6 +196,8 @@ async function main() {
 
     if (args.length > 0) {
       const [command, ...params] = args;
+      const isInteractive = params.some(p => INTERACTIVE_FLAGS.includes(p));
+      const cleanParams = params.filter(p => !INTERACTIVE_FLAGS.includes(p));
       
       switch(command) {
         case 'chat':
@@ -202,8 +210,24 @@ async function main() {
           await handleCodeGeneration(chat);
           break;
         case 'analyze':
-          const options = parseAnalysisOptions(params);
-          await handleCodeAnalysis(chat, options);
+          const options = parseAnalysisOptions(cleanParams);
+          if (isInteractive) {
+            console.log("\n📊 Интерактивный режим анализа\n");
+            console.log("Нажмите Ctrl+C для выхода\n");
+            
+            await handleCodeAnalysis(chat, options, {
+              interactive: true,
+              onProgress: (file, progress) => {
+                console.log(`Анализ ${file}: ${progress}%`);
+              },
+              onResult: (file, result) => {
+                console.log(`\n📝 Результат для ${file}:`);
+                console.log(result);
+              }
+            });
+          } else {
+            await handleCodeAnalysis(chat, options);
+          }
           break;
         default:
           console.log("❌ Неизвестная команда. Доступные команды: chat, direct, code, analyze");
