@@ -10,7 +10,7 @@
             "installPylint": true
         },
         "ghcr.io/devcontainers/features/node:1": {
-            "version": "18",
+            "version": "20.17.0",
             "nodeGypDependencies": true
         },
         "ghcr.io/devcontainers/features/git:1": {
@@ -107,10 +107,7 @@
                 "esbenp.prettier-vscode",
                 "dbaeumer.vscode-eslint",
                 "ms-azuretools.vscode-docker",
-                "GitHub.copilot",
                 "GitHub.copilot-chat",
-                "GitHub.copilot-labs",
-                "ms-edgedevtools.vscode-edge-devtools",
                 "Continue.continue",
                 "swagatachaudhuri.github-copilot-tools-pack",
                 "github.copilot-workspace",
@@ -152,13 +149,15 @@
             "visibility": "public"
         }
     },
+    
+    "forwardPorts": [3000, 4000],
 
-    "postStartCommand": "python -m pip install --upgrade pip && npm install -g typescript ts-node",
+    "postCreateCommand": {
+        "init": "python -m pip install --upgrade pip",
+        "node-setup": "npm install -g yarn typescript ts-node && yarn global add npm@latest",
+        "project-setup": "yarn install && yarn run setup",
+        "start-watch": "yarn structure:watch &"
+    },
     
-    "initializeCommand": "git config --global user.name 'Oleg Kizyma' && git config --global user.email 'oleg1203@gmail.com'",
-    
-    "forwardPorts": [
-        3000,
-        4000
-    ]
+    "initializeCommand": "git config --global user.name 'Oleg Kizyma' && git config --global user.email 'oleg1203@gmail.com'"
 }

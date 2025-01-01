@@ -5,7 +5,7 @@
   "publisher": "era",
   "description": "Code analysis and AI assistance using Google Gemini",
   "engines": {
-    "vscode": "^1.80.0"
+    "vscode": "1.80.0"
   },
   "categories": [
     "Other"
@@ -29,7 +29,8 @@
     "python-test": "python -m pytest",
     "python-lint": "pylint src/**/*.py && flake8 src/**/*.py && mypy src/**/*.py",
     "python-format": "black src/**/*.py && isort src/**/*.py && autopep8 src/**/*.py",
-    "build": "tsc -p ./"
+    "build": "tsc -p ./",
+    "setup": "yarn install && yarn add chokidar @types/chokidar && pip3 install --no-cache-dir -r requirements.txt && yarn run compile"
   },
   "dependencies": {
     "@google/generative-ai": "^0.1.0",
