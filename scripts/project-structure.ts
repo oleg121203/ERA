@@ -14,7 +14,8 @@ class ProjectStructureGenerator {
     '.git',
     'dist',
     'out',
-    '.vscode-test'
+    '.vscode-test',
+    'project-structure.txt' // Добавляем файл в список игнорируемых путей
   ];
 
   constructor(private rootDir: string, private outputFile: string) {}
@@ -81,6 +82,7 @@ class ProjectStructureGenerator {
     });
 
     watcher.on('all', async (event: string, filePath: string) => {
+      if (filePath.includes(this.outputFile)) return; // Игнорируем изменения в файле project-structure.txt
       console.log(`Detected ${event} on ${filePath}`);
       await this.generateStructure();
     });

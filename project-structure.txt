@@ -14,11 +14,8 @@
 📄 PORTS.md
 📄 README.md
 📄 SECURITY.md
-📄 hgfghf
-📄 hgfh.sh
 📄 package-lock.json
 📄 package.json
-📄 project-structure.txt
 📄 requirements.txt
 📁 scripts
   📄 project-structure.ts
@@ -36,6 +33,4 @@
       📄 .DS_Store
       📁 test-files
 📄 tsconfig.json
-📄 watch.log
 📄 yarn.lock
-📄 шгнгшн

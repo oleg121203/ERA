@@ -1,11 +1,12 @@
 {
-  "name": "era-readonly",
+  "name": "era",
   "displayName": "ERA Readonly Mode",
   "version": "1.0.0",
   "publisher": "era",
   "description": "Code analysis and AI assistance using Google Gemini",
+
   "engines": {
-    "vscode": "1.80.0"
+    "vscode": "^1.96.2"
   },
   "categories": [
     "Other"
@@ -17,38 +18,31 @@
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
-    "lint": "eslint src --ext ts && pylint src/**/*.py",
+    "lint": "eslint src --ext ts",
     "watch": "tsc -p ./ && echo 'Compilation complete'",
-    "test": "node ./out/test/runTest.js && python -m pytest",
+    "test": "node ./out/test/runTest.js",
+    "pytest": "python3 -m pytest",
     "structure": "ts-node scripts/project-structure.ts",
     "structure:watch": "ts-node scripts/project-structure.ts --watch",
-    "analyze": "ts-node src/extension.ts analyze",
-    "direct": "ts-node src/extension.ts direct",
-    "code": "ts-node src/extension.ts code",
-    "python-install": "pip install -r requirements.txt",
-    "python-test": "python -m pytest",
-    "python-lint": "pylint src/**/*.py && flake8 src/**/*.py && mypy src/**/*.py",
-    "python-format": "black src/**/*.py && isort src/**/*.py && autopep8 src/**/*.py",
-    "build": "tsc -p ./",
     "setup": "yarn install && yarn add chokidar @types/chokidar && pip3 install --no-cache-dir -r requirements.txt && yarn run compile"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.1.0",
-    "@types/chokidar": "^1.7.5",
-    "chokidar": "^4.0.3",
-    "dotenv": "^16.0.0",
-    "node-fetch": "^3.3.1",
-    "python-shell": "^5.0.0"
+    "@google/generative-ai": "^0.1.0",  
+    "@types/chokidar": "^2.x",         
+    "chokidar": "^4.x",
+    "dotenv": "^16.x",
+    "node-fetch": "^3.x",
+    "python-shell": "^5.x"
   },
   "devDependencies": {
-    "@types/jest": "^29.0.0",
+    "@types/jest": "^29.x",
     "@types/node": "^18.x",
     "@types/vscode": "^1.80.0",
-    "eslint": "^9.13.0",
-    "jest": "^29.0.0",
-    "ts-jest": "^29.0.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.0.0"
+    "eslint": "^9.x",
+    "jest": "^29.x",
+    "ts-jest": "^29.x",
+    "ts-node": "^10.x",
+    "typescript": "^5.x"
   },
   "contributes": {
     "commands": [
@@ -60,19 +54,8 @@
     "keybindings": [
       {
         "command": "era.toggleReadonly",
-        "key": "cmd+e",
-        "mac": "cmd+e",
-        "when": "editorTextFocus"
+        "key": "cmd+e"
       }
-    ],
-    "configuration": {
-      "properties": {
-        "era.autoLockDelay": {
-          "type": "number",
-          "default": 10000,
-          "description": "Delay in ms before auto-enabling readonly mode"
-        }
-      }
-    }
+    ]
   }
 }

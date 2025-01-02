@@ -1,17 +1,13 @@
 {
     "name": "Node.js & Python",
-    "image": "mcr.microsoft.com/devcontainers/javascript-node:1-18-bullseye",
+    "image": "mcr.microsoft.com/devcontainers/javascript-node:20-bookworm",
 
     "features": {
         "ghcr.io/devcontainers/features/python:1": {
-            "version": "3.9",
+            "version": "3.12",
             "installTools": true,
             "installPytest": true,
             "installPylint": true
-        },
-        "ghcr.io/devcontainers/features/node:1": {
-            "version": "20.17.0",
-            "nodeGypDependencies": true
         },
         "ghcr.io/devcontainers/features/git:1": {
             "version": "latest",
@@ -19,15 +15,16 @@
         }
     },
 
+    "postCreateCommand": "python -m pip install --upgrade pip && yarn install",
+    "postStartCommand": "pip install pytest pylint black python-dotenv requests autopep8 flake8 isort mypy && yarn install",
+
     "customizations": {
         "vscode": {
             "settings": {
-                // Отключаем глобальное форматирование
                 "editor.formatOnSave": false,
                 "editor.formatOnPaste": false,
                 "editor.formatOnType": false,
-
-                // Специфичные настройки для языков
+                "editor.accessibilitySupport": "on", 
                 "[python]": {
                     "editor.defaultFormatter": "ms-python.black-formatter",
                     "editor.formatOnSave": true,
@@ -45,11 +42,12 @@
                 "python.formatting.blackPath": "black",
                 "python.formatting.blackArgs": ["--line-length", "88"],
                 "isort.args": [
-                    "--profile", "black",
-                    "--line-length", "88"
+                    "--profile",
+                    "black",
+                    "--line-length",
+                    "88"
                 ],
                 "isort.check": true,
-                // Отключаем autopep8 чтобы не конфликтовал с black
                 "python.formatting.autopep8Path": "none",
                 "[typescript]": {
                     "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -65,11 +63,8 @@
                         "source.fixAll.eslint": "explicit"
                     }
                 },
-
-                // Остальные настройки форматирования отключаем
                 "eslint.format.enable": false,
                 "python.formatting.provider": "none",
-
                 "editor.codeActionsOnSave": {
                     "source.fixAll": "explicit",
                     "source.fixAll.eslint": "explicit",
@@ -86,7 +81,7 @@
                 "npm.packageManager": "yarn",
                 "eslint.validate": [
                     "javascript",
-                    "javascriptreact", 
+                    "javascriptreact",
                     "typescript",
                     "typescriptreact"
                 ],
@@ -100,14 +95,34 @@
                 },
                 "terminal.integrated.defaultProfile.linux": "bash",
                 "git.enableSmartCommit": true,
-                "files.eol": "\n"
+                "files.eol": "\n",
+                "files.exclude": {
+                    "**/.git": true,
+                    "**/.svn": true,
+                    "**/.hg": true,
+                    "**/CVS": true,
+                    "**/.DS_Store": true,
+                    "**/node_modules": true
+                },
+                "files.watcherExclude": {
+                    "**/.git/**": true,
+                    "**/node_modules/**": true,
+                    "**/bower_components/**": true
+                },
+                "readonly.files": [
+                    "**/node_modules/**",
+                    "**/.git/**"
+                ]
             },
             "extensions": [
                 "streetsidesoftware.code-spell-checker",
                 "esbenp.prettier-vscode",
                 "dbaeumer.vscode-eslint",
                 "ms-azuretools.vscode-docker",
+                "GitHub.copilot",
                 "GitHub.copilot-chat",
+                "GitHub.copilot-labs",
+                "ms-edgedevtools.vscode-edge-devtools",
                 "Continue.continue",
                 "swagatachaudhuri.github-copilot-tools-pack",
                 "github.copilot-workspace",
@@ -121,16 +136,14 @@
                 "formulahendry.auto-close-tag",
                 "christian-kohler.path-intellisense",
                 "visualstudioexptteam.vscodeintellicode",
-                "google.geminicodeassist",
-                "ms-python.autopep8",
-                "ms-python.flake8",
-                "ms-python.isort"
+                "usernamehw.read-only-indicator",
+                "google.geminicodeassist"
             ]
         }
     },
 
     "workspaceFolder": "/workspaces/ERA",
-    
+
     "mounts": [
         "source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached,readonly"
     ],
@@ -149,15 +162,5 @@
             "visibility": "public"
         }
     },
-    
-    "forwardPorts": [3000, 4000],
-
-    "postCreateCommand": {
-        "init": "python -m pip install --upgrade pip",
-        "node-setup": "npm install -g yarn typescript ts-node && yarn global add npm@latest",
-        "project-setup": "yarn install && yarn run setup",
-        "start-watch": "yarn structure:watch > watch.log 2>&1 &"
-    },
-    
-    "initializeCommand": "git config --global user.name 'Oleg Kizyma' && git config --global user.email 'oleg1203@gmail.com'"
+    "forwardPorts": [3000, 4000]
 }
