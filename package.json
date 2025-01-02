@@ -4,7 +4,6 @@
   "version": "1.0.0",
   "publisher": "era",
   "description": "Code analysis and AI assistance using Google Gemini",
-
   "engines": {
     "vscode": "^1.96.2"
   },
@@ -24,28 +23,31 @@
     "pytest": "python3 -m pytest",
     "structure": "ts-node scripts/project-structure.ts",
     "structure:watch": "ts-node scripts/project-structure.ts --watch",
-    "setup": "yarn install && yarn add chokidar @types/chokidar && pip3 install --no-cache-dir -r requirements.txt && yarn run compile"
+    "setup": "yarn install && yarn add chokidar @types/chokidar && pip3 install --no-cache-dir -r requirements.txt && yarn run compile",
+    "prettier": "prettier --write \"src/**/*.{js,ts,jsx,tsx}\"",
+    "typescript": "tsc --noEmit",
+    "verify-dependencies": "yarn check || yarn install",
+    "install-extensions": "code --install-extension google.geminicodeassist"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.1.0",  
-    "@types/chokidar": "^2.x",         
+    "@google/generative-ai": "^0.1.0",
+    "@types/chokidar": "^2.x",
     "chokidar": "^4.x",
     "dotenv": "^16.0.0",
+    "eslint": "^9.17.0",
     "node-fetch": "^2.6.7",
-    "python-shell": "^5.x",
-    "prettier": "^2.8.0",
-    "eslint": "^9.16.0"
+    "prettier": "^3.4.2",
+    "python-shell": "^5.x"
   },
   "devDependencies": {
     "@types/jest": "^29.x",
     "@types/node": "^18.x",
     "@types/vscode": "^1.80.0",
-    "eslint": "^9.16.0",
     "jest": "^29.x",
+    "prettier": "^2.8.0",
     "ts-jest": "^29.x",
     "ts-node": "^10.x",
-    "typescript": "^5.x",
-    "prettier": "^2.8.0"
+    "typescript": "^5.7.2"
   },
   "contributes": {
     "commands": [

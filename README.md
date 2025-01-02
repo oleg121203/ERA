@@ -21,6 +21,15 @@ cd ERA
 npm install
 ```
 
+3. Запустіть Dev Container:
+   - Відкрийте репозиторій в VSCode.
+   - Після запиту, виберіть `Reopen in Container`.
+
+4. Глобальна установка форматтерів:
+```sh
+yarn global add prettier eslint typescript
+```
+
 ## ⚙️ Налаштування
 
 1. Створіть файл `.env`:

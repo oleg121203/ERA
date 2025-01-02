@@ -15,8 +15,8 @@
         }
     },
 
-    "postCreateCommand": "python -m pip install --upgrade pip && yarn install",
-    "postStartCommand": "pip install pytest pylint black python-dotenv requests autopep8 flake8 isort mypy && yarn install && yarn add --dev prettier eslint typescript",
+    "postCreateCommand": "python -m pip install --upgrade pip && npm i -g yarn && yarn install && yarn global add prettier eslint typescript && yarn verify-dependencies",
+    "postStartCommand": "pip install pytest pylint black python-dotenv requests autopep8 flake8 isort mypy && npm i -g yarn && yarn install && yarn add --dev prettier eslint typescript && yarn verify-dependencies",
 
     "customizations": {
         "vscode": {

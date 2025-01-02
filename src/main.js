@@ -3,17 +3,20 @@ const {
   HarmCategory,
   HarmBlockThreshold,
 } = require("@google/generative-ai");
-const readline = require('readline');
-const fs = require('fs').promises;
-const path = require('path');
-const fetch = require('node-fetch');
-require('dotenv').config();
-const CodeAnalyzer = require('./analyzer');
-const { ANALYSIS_TYPES } = require('./constants');
+const readline = require("readline");
+const fs = require("fs").promises;
+const path = require("path");
+const fetch = require("node-fetch");
+require("dotenv").config();
+const CodeAnalyzer = require("./analyzer");
+const { ANALYSIS_TYPES } = require("./constants");
 
-const MODEL_NAME = 'gemini-pro';
+const MODEL_NAME = "gemini-pro";
 const API_KEY = process.env.GEMINI_API_KEY;
-const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
 const args = process.argv.slice(2);
 
 function showHelp() {
@@ -37,17 +40,17 @@ async function runChat() {
     generationConfig: { maxOutputTokens: 2048 },
     safetySettings: [
       {
-        category: 'HARM_CATEGORY_HARASSMENT',
-        threshold: 'BLOCK_MEDIUM_AND_ABOVE',
+        category: "HARM_CATEGORY_HARASSMENT",
+        threshold: "BLOCK_MEDIUM_AND_ABOVE",
       },
     ],
   });
 
   while (true) {
-    const prompt = await promptUser('Ваш запрос: ');
-    if (prompt === '/help') {
+    const prompt = await promptUser("Ваш запрос: ");
+    if (prompt === "/help") {
       showHelp();
-    } else if (prompt === '/code') {
+    } else if (prompt === "/code") {
       await handleCodeGeneration(chat);
     } else {
       const result = await chat.sendMessage(prompt);
@@ -59,22 +62,24 @@ async function runChat() {
 async function makeDirectRequest(prompt) {
   try {
     const response = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent',
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
       {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${API_KEY}`
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${API_KEY}`,
         },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }]
-        })
-      }
+          contents: [{ parts: [{ text: prompt }] }],
+        }),
+      },
     );
     const data = await response.json();
-    return data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Нет данных в ответе';
+    return (
+      data?.candidates?.[0]?.content?.parts?.[0]?.text || "Нет данных в ответе"
+    );
   } catch (error) {
-    console.error('Ошибка запроса:', error.message);
+    console.error("Ошибка запроса:", error.message);
     return null;
   }
 }
@@ -88,7 +93,7 @@ async function getAllFilesRecursive(dir) {
         const fullPath = path.join(currentPath, entry.name);
         if (entry.isDirectory()) {
           await scan(fullPath);
-        } else if (entry.name.endsWith('.js')) {
+        } else if (entry.name.endsWith(".js")) {
           files.push(fullPath);
         }
       }
@@ -109,10 +114,10 @@ async function getAllFilesRecursive(dir) {
 async function handleCodeAnalysis(chat, args) {
   try {
     const options = parseAnalysisOptions(args);
-    const targetPath = args[0] || '.';
-    const files = options.recursive ? 
-      await getAllFilesRecursive(targetPath) :
-      [targetPath];
+    const targetPath = args[0] || ".";
+    const files = options.recursive
+      ? await getAllFilesRecursive(targetPath)
+      : [targetPath];
 
     console.log(`\n📁 Найдено файлов: ${files.length}`);
 
@@ -120,42 +125,39 @@ async function handleCodeAnalysis(chat, args) {
       const file = files[i];
       console.log(`\n📄 Анализ файла (${i + 1}/${files.length}): ${file}`);
 
-      const code = await fs.readFile(file, 'utf8');
+      const code = await fs.readFile(file, "utf8");
       const analyzer = new CodeAnalyzer(chat);
       const results = await analyzer.analyze(code, options);
-      
-      console.log('\n📊 Результаты анализа:');
+
+      console.log("\n📊 Результаты анализа:");
       console.log(JSON.stringify(results, null, 2));
     }
 
-    console.log('\n✅ Анализ завершен');
+    console.log("\n✅ Анализ завершен");
   } catch (error) {
-    console.error('❌ Ошибка:', error.message);
+    console.error("❌ Ошибка:", error.message);
   }
 }
 
 function parseAnalysisOptions(args) {
   const options = {
-    types: ['--basic'],
+    types: ["--basic"],
     fix: 70,
     recursive: false,
-    autoApply: false
+    autoApply: false,
   };
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    
-    if (arg.startsWith('--types=')) {
-      options.types = arg.replace('--types=', '').split(',');
-    }
-    else if (arg === '--recursive') {
+
+    if (arg.startsWith("--types=")) {
+      options.types = arg.replace("--types=", "").split(",");
+    } else if (arg === "--recursive") {
       options.recursive = true;
-    }
-    else if (arg === '--auto-apply') {
+    } else if (arg === "--auto-apply") {
       options.autoApply = true;
-    }
-    else if (arg.startsWith('--fix=')) {
-      options.fix = parseInt(arg.split('=')[1], 10);
+    } else if (arg.startsWith("--fix=")) {
+      options.fix = parseInt(arg.split("=")[1], 10);
     }
   }
 
@@ -165,7 +167,7 @@ function parseAnalysisOptions(args) {
 async function main() {
   if (args.length > 0) {
     const [command, ...commandArgs] = args;
-    
+
     const genAI = new GoogleGenerativeAI(API_KEY);
     const model = genAI.getGenerativeModel({ model: MODEL_NAME });
     const chat = model.startChat({
@@ -179,45 +181,47 @@ async function main() {
     });
 
     switch (command) {
-      case 'analyze':
+      case "analyze":
         await handleCodeAnalysis(chat, commandArgs);
         break;
-      case 'chat':
+      case "chat":
         await runChat();
         break;
-      case 'direct':
-        await makeDirectRequest(args.slice(1).join(' '));
+      case "direct":
+        await makeDirectRequest(args.slice(1).join(" "));
         break;
-      case 'code':
+      case "code":
         handleCodeGeneration();
         break;
       default:
-        console.log('Неизвестная команда. Доступные команды: chat, direct, code, analyze');
+        console.log(
+          "Неизвестная команда. Доступные команды: chat, direct, code, analyze",
+        );
     }
     rl.close();
   } else {
     console.log("Добро пожаловать в Gemini AI Assistant!");
     while (true) {
-      console.log('Главное меню:');
-      console.log('1. Chat режим');
-      console.log('2. Прямой запрос');
-      console.log('3. Выход');
+      console.log("Главное меню:");
+      console.log("1. Chat режим");
+      console.log("2. Прямой запрос");
+      console.log("3. Выход");
 
-      const choice = await promptUser('Выберите режим (1-3): ');
+      const choice = await promptUser("Выберите режим (1-3): ");
       switch (choice) {
-        case '1':
+        case "1":
           await runChat();
           break;
-        case '2':
-          const prompt = await promptUser('Введите ваш запрос: ');
+        case "2":
+          const prompt = await promptUser("Введите ваш запрос: ");
           await makeDirectRequest(prompt);
           break;
-        case '3':
-          console.log('До свидания!');
+        case "3":
+          console.log("До свидания!");
           rl.close();
           return;
         default:
-          console.log('Неверный выбор. Попробуйте снова.');
+          console.log("Неверный выбор. Попробуйте снова.");
       }
     }
   }
