@@ -49,11 +49,14 @@ class CodeAnalyzer {
   parseMetrics(metricsStr) {
     if (!metricsStr) return {};
 
-    return metricsStr.split(',').reduce((acc, pair) => {
-      const [key, value] = pair.split('=');
-      acc[key] = parseInt(value, 10);
-      return acc;
-    }, {});
+    // Используем регулярные выражения для парсинга метрик
+    const regex = /(\w+)=(\d+)/g;
+    const metrics = {};
+    let match;
+    while ((match = regex.exec(metricsStr)) !== null) {
+      metrics[match[1]] = parseInt(match[2], 10);
+    }
+    return metrics;
   }
 
   async analyzeByType(code, type, metrics = {}) {
@@ -73,14 +76,25 @@ class CodeAnalyzer {
       }
     }
 
-    const prompt = this.buildPrompt(code, typeConfig, metrics);
-    const result = await this.chat.sendMessage(prompt);
-    return this.parseResult(result, type);
+    try {
+      const prompt = this.buildPrompt(code, typeConfig, metrics);
+      const result = await this.chat.sendMessage(prompt);
+      return this.parseResult(result, type);
+    } catch (error) {
+      console.error(`Error in analyzeByType for type ${type}:`, error.message);
+      return {
+        type,
+        analysis: 'Ошибка при анализе кода.',
+        confidence: metrics.confidence || typeConfig.metrics.confidence.CERTAIN,
+        impact: metrics.impact || typeConfig.metrics.impact.CRITICAL,
+        priority: metrics.priority || typeConfig.metrics.priority.IMMEDIATE
+      };
+    }
   }
 
-  getFilePath(code) {
-    // Реализуйте логику получения пути к файлу из кода или контекста
-    return 'src/main.js'; // Пример
+  getFilePath(code, specifiedPath) {
+    // Позволяем пользователю указывать путь к файлу или определяем его из контекста
+    return specifiedPath || 'src/main.js'; // Пример
   }
 
   buildPrompt(code, typeConfig, metrics = {}) {

@@ -111,34 +111,6 @@ async function getAllFilesRecursive(dir) {
   }
 }
 
-async function handleCodeAnalysis(chat, args) {
-  try {
-    const options = parseAnalysisOptions(args);
-    const targetPath = args[0] || ".";
-    const files = options.recursive
-      ? await getAllFilesRecursive(targetPath)
-      : [targetPath];
-
-    console.log(`\n📁 Найдено файлов: ${files.length}`);
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      console.log(`\n📄 Анализ файла (${i + 1}/${files.length}): ${file}`);
-
-      const code = await fs.readFile(file, "utf8");
-      const analyzer = new CodeAnalyzer(chat);
-      const results = await analyzer.analyze(code, options);
-
-      console.log("\n📊 Результаты анализа:");
-      console.log(JSON.stringify(results, null, 2));
-    }
-
-    console.log("\n✅ Анализ завершен");
-  } catch (error) {
-    console.error("❌ Ошибка:", error.message);
-  }
-}
-
 function parseAnalysisOptions(args) {
   const options = {
     types: ["--basic"],
@@ -158,10 +130,43 @@ function parseAnalysisOptions(args) {
       options.autoApply = true;
     } else if (arg.startsWith("--fix=")) {
       options.fix = parseInt(arg.split("=")[1], 10);
+    } else if (arg.startsWith("--file=")) {
+      options.filePath = arg.replace("--file=", "");
     }
   }
 
   return options;
+}
+
+async function handleCodeAnalysis(chat, args) {
+  try {
+    const options = parseAnalysisOptions(args);
+    const targetPath = options.filePath || args[0] || ".";
+    const files = options.recursive
+      ? await getAllFilesRecursive(targetPath)
+      : [targetPath];
+
+    console.log(`\n📁 Найдено файлов: ${files.length}`);
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      console.log(`\n📄 Анализ файла (${i + 1}/${files.length}): ${file}`);
+
+      const code = await fs.readFile(file, "utf8");
+      const analyzer = new CodeAnalyzer(chat);
+      const results = await analyzer.analyze(code, {
+        ...options,
+        filePath: file,
+      });
+
+      console.log("\n📊 Результаты анализа:");
+      console.log(JSON.stringify(results, null, 2));
+    }
+
+    console.log("\n✅ Анализ завершен");
+  } catch (error) {
+    console.error("❌ Ошибка:", error.message);
+  }
 }
 
 async function main() {
