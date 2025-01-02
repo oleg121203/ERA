@@ -117,6 +117,7 @@ function parseAnalysisOptions(args) {
     fix: 70,
     recursive: false,
     autoApply: false,
+    format: false,
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -128,6 +129,8 @@ function parseAnalysisOptions(args) {
       options.recursive = true;
     } else if (arg === "--auto-apply") {
       options.autoApply = true;
+    } else if (arg === "--format") {
+      options.format = true;
     } else if (arg.startsWith("--fix=")) {
       options.fix = parseInt(arg.split("=")[1], 10);
     } else if (arg.startsWith("--file=")) {
@@ -153,11 +156,8 @@ async function handleCodeAnalysis(chat, args) {
       console.log(`\n📄 Анализ файла (${i + 1}/${files.length}): ${file}`);
 
       const code = await fs.readFile(file, "utf8");
-      const analyzer = new CodeAnalyzer(chat);
-      const results = await analyzer.analyze(code, {
-        ...options,
-        filePath: file,
-      });
+      const analyzer = new CodeAnalyzer(chat, { ...options, filePath: file }); // Передаем опции в конструктор
+      const results = await analyzer.analyze(code, options);
 
       console.log("\n📊 Результаты анализа:");
       console.log(JSON.stringify(results, null, 2));

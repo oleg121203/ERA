@@ -1,0 +1,105 @@
+node ➜ /workspaces/ERA (app) $ node src/main.js analyze ./src --recursive \
+  --types=security:confidence=95:impact=90:priority=90,\
+  perf:confidence=90:impact=85:priority=85 \
+  --fix=90 --auto-apply --format
+
+📁 Найдено файлов: 4
+
+📄 Анализ файла (1/4): src/analyzer.js
+🔧 Применяем форматтеры для --basic...
+   Running prettier-vscode...
+   Running eslint...
+Skipping unknown type: --
+
+📊 Результаты анализа:
+[
+  {
+    "type": "--basic",
+    "analysis": "**Overall quality score (0-100)**: 90\n\n**List of identified issues**\n\n- Potential code smell: `console.log` statements used for debugging purposes should be removed or replaced with a proper logging mechanism.\n- Lack of error handling: The `analyzeByType` method does not handle errors that may occur during code analysis. This could lead to unexpected behavior or loss of data.\n- Incomplete analysis: The basic analysis type does not provide a comprehensive analysis of the code. Consider using the deep analysis type for a more thorough analysis.\n\n**Suggested improvements**\n\n- Refactor the code to use a proper logging mechanism instead of `console.log` statements.\n- Implement error handling in the `analyzeByType` method to ensure that errors are handled gracefully and do not affect the overall analysis process.\n- Consider using the deep analysis type for a more comprehensive analysis of the code.\n\n**Specific recommendations**\n\n- Use a library like `winston` or `pino` for logging purposes.\n- Add try-catch blocks to the `analyzeByType` method to handle potential errors.\n- Consider using a code linter to identify and fix potential code smells and other code quality issues.",
+    "confidence": 90,
+    "impact": 80,
+    "priority": 85
+  },
+  {
+    "type": "--security",
+    "analysis": "**Overall quality score (0-100)**: 90\n\n**List of identified issues**\n\n- **Potential security vulnerability**: The code does not sanitize user input, which could allow an attacker to inject malicious code into the application.\n- **Lack of input validation**: The code does not validate user input, which could allow an attacker to provide invalid data that could cause the application to crash or behave unexpectedly.\n- **Insufficient error handling**: The code does not handle errors properly, which could allow an attacker to exploit the application by causing it to crash or leak sensitive information.\n\n**Suggested improvements**\n\n- Implement input sanitization to prevent attackers from injecting malicious code into the application.\n- Implement input validation to ensure that user input is valid and does not cause the application to crash or behave unexpectedly.\n- Implement error handling to ensure that the application can handle errors gracefully and does not crash or leak sensitive information.\n\n**Specific recommendations**\n\n- Use a library like `validator.js` or `xss-filters` to sanitize user input.\n- Use a library like `express-validator` or `joi` to validate user input.\n- Use a library like `try-catch` or `bluebird` to handle errors gracefully.",
+    "confidence": 95,
+    "impact": 90,
+    "priority": 90
+  }
+]
+
+📄 Анализ файла (2/4): src/config/gemini.config.js
+🔧 Применяем форматтеры для --basic...
+   Running prettier-vscode...
+   Running eslint...
+Skipping unknown type: --
+
+📊 Результаты анализа:
+[
+  {
+    "type": "--basic",
+    "analysis": "**Overall quality score (0-100)**: 100\n\n**List of identified issues**\n\n- No issues were identified in the provided code.\n\n**Suggested improvements**\n\n- No improvements are suggested for the provided code.\n\n**Specific recommendations**\n\n- No specific recommendations are made for the provided code.\n\n**Additional notes**\n\n- It is important to note that the analysis provided is based solely on the code that was provided. It is possible that there are other issues in the code that were not identified in this analysis.\n- It is always recommended to have your code reviewed by a qualified developer to ensure that it is secure and efficient.",
+    "confidence": 90,
+    "impact": 80,
+    "priority": 85
+  },
+  {
+    "type": "--security",
+    "analysis": "**Overall quality score (0-100)**: 0\n\n**List of identified issues**\n\n- The provided code is empty, so it is not possible to perform a security analysis.\n\n**Suggested improvements**\n\n- Provide the code that you want to be analyzed.\n\n**Specific recommendations**\n\n- None.\n\n**Additional notes**\n\n- It is important to note that security analysis is only as good as the code that is provided. If the code is incomplete or inaccurate, the analysis will be incomplete or inaccurate as well.\n- It is always recommended to have your code reviewed by a qualified security professional to ensure that it is secure and free of vulnerabilities.",
+    "confidence": 95,
+    "impact": 90,
+    "priority": 90
+  }
+]
+
+📄 Анализ файла (3/4): src/constants.js
+🔧 Применяем форматтеры для --basic...
+   Running prettier-vscode...
+   Running eslint...
+Skipping unknown type: --
+
+📊 Результаты анализа:
+[
+  {
+    "type": "--basic",
+    "analysis": "**Overall quality score (0-100)**: 90\n\n**List of identified issues**\n\n- No major issues were identified in the provided code.\n\n**Suggested improvements**\n\n- Consider adding more detailed descriptions for each analysis type.\n- Consider adding examples of how to use the analysis types.\n\n**Specific recommendations**\n\n- Add a description to the `--security` analysis type that explains what types of security vulnerabilities it checks for.\n- Add an example to the `--deep` analysis type that shows how to use it to analyze a specific codebase.\n\n**Additional notes**\n\n- The provided code is well-structured and easy to read.\n- The use of constants for the analysis types and formatters is a good practice.\n- The use of a module to export the analysis types and formatters makes it easy to reuse them in other projects.",
+    "confidence": 90,
+    "impact": 80,
+    "priority": 85
+  },
+  {
+    "type": "--security",
+    "analysis": "**Overall quality score (0-100)**: 90\n\n**List of identified issues**\n\n- No major issues were identified in the provided code.\n\n**Suggested improvements**\n\n- Consider adding more detailed descriptions for each analysis type.\n- Consider adding examples of how to use the analysis types.\n\n**Specific recommendations**\n\n- Add a description to the `--security` analysis type that explains what types of security vulnerabilities it checks for.\n- Add an example to the `--deep` analysis type that shows how to use it to analyze a specific codebase.\n\n**Additional notes**\n\n- The provided code is well-structured and easy to read.\n- The use of constants for the analysis types and formatters is a good practice.\n- The use of a module to export the analysis types and formatters makes it easy to reuse them in other projects.",
+    "confidence": 95,
+    "impact": 90,
+    "priority": 90
+  }
+]
+
+📄 Анализ файла (4/4): src/main.js
+🔧 Применяем форматтеры для --basic...
+   Running prettier-vscode...
+   Running eslint...
+Skipping unknown type: --
+
+📊 Результаты анализа:
+[
+  {
+    "type": "--basic",
+    "analysis": "**Overall quality score (0-100)**: 95\n\n**List of identified issues**\n\n- No major issues were identified in the provided code.\n\n**Suggested improvements**\n\n- Consider adding more detailed descriptions for each analysis type.\n- Consider adding examples of how to use the analysis types.\n\n**Specific recommendations**\n\n- Add a description to the `--security` analysis type that explains what types of security vulnerabilities it checks for.\n- Add an example to the `--deep` analysis type that shows how to use it to analyze a specific codebase.\n\n**Additional notes**\n\n- The provided code is well-structured and easy to read.\n- The use of constants for the analysis types and formatters is a good practice.\n- The use of a module to export the analysis types and formatters makes it easy to reuse them in other projects.",
+    "confidence": 90,
+    "impact": 80,
+    "priority": 85
+  },
+  {
+    "type": "--security",
+    "analysis": "**Overall quality score (0-100)**: 95\n\n**List of identified issues**\n\n- No major issues were identified in the provided code.\n\n**Suggested improvements**\n\n- Consider adding more detailed descriptions for each analysis type.\n- Consider adding examples of how to use the analysis types.\n\n**Specific recommendations**\n\n- Add a description to the `--security` analysis type that explains what types of security vulnerabilities it checks for.\n- Add an example to the `--deep` analysis type that shows how to use it to analyze a specific codebase.\n\n**Additional notes**\n\n- The provided code is well-structured and easy to read.\n- The use of constants for the analysis types and formatters is a good practice.\n- The use of a module to export the analysis types and formatters makes it easy to reuse them in other projects.",
+    "confidence": 95,
+    "impact": 90,
+    "priority": 90
+  }
+]
+
+✅ Анализ завершен
+node ➜ /workspaces/ERA (app) $ 
