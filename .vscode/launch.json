@@ -10,12 +10,5 @@
             "name": "Launch Main Program",
             "program": "${workspaceFolder}/main.js"
         }
-        // Удалите конфигурацию для запуска сервера
-        // {
-        //     "type": "node",
-        //     "request": "launch",
-        //     "name": "Launch Server",
-        //     "program": "${workspaceFolder}/server.js"
-        // }
     ]
 }

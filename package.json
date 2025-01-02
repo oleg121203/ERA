@@ -15,7 +15,7 @@
   ],
   "main": "./out/extension.js",
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "yarn compile",
     "compile": "tsc -p ./",
     "lint": "eslint .",
     "watch": "tsc -p ./ && echo 'Compilation complete'",
@@ -23,7 +23,7 @@
     "pytest": "python3 -m pytest",
     "structure": "ts-node scripts/project-structure.ts",
     "structure:watch": "ts-node scripts/project-structure.ts --watch",
-    "setup": "yarn install && yarn add chokidar @types/chokidar && pip3 install --no-cache-dir -r requirements.txt && yarn run compile",
+    "setup": "yarn install && yarn add chokidar @types/chokidar && pip3 install --no-cache-dir -r requirements.txt && yarn compile",
     "prettier": "prettier --write \"src/**/*.{js,ts,jsx,tsx,html,php,java}\"",
     "typescript": "tsc --noEmit",
     "verify-dependencies": "yarn check || yarn install",
