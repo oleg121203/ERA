@@ -250,6 +250,25 @@ class CodeAnalyzer {
     return complexities;
   }
 
+  // Добавляем метод checkMemoryUsage
+  checkMemoryUsage(code) {
+    const memoryIssues = [];
+    const memoryPatterns = [
+      /process\.memoryUsage\(\)/g,
+      /new\s+Buffer\(/g,
+      /new\s+ArrayBuffer\(/g,
+    ];
+
+    memoryPatterns.forEach((pattern) => {
+      let match;
+      while ((match = pattern.exec(code)) !== null) {
+        memoryIssues.push(`Использование ${match[0].replace(/\(/, '')} может привести к высоким расходам памяти.`);
+      }
+    });
+
+    return memoryIssues;
+  }
+
   async applyFixes(code, checks, type) {
     const fixes = [];
 

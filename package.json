@@ -53,10 +53,12 @@
   "devDependencies": {
     "@types/node": "^18.x",
     "@types/validator": "^13.12.2",
-    "@typescript-eslint/eslint-plugin": "^5.0.0",
-    "@typescript-eslint/parser": "^5.0.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
     "prettier": "^3.4.2",
-    "typescript": "^5.7.2"
+    "typescript": "^4.0.0",
+    "@typescript-eslint/parser": "^5.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.0.0"
   },
   "contributes": {
     "commands": [
@@ -67,9 +69,6 @@
     ],
     "keybindings": [
       {
-        "command": "era.toggleReadonly",
-        "key": "cmd+e"
-      }
-    ]
+        "command": "era.toggleReadonly",        "key": "cmd+e"      }    ]
   }
 }
