@@ -115,7 +115,6 @@
                 ]
             },
             "extensions": [
-                // Форматирование и линтинг
                 "esbenp.prettier-vscode",
                 "dbaeumer.vscode-eslint",
                 "ms-python.python",
@@ -123,16 +122,15 @@
                 "ms-python.autopep8",
                 "ms-python.flake8",
                 "ms-python.isort",
-                
-                // AI ассистенты
                 "GitHub.copilot",
                 "GitHub.copilot-chat",
                 "google.geminicodeassist",
-                
-                // Дополнительные инструменты
                 "eamodio.gitlens",
                 "christian-kohler.path-intellisense",
-                "visualstudioexptteam.vscodeintellicode"
+                "visualstudioexptteam.vscodeintellicode",
+                "ms-azuretools.vscode-docker",
+                "swagatachaudhuri.github-copilot-tools-pack",
+                "github.copilot-workspace"
             ]
         }
     },

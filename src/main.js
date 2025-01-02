@@ -1,3 +1,4 @@
+require("dotenv").config();
 const {
   GoogleGenerativeAI,
   HarmCategory,
@@ -7,13 +8,12 @@ const readline = require("readline");
 const fs = require("fs").promises;
 const path = require("path");
 const fetch = require("node-fetch");
-require("dotenv").config();
 const CodeAnalyzer = require("./analyzer");
 const { ANALYSIS_TYPES } = require("./constants");
 
-const MODEL_NAME = "gemini-pro";
-const API_KEY = process.env.GEMINI_API_KEY;
-console.log("GEMINI_API_KEY:", process.env.GEMINI_API_KEY);
+const MODEL_NAME = process.env.GEMINI_MODEL || "gemini-pro";
+const API_KEY = process.env.GEMINI_API_KEY || "AIzaSyBuTog72XmOWzmcOQG64LRke7z9wtn6mUE";
+console.log("GEMINI_API_KEY:", API_KEY);
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
@@ -35,53 +35,68 @@ function promptUser(question) {
 }
 
 async function runChat() {
-  const genAI = new GoogleGenerativeAI({ credentials: { api_key: API_KEY } });
-  const model = genAI.getGenerativeModel({ model: MODEL_NAME });
-  const chat = model.startChat({
-    generationConfig: { maxOutputTokens: 2048 },
-    safetySettings: [
-      {
-        category: "HARM_CATEGORY_HARASSMENT",
-        threshold: "BLOCK_MEDIUM_AND_ABOVE",
+  try {
+    const genAI = new GoogleGenerativeAI({ apiKey: API_KEY });
+    const model = genAI.getGenerativeModel({ model: MODEL_NAME });
+    const chat = await model.startChat({
+      generationConfig: { 
+        maxOutputTokens: 2048,
+        temperature: 0.7,
+        topP: 0.8,
       },
-    ],
-  });
+      safetySettings: [
+        {
+          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+        },
+      ],
+    });
 
-  while (true) {
-    const prompt = await promptUser("Ваш запрос: ");
-    if (prompt === "/help") {
-      showHelp();
-    } else if (prompt === "/code") {
-      await handleCodeGeneration(chat);
-    } else {
-      const result = await chat.sendMessage(prompt);
-      console.log(result.response.text());
+    while (true) {
+      const prompt = await promptUser("Ваш запрос: ");
+      if (prompt === "/help") {
+        showHelp();
+      } else if (prompt === "/code") {
+        await handleCodeGeneration(chat);
+      } else {
+        const result = await chat.sendMessage(prompt);
+        console.log(result.response.text());
+      }
     }
+  } catch (error) {
+    console.error('Ошибка инициализации чата:', error);
   }
 }
 
 async function makeDirectRequest(prompt) {
   try {
     const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${API_KEY}`,
         },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.7,
+            topP: 0.8,
+            maxOutputTokens: 2048,
+          },
         }),
-      },
+      }
     );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
     const data = await response.json();
-    return (
-      data?.candidates?.[0]?.content?.parts?.[0]?.text || "Нет данных в ответе"
-    );
+    return data?.candidates?.[0]?.content?.parts?.[0]?.text || "Нет данных в ответе";
   } catch (error) {
-    console.error("Ошибка запроса:", error.message);
-    return null;
+    console.error("Ошибка запроса:", error);
+    throw error;
   }
 }
 
@@ -174,35 +189,39 @@ async function main() {
   if (args.length > 0) {
     const [command, ...commandArgs] = args;
 
-    const genAI = new GoogleGenerativeAI({ credentials: { api_key: API_KEY } });
-    const model = genAI.getGenerativeModel({ model: MODEL_NAME });
-    const chat = model.startChat({
-      generationConfig: { maxOutputTokens: 2048 },
-      safetySettings: [
-        {
-          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-        },
-      ],
-    });
+    try {
+      const genAI = new GoogleGenerativeAI({ apiKey: API_KEY });
+      const model = genAI.getGenerativeModel({ model: MODEL_NAME });
+      const chat = await model.startChat({
+        generationConfig: { maxOutputTokens: 2048 },
+        safetySettings: [
+          {
+            category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+            threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+          },
+        ],
+      });
 
-    switch (command) {
-      case "analyze":
-        await handleCodeAnalysis(chat, commandArgs);
-        break;
-      case "chat":
-        await runChat();
-        break;
-      case "direct":
-        await makeDirectRequest(args.slice(1).join(" "));
-        break;
-      case "code":
-        handleCodeGeneration();
-        break;
-      default:
-        console.log(
-          "Неизвестная команда. Доступные команды: chat, direct, code, analyze",
-        );
+      switch (command) {
+        case "analyze":
+          await handleCodeAnalysis(chat, commandArgs);
+          break;
+        case "chat":
+          await runChat();
+          break;
+        case "direct":
+          await makeDirectRequest(args.slice(1).join(" "));
+          break;
+        case "code":
+          handleCodeGeneration();
+          break;
+        default:
+          console.log(
+            "Неизвестная команда. Доступные команды: chat, direct, code, analyze",
+          );
+      }
+    } catch (error) {
+      console.error('Ошибка инициализации чата:', error);
     }
     rl.close();
   } else {

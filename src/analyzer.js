@@ -1,6 +1,6 @@
 const { ANALYSIS_TYPES, FORMATTERS } = require("./constants");
 const { execSync } = require("child_process");
-const path = require("path");  // Добавляем импорт path
+const path = require("path"); // Добавляем импорт path
 
 class CodeAnalyzer {
   constructor(chat, options = {}) {
@@ -94,21 +94,21 @@ class CodeAnalyzer {
       // Подготавливаем и проверяем промпт
       const prompt = this.buildPrompt(code, typeConfig, metrics);
       if (!prompt.trim()) {
-        throw new Error('Empty prompt generated');
+        throw new Error("Empty prompt generated");
       }
 
       // Отправляем запрос с обработкой ошибок безопасности
       const result = await this.chat.sendMessage(prompt, {
         safetySettings: [
           {
-            category: 'HARM_CATEGORY_HARASSMENT',
-            threshold: 'BLOCK_ONLY_HIGH',
+            category: "HARM_CATEGORY_HARASSMENT",
+            threshold: "BLOCK_ONLY_HIGH",
           },
         ],
       });
 
       if (!result?.response) {
-        throw new Error('Empty response from AI');
+        throw new Error("Empty response from AI");
       }
 
       return this.parseResult(result, type);
@@ -120,7 +120,7 @@ class CodeAnalyzer {
         confidence: typeConfig.metrics.confidence.CERTAIN,
         impact: typeConfig.metrics.impact.CRITICAL,
         priority: typeConfig.metrics.priority.IMMEDIATE,
-        error: true
+        error: true,
       };
     }
   }
@@ -136,7 +136,7 @@ class CodeAnalyzer {
         try {
           console.log(`   Running ${formatter}...`);
           const command = `${config.command} ${config.args.join(" ")} "${filePath}"`;
-          execSync(command, { stdio: 'pipe' });
+          execSync(command, { stdio: "pipe" });
           console.log(`   ✅ ${formatter} completed`);
         } catch (error) {
           console.warn(`⚠️  Formatter ${formatter} failed:`, error.message);
@@ -155,25 +155,27 @@ class CodeAnalyzer {
     const sanitizedCode = this.sanitizeCode(code);
 
     const prompt = [
-      'Analyze the following code:',
-      '',
+      "Analyze the following code:",
+      "",
       `Analysis type: ${typeConfig.name}`,
       `Focus: ${typeConfig.desc}`,
-      '',
-      'Code:',
-      '```javascript',
+      "",
+      "Code:",
+      "```javascript",
       sanitizedCode,
-      '```',
-      '',
-      'Provide a technical analysis covering:',
-      '1. Code quality score (0-100)',
-      '2. Specific issues found',
-      '3. Concrete improvement suggestions',
-      '4. Code examples for fixes',
-      typeConfig.depth === 'deep' ? '5. Architecture recommendations' : '',
-      '',
-      'Format response as valid JSON'
-    ].filter(Boolean).join('\n');
+      "```",
+      "",
+      "Provide a technical analysis covering:",
+      "1. Code quality score (0-100)",
+      "2. Specific issues found",
+      "3. Concrete improvement suggestions",
+      "4. Code examples for fixes",
+      typeConfig.depth === "deep" ? "5. Architecture recommendations" : "",
+      "",
+      "Format response as valid JSON",
+    ]
+      .filter(Boolean)
+      .join("\n");
 
     return prompt;
   }
@@ -262,7 +264,9 @@ class CodeAnalyzer {
     memoryPatterns.forEach((pattern) => {
       let match;
       while ((match = pattern.exec(code)) !== null) {
-        memoryIssues.push(`Использование ${match[0].replace(/\(/, '')} может привести к высоким расходам памяти.`);
+        memoryIssues.push(
+          `Использование ${match[0].replace(/\(/, "")} может привести к высоким расходам памяти.`,
+        );
       }
     });
 
@@ -318,7 +322,7 @@ class CodeAnalyzer {
         if (config.extensions.includes(extension)) {
           console.log(`   Применяем ${name}...`);
           const command = `${config.command} ${config.args.join(" ")} "${filePath}"`;
-          execSync(command, { stdio: 'pipe' });
+          execSync(command, { stdio: "pipe" });
           console.log(`   ✅ ${name} completed`);
         }
       } catch (error) {
