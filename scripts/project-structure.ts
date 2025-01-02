@@ -1,24 +1,27 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import { watch } from 'chokidar';
+import * as fs from "fs";
+import * as path from "path";
+import { watch } from "chokidar";
 
 interface FileStructure {
   name: string;
-  type: 'file' | 'directory';
+  type: "file" | "directory";
   children?: FileStructure[];
 }
 
 class ProjectStructureGenerator {
   private ignoredPaths = [
-    'node_modules',
-    '.git',
-    'dist',
-    'out',
-    '.vscode-test',
-    'project-structure.txt' // Добавляем файл в список игнорируемых путей
+    "node_modules",
+    ".git",
+    "dist",
+    "out",
+    ".vscode-test",
+    "project-structure.txt", // Добавляем файл в список игнорируемых путей
   ];
 
-  constructor(private rootDir: string, private outputFile: string) {}
+  constructor(
+    private rootDir: string,
+    private outputFile: string,
+  ) {}
 
   async generateStructure(): Promise<void> {
     const structure = await this.scanDirectory(this.rootDir);
@@ -33,17 +36,17 @@ class ProjectStructureGenerator {
       if (this.ignoredPaths.includes(item.name)) continue;
 
       const fullPath = path.join(dir, item.name);
-      
+
       if (item.isDirectory()) {
         structure.push({
           name: item.name,
-          type: 'directory',
-          children: await this.scanDirectory(fullPath)
+          type: "directory",
+          children: await this.scanDirectory(fullPath),
         });
       } else {
         structure.push({
           name: item.name,
-          type: 'file'
+          type: "file",
         });
       }
     }
@@ -57,14 +60,14 @@ class ProjectStructureGenerator {
   }
 
   private formatStructure(structure: FileStructure[], level = 0): string {
-    let output = '';
-    
+    let output = "";
+
     for (const item of structure) {
-      const indent = '  '.repeat(level);
-      const icon = item.type === 'directory' ? '📁' : '📄';
-      
+      const indent = "  ".repeat(level);
+      const icon = item.type === "directory" ? "📁" : "📄";
+
       output += `${indent}${icon} ${item.name}\n`;
-      
+
       if (item.children) {
         output += this.formatStructure(item.children, level + 1);
       }
@@ -74,14 +77,14 @@ class ProjectStructureGenerator {
   }
 
   watch(): void {
-    console.log('Watching for changes...');
-    
+    console.log("Watching for changes...");
+
     const watcher = watch(this.rootDir, {
       ignored: this.ignoredPaths,
-      persistent: true
+      persistent: true,
     });
 
-    watcher.on('all', async (event: string, filePath: string) => {
+    watcher.on("all", async (event: string, filePath: string) => {
       if (filePath.includes(this.outputFile)) return; // Игнорируем изменения в файле project-structure.txt
       console.log(`Detected ${event} on ${filePath}`);
       await this.generateStructure();
@@ -90,18 +93,19 @@ class ProjectStructureGenerator {
 }
 
 // Точка входа
-const [,, ...args] = process.argv;
-const isWatch = args.includes('--watch');
+const [, , ...args] = process.argv;
+const isWatch = args.includes("--watch");
 
 const generator = new ProjectStructureGenerator(
   process.cwd(),
-  path.join(process.cwd(), 'project-structure.txt')
+  path.join(process.cwd(), "project-structure.txt"),
 );
 
 if (isWatch) {
   generator.watch();
 } else {
-  generator.generateStructure()
-    .then(() => console.log('Structure generated'))
+  generator
+    .generateStructure()
+    .then(() => console.log("Structure generated"))
     .catch(console.error);
 }

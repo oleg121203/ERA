@@ -242,6 +242,14 @@ class CodeAnalyzer {
     return risks;
   }
 
+  // Добавляем метод checkComplexity
+  checkComplexity(code) {
+    const complexities = [];
+    const complexityMatches = code.match(/function\s+\w+\s*\(/g) || [];
+    complexities.push(`Найдено ${complexityMatches.length} функций.`);
+    return complexities;
+  }
+
   async applyFixes(code, checks, type) {
     const fixes = [];
 
