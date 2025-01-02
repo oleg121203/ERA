@@ -15,7 +15,7 @@
         }
     },
 
-    "postCreateCommand": "python -m pip install --upgrade pip && npm i -g yarn prettier eslint typescript && yarn install && yarn verify-dependencies",
+    "postCreateCommand": "python -m pip install --upgrade pip && yarn global add prettier eslint typescript && yarn install && yarn verify-dependencies",
     "postStartCommand": "pip install -r requirements.txt && yarn install && yarn add --dev prettier eslint typescript",
 
     "customizations": {
