@@ -173,7 +173,7 @@ async function main() {
   if (args.length > 0) {
     const [command, ...commandArgs] = args;
 
-    const genAI = new GoogleGenerativeAI(API_KEY);
+    const genAI = new GoogleGenerativeAI({ credentials: { api_key: API_KEY } });
     const model = genAI.getGenerativeModel({ model: MODEL_NAME });
     const chat = model.startChat({
       generationConfig: { maxOutputTokens: 2048 },

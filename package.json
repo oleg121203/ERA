@@ -40,7 +40,8 @@
     "fix:html": "prettier --fix \"src/**/*.html\"",
     "format:html": "prettier --write \"src/**/*.html\"",
     "refactor:html": "prettier --write \"src/**/*.html\"",
-    "check-types": "typescript"
+    "check-types": "typescript",
+    "analyze": "node src/main.js analyze"
   },
   "dependencies": {
     "@google/generative-ai": "^0.1.0",
