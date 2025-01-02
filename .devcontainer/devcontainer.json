@@ -15,8 +15,8 @@
         }
     },
 
-    "postCreateCommand": "python -m pip install --upgrade pip && yarn global add prettier eslint typescript && yarn install && yarn verify-dependencies",
-    "postStartCommand": "pip install -r requirements.txt && yarn install && yarn add --dev prettier eslint typescript",
+    "postCreateCommand": "python -m pip install --upgrade pip && yarn global add prettier eslint@^8.50.0 typescript && yarn add --dev @typescript-eslint/eslint-plugin@^5.50.0 @typescript-eslint/parser@^5.50.0 @typescript-eslint/utils@^5.50.0 && yarn install && yarn verify-dependencies",
+    "postStartCommand": "pip install -r requirements.txt && yarn install && yarn add --dev prettier eslint@^8.50.0 typescript @typescript-eslint/eslint-plugin@^5.50.0 @typescript-eslint/parser@^5.50.0 @typescript-eslint/utils@^5.50.0",
 
     "customizations": {
         "vscode": {
@@ -140,8 +140,13 @@
     "workspaceFolder": "/workspaces/ERA",
 
     "mounts": [
-        "source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached,readonly"
+        "source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached,readonly",
+        "source=${localWorkspaceFolder}/.env,target=/workspaces/ERA/.env,type=bind,consistency=cached"
     ],
+
+    "containerEnv": {
+        "GEMINI_API_KEY": "${localEnv:GEMINI_API_KEY}"
+    },
 
     "remoteUser": "node",
     "updateRemoteUserUID": true,

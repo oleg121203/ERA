@@ -1,5 +1,4 @@
 module.exports = {
-  // ...existing code...
   root: true,
   parser: '@typescript-eslint/parser',
   parserOptions: {
@@ -13,7 +12,6 @@ module.exports = {
   ],
   plugins: ['@typescript-eslint'],
   rules: {
-    // ...existing rules...
     "no-console": 0,
     "eqeqeq": "warn",
     "no-cond-assign": 0,

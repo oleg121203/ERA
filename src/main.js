@@ -13,6 +13,7 @@ const { ANALYSIS_TYPES } = require("./constants");
 
 const MODEL_NAME = "gemini-pro";
 const API_KEY = process.env.GEMINI_API_KEY;
+console.log("GEMINI_API_KEY:", process.env.GEMINI_API_KEY);
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
