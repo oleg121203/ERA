@@ -50,6 +50,28 @@ node src/main.js analyze ./src --recursive
 node src/main.js analyze ./src --fix=75 --auto-apply
 ```
 
+### Розширений аналіз коду
+
+```bash
+# Повний аналіз проекту з метриками
+node src/main.js analyze ./src --recursive \
+  --types=--security:confidence=90:impact=80:priority=85,\
+  --perf:confidence=85:impact=75:priority=80,\
+  --complexity:confidence=80:impact=70:priority=75,\
+  --basic:confidence=75:impact=65:priority=70,\
+  --structure:confidence=70:impact=60:priority=65 \
+  --fix=100 --auto-apply
+
+# Швидкий аналіз окремого файлу
+node src/main.js analyze ./src/main.js \
+  --types=--basic:confidence=75 \
+  --fix=80
+
+# Глибокий аналіз з перевіркою безпеки та продуктивності
+node src/main.js analyze ./src --types=deep:confidence=95,security:confidence=90,perf:confidence=85,complexity:confidence=80,structure:confidence=75 \
+  --fix=100 --auto-apply
+```
+
 ### Інтерактивний режим
 
 ```sh
@@ -75,6 +97,20 @@ node src/main.js --interactive --metrics
 ```sh
 # Формат: --type:confidence=X:impact=Y:priority=Z
 node src/main.js analyze ./src --security:confidence=90:impact=80:priority=85
+```
+
+### Параметри аналізу
+
+```bash
+# Формат метрик
+--types=TYPE:confidence=N:impact=N:priority=N
+
+# Доступні типи аналізу
+--basic        # Базовий аналіз
+--security     # Безпека
+--perf         # Продуктивність
+--complexity   # Складність
+--structure    # Структура коду
 ```
 
 ### Параметри виправлень

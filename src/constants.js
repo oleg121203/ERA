@@ -1,193 +1,84 @@
 const ANALYSIS_TYPES = {
   '--basic': {
-    name: 'Базовый анализ',
-    desc: 'Синтаксис, стиль, форматирование',
+    name: 'Basic Analysis',
+    desc: 'Basic syntax and style checking',
+    depth: 'basic',
     metrics: {
-      confidence: {
-        CERTAIN: 90,
-        LIKELY: 75,
-        POSSIBLE: 60
-      },
-      impact: {
-        CRITICAL: 80,
-        HIGH: 70,
-        MEDIUM: 50
-      },
-      priority: {
-        IMMEDIATE: 85,
-        HIGH: 70,
-        MEDIUM: 50
-      }
-    }
+      confidence: { CERTAIN: 90, LIKELY: 75, POSSIBLE: 60 },
+      impact: { CRITICAL: 80, HIGH: 70, MEDIUM: 50 },
+      priority: { IMMEDIATE: 85, HIGH: 70, MEDIUM: 50 }
+    },
+    formatters: ['prettier-vscode', 'eslint']
+  },
+  '--deep': {
+    name: 'Deep Analysis',
+    desc: 'Advanced code analysis and patterns',
+    depth: 'deep',
+    metrics: {
+      confidence: { CERTAIN: 95, LIKELY: 85, POSSIBLE: 70 },
+      impact: { CRITICAL: 90, HIGH: 80, MEDIUM: 60 },
+      priority: { IMMEDIATE: 90, HIGH: 80, MEDIUM: 60 }
+    },
+    formatters: ['prettier-vscode', 'eslint', 'typescript']
   },
   '--security': {
-    name: 'Анализ безопасности',
-    desc: 'Уязвимости, инъекции, проверки',
+    name: 'Security Analysis',
+    desc: 'Security vulnerabilities check',
+    requiresBase: true,
     metrics: {
-      confidence: {
-        CERTAIN: 95,
-        LIKELY: 85,
-        POSSIBLE: 70
-      },
-      impact: {
-        CRITICAL: 90,
-        HIGH: 80,
-        MEDIUM: 60
-      },
-      priority: {
-        IMMEDIATE: 90,
-        HIGH: 80,
-        MEDIUM: 60
-      }
+      confidence: { CERTAIN: 95, LIKELY: 85, POSSIBLE: 70 },
+      impact: { CRITICAL: 90, HIGH: 80, MEDIUM: 60 },
+      priority: { IMMEDIATE: 90, HIGH: 80, MEDIUM: 60 }
     }
   },
-  '--perf': {
-    name: 'Производительность',
-    desc: 'Оптимизация, утечки памяти',
+  '--performance': {
+    name: 'Performance Analysis',
+    desc: 'Performance optimization check',
+    requiresBase: true,
     metrics: {
-      confidence: {
-        CERTAIN: 90,
-        LIKELY: 75,
-        POSSIBLE: 60
-      },
-      impact: {
-        CRITICAL: 80,
-        HIGH: 70,
-        MEDIUM: 50
-      },
-      priority: {
-        IMMEDIATE: 85,
-        HIGH: 70,
-        MEDIUM: 50
-      }
-    }
-  },
-  '--imports': {
-    name: 'Анализ импортов',
-    desc: 'Зависимости, циклические ссылки',
-    metrics: {
-      confidence: {
-        CERTAIN: 90,
-        LIKELY: 75,
-        POSSIBLE: 60
-      },
-      impact: {
-        CRITICAL: 80,
-        HIGH: 70,
-        MEDIUM: 50
-      },
-      priority: {
-        IMMEDIATE: 85,
-        HIGH: 70,
-        MEDIUM: 50
-      }
+      confidence: { CERTAIN: 90, LIKELY: 80, POSSIBLE: 65 },
+      impact: { CRITICAL: 85, HIGH: 75, MEDIUM: 55 },
+      priority: { IMMEDIATE: 85, HIGH: 75, MEDIUM: 55 }
     }
   },
   '--complexity': {
-    name: 'Сложность кода',
-    desc: 'Цикломатическая сложность',
+    name: 'Complexity Analysis',
+    desc: 'Code complexity and maintainability',
+    requiresBase: true,
     metrics: {
-      confidence: {
-        CERTAIN: 90,
-        LIKELY: 75,
-        POSSIBLE: 60
-      },
-      impact: {
-        CRITICAL: 80,
-        HIGH: 70,
-        MEDIUM: 50
-      },
-      priority: {
-        IMMEDIATE: 85,
-        HIGH: 70,
-        MEDIUM: 50
-      }
-    }
-  },
-  '--tests': {
-    name: 'Анализ тестов',
-    desc: 'Покрытие, качество тестов',
-    metrics: {
-      confidence: {
-        CERTAIN: 90,
-        LIKELY: 75,
-        POSSIBLE: 60
-      },
-      impact: {
-        CRITICAL: 80,
-        HIGH: 70,
-        MEDIUM: 50
-      },
-      priority: {
-        IMMEDIATE: 85,
-        HIGH: 70,
-        MEDIUM: 50
-      }
-    }
-  },
-  '--docs': {
-    name: 'Документация',
-    desc: 'JSDoc, комментарии',
-    metrics: {
-      confidence: {
-        CERTAIN: 90,
-        LIKELY: 75,
-        POSSIBLE: 60
-      },
-      impact: {
-        CRITICAL: 80,
-        HIGH: 70,
-        MEDIUM: 50
-      },
-      priority: {
-        IMMEDIATE: 85,
-        HIGH: 70,
-        MEDIUM: 50
-      }
+      confidence: { CERTAIN: 85, LIKELY: 75, POSSIBLE: 65 },
+      impact: { CRITICAL: 80, HIGH: 70, MEDIUM: 60 },
+      priority: { IMMEDIATE: 80, HIGH: 70, MEDIUM: 60 }
     }
   },
   '--structure': {
-    name: 'Структура', 
-    desc: 'Архитектура, паттерны',
+    name: 'Code Structure Analysis',
+    desc: 'Code organization and architecture',
+    requiresBase: true,
     metrics: {
-      confidence: {
-        CERTAIN: 90,
-        LIKELY: 75,
-        POSSIBLE: 60
-      },
-      impact: {
-        CRITICAL: 80,
-        HIGH: 70,
-        MEDIUM: 50
-      },
-      priority: {
-        IMMEDIATE: 85,
-        HIGH: 70,
-        MEDIUM: 50
-      }
-    }
-  },
-  '--all': {
-    name: 'Полный анализ',
-    desc: 'Все типы проверок',
-    metrics: {
-      confidence: {
-        CERTAIN: 90,
-        LIKELY: 75,
-        POSSIBLE: 60
-      },
-      impact: {
-        CRITICAL: 80,
-        HIGH: 70,
-        MEDIUM: 50
-      },
-      priority: {
-        IMMEDIATE: 85,
-        HIGH: 70,
-        MEDIUM: 50
-      }
+      confidence: { CERTAIN: 85, LIKELY: 75, POSSIBLE: 65 },
+      impact: { CRITICAL: 80, HIGH: 70, MEDIUM: 60 },
+      priority: { IMMEDIATE: 80, HIGH: 70, MEDIUM: 60 }
     }
   }
 };
 
-module.exports = { ANALYSIS_TYPES };
+const FORMATTERS = {
+  'prettier-vscode': {
+    command: 'prettier',
+    args: ['--write'],
+    extensions: ['.js', '.ts', '.jsx', '.tsx']
+  },
+  'eslint': {
+    command: 'eslint',
+    args: ['--fix'],
+    extensions: ['.js', '.ts']
+  },
+  'typescript': {
+    command: 'tsc',
+    args: ['--noEmit'],
+    extensions: ['.ts', '.tsx']
+  }
+};
+
+module.exports = { ANALYSIS_TYPES, FORMATTERS };

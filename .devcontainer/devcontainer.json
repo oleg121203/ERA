@@ -16,7 +16,7 @@
     },
 
     "postCreateCommand": "python -m pip install --upgrade pip && yarn install",
-    "postStartCommand": "pip install pytest pylint black python-dotenv requests autopep8 flake8 isort mypy && yarn install",
+    "postStartCommand": "pip install pytest pylint black python-dotenv requests autopep8 flake8 isort mypy && yarn install && yarn add --dev prettier eslint typescript",
 
     "customizations": {
         "vscode": {
