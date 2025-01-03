@@ -113,7 +113,7 @@ node src/main.js analyze ./test --recursive --types=basic,security --fix=80
 
 Приклад правильного використання метрик:
 ```bash
-node src/main.js analyze ./test --recursive \
+node src/main.js analyze ./tests --recursive \
   --types=security:confidence=90:impact=80:priority=85,\
 performance:confidence=85:impact=75:priority=80 \
   --fix=80 \
@@ -135,3 +135,16 @@ performance:confidence=85:impact=75:priority=80 \
   - confidence: 75-80%
   - impact: 65-75%
   - priority: 70-80%
+
+  node src/main.js analyze scripts/project-structure.ts \
+      --types=security:confidence=90:impact=80:priority=85,performance:confidence=85:impact=75:priority=80 \
+      --fix=80 \
+      --auto-apply \
+      --format
+
+
+node src/main.js analyze ./test --recursive \
+  --types=security:confidence=90:impact=80:priority=85,\
+performance:confidence=85:impact=75:priority=80 \
+  --fix=80 \
+  --format
