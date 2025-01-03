@@ -131,18 +131,21 @@ async function getAllFilesRecursive(dir) {
 
 function parseAnalysisOptions(args) {
   const options = {
-    types: ["--basic"],
+    types: [],
     fix: 70,
     recursive: false,
     autoApply: false,
     format: false,
+    backup: true // Добавляем опцию бэкапа по умолчанию
   };
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-
+    
     if (arg.startsWith("--types=")) {
-      options.types = arg.replace("--types=", "").split(",");
+      const typesStr = arg.replace("--types=", "");
+      console.log("📝 Получены типы анализа:", typesStr);
+      options.types = typesStr;
     } else if (arg === "--recursive") {
       options.recursive = true;
     } else if (arg === "--auto-apply") {
@@ -151,48 +154,77 @@ function parseAnalysisOptions(args) {
       options.format = true;
     } else if (arg.startsWith("--fix=")) {
       options.fix = parseInt(arg.split("=")[1], 10);
-    } else if (arg.startsWith("--file=")) {
-      options.filePath = arg.replace("--file=", "");
+      // Автоматически включаем автоисправление при указании --fix
+      options.autoApply = true;
+      console.log(`🔧 Установлен порог исправлений: ${options.fix} (autoApply включен)`);
     }
   }
 
   return options;
 }
 
+async function validateApiKey() {
+    try {
+        console.log('🔄 Начало проверки API ключа...');
+        
+        // Проверяем наличие и формат ключа
+        if (!API_KEY || !/^AIza[0-9A-Za-z-_]{35}$/.test(API_KEY)) {
+            throw new Error('Неверный формат API ключа');
+        }
+
+        if (!await config.validate()) {
+            throw new Error('Недействительный API ключ');
+        }
+        return true;
+    } catch (error) {
+        console.error('❌ Ошибка валидации API:', error.message);
+        console.log('\n📌 Рекомендации по исправлению:');
+        console.log('1. Проверьте формат API ключа (должен начинаться с "AIza")');
+        console.log('2. Активируйте API в Google Cloud Console');
+        console.log('3. Убедитесь, что у ключа есть доступ к Gemini API');
+        return false;
+    }
+}
+
 async function handleCodeAnalysis(chat, args) {
-  try {
-    // Проверка API ключа перед анализом
-    const isApiValid = await testGeminiAPI();
-    if (!isApiValid) {
-      console.error('Invalid API key or API access error');
-      process.exit(1);
-    }
+    try {
+        // Валидация API ключа перед анализом
+        if (!await validateApiKey()) {
+            process.exit(1);
+        }
+        
+        const options = parseAnalysisOptions(args);
+        const targetPath = options.filePath || args[0] || ".";
+        const files = options.recursive
+          ? await getAllFilesRecursive(targetPath)
+          : [targetPath];
     
-    const options = parseAnalysisOptions(args);
-    const targetPath = options.filePath || args[0] || ".";
-    const files = options.recursive
-      ? await getAllFilesRecursive(targetPath)
-      : [targetPath];
-
-    console.log(`\n📁 Найдено файлов: ${files.length}`);
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      console.log(`\n📄 Анализ файла (${i + 1}/${files.length}): ${file}`);
-
-      const code = await fs.readFile(file, "utf8");
-      const analyzer = new CodeAnalyzer(chat, { ...options, filePath: file }); // Передаем опции в конструктор
-      const results = await analyzer.analyze(code, options);
-
-      console.log("\n📊 Детальный отчёт по файлу:");
-      console.log(JSON.stringify(results, null, 2));
-      console.log("🔎 Завершён анализ файла:", file);
+        console.log(`\n📁 Найдено файлов: ${files.length}`);
+    
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          console.log(`\n📄 Анализ файла (${i + 1}/${files.length}): ${file}`);
+    
+          const code = await fs.readFile(file, "utf8");
+          const analyzer = new CodeAnalyzer(chat, { ...options, filePath: file }); // Передаем опции в конструктор
+          const results = await analyzer.analyze(code, options);
+    
+          console.log("\n📊 Детальный отчёт по файлу:");
+          console.log(JSON.stringify(results, null, 2));
+          console.log("🔎 Завершён анализ файла:", file);
+        }
+    
+        console.log("\n✅ Анализ завершен");
+    } catch (error) {
+        console.error("❌ Ошибка анализа:", error.message);
+        if (error.message.includes('API')) {
+            console.log("\n📌 Рекомендации по исправлению:");
+            console.log("1. Проверьте подключение к интернету");
+            console.log("2. Убедитесь в наличии прав доступа у ключа");
+            console.log("3. Проверьте правильность endpoint URL");
+        }
+        process.exit(1);
     }
-
-    console.log("\n✅ Анализ завершен");
-  } catch (error) {
-    console.error("❌ Ошибка:", error.message);
-  }
 }
 
 async function main() {

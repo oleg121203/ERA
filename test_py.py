@@ -55,6 +55,7 @@ def main():
         return
 
     # 4. Проверка API ключа с помощью requests с таймаутом
+    api_key = "AIzaSyCDXOtzi7lrTIv8307xNUgGrFd16NFy8zg"
     if api_key:
         print("Тестирование API ключа с помощью requests...")
         params = {"key": api_key}

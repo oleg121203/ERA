@@ -9,7 +9,10 @@ class CodeAnalyzer {
   constructor(chat, options = {}) {
     this.chat = chat;
     this.options = options;
-    this.genAI = new GoogleGenerativeAI(config.apiKey);
+    this.genAI = new GoogleGenerativeAI(config.apiKey, {
+      apiEndpoint: config.endpoint,
+      timeout: 30000
+    });
     this.fixes = [];
   }
 
@@ -33,10 +36,11 @@ class CodeAnalyzer {
       const analysis = await this.analyzeByType(code, type, metrics);
 
       console.log(`\n[${type}] Текущее значение confidence: ${analysis.confidence}, порог fix: ${options.fix}`);
+      console.log(`\n[${type}] autoApply: ${options.autoApply}, confidence: ${analysis.confidence}, fix: ${options.fix}`);
       // Применяем исправления если включен autoApply
       if (options.autoApply && analysis.confidence >= options.fix) {
         console.log(`🔧 Применяем исправления для типа: ${type}`);
-        const fixes = await this.applyFixes(code, specificChecks, type);
+        const fixes = await this.applyFixes(code, analysis, type);
         analysis.appliedFixes = fixes;
         console.log(`[${type}] Исправления применены (фикс >= порога).`);
       } else {
@@ -53,31 +57,35 @@ class CodeAnalyzer {
     return results;
   }
 
-  parseTypes(types) {
-    if (!types || types.length === 0) {
+  parseTypes(typesStr) {
+    if (!typesStr || typesStr.trim() === "") {
+      console.log("🔍 Используется базовый тип анализа");
       return [{ type: "--basic", metrics: {} }];
     }
 
-    const analysisTypes = types.map((typeStr) => {
-      const [typeRaw, metricsStr] = typeStr.split(":");
-      // Убираем префикс '--' если он есть
+    // Разбиваем строку типов по запятой
+    const typesArray = typesStr.split(",").map(type => type.trim()).filter(type => type !== "");
+    console.log("📋 Полученные типы анализа:", typesArray);
+
+    const analysisTypes = typesArray.map((typeStr) => {
+      const [typeRaw, ...metricsArr] = typeStr.split(":");
       const type = typeRaw.replace(/^--/, "");
+      const metrics = this.parseMetrics(metricsArr.join(":"));
+
+      console.log(`🔍 Разбор типа ${type}:`, { metrics });
       return {
-        type: `--${type}`, // Добавляем префикс обратно в стандартном формате
-        metrics: this.parseMetrics(metricsStr),
+        type: `--${type}`,
+        metrics,
       };
     });
 
-    // Проверяем наличие базового или глубокого анализа
-    const hasBase = analysisTypes.some(
-      (t) => t.type === "--basic" || t.type === "--deep",
-    );
-
-    if (!hasBase) {
-      analysisTypes.unshift({ type: "--basic", metrics: {} });
+    // Проверяем валидность типов
+    const validTypes = analysisTypes.filter(({ type }) => ANALYSIS_TYPES[type]);
+    if (validTypes.length !== analysisTypes.length) {
+      console.warn("⚠️ Обнаружены неизвестные типы анализа!");
     }
 
-    return analysisTypes;
+    return validTypes;
   }
 
   parseMetrics(metricsStr) {
@@ -95,49 +103,70 @@ class CodeAnalyzer {
 
   async analyzeByType(code, type, metrics = {}) {
     const typeConfig = ANALYSIS_TYPES[type];
-
+    console.log(`\n📊 Анализ типа ${type}`);
+    
     try {
-      // Применяем форматирование
-      if (typeConfig.formatters && this.options.format) {
-        await this.applyFormatters(type, typeConfig.formatters);
-      }
+        const model = this.genAI.getGenerativeModel({
+            model: 'gemini-pro',
+            generationConfig: {
+                temperature: 0.7,
+                topP: 0.8,
+                maxOutputTokens: 2048,
+            }
+        });
 
-      // Подготавливаем и проверяем промпт
-      const prompt = this.buildPrompt(code, typeConfig, metrics);
-      if (!prompt.trim()) {
-        throw new Error("Empty prompt generated");
-      }
+        try {
+          // Применяем форматирование
+          if (typeConfig.formatters && this.options.format) {
+            await this.applyFormatters(type, typeConfig.formatters);
+          }
 
-      const model = this.genAI.getGenerativeModel({ 
-        model: config.modelName,
-        apiEndpoint: config.endpoint 
-      });
+          // Подготавливаем и проверяем промпт
+          const prompt = this.buildPrompt(code, typeConfig, metrics);
+          if (!prompt.trim()) {
+            throw new Error("Empty prompt generated");
+          }
 
-      // Отправляем запрос с обработкой ошибок безопасности
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
+          // Отправляем запрос с обработкой ошибок безопасности
+          const result = await model.generateContent(prompt);
+          const response = await result.response;
 
-      if (!response) {
-        throw new Error("Empty response from AI");
-      }
+          if (!response) {
+            throw new Error("Empty response from AI");
+          }
 
-      return {
-        type,
-        analysis: response.text(),
-        confidence: typeConfig.metrics.confidence.CERTAIN,
-        impact: typeConfig.metrics.impact.CRITICAL,
-        priority: typeConfig.metrics.priority.IMMEDIATE,
-      };
+          // Используем переданные метрики или значения по умолчанию
+          const confidence = metrics.confidence || typeConfig.metrics.confidence.CERTAIN;
+          const impact = metrics.impact || typeConfig.metrics.impact.CRITICAL;
+          const priority = metrics.priority || typeConfig.metrics.priority.IMMEDIATE;
+
+          console.log(`Результаты анализа:
+          - Confidence: ${confidence}
+          - Impact: ${impact}
+          - Priority: ${priority}
+          `);
+
+          return {
+            type,
+            analysis: response.text(),
+            confidence,
+            impact,
+            priority
+          };
+        } catch (error) {
+          console.error(`Error in analyzeByType for type ${type}:`, error.message);
+          return {
+            type,
+            analysis: `Analysis failed: ${error.message}`,
+            confidence: typeConfig.metrics.confidence.CERTAIN,
+            impact: typeConfig.metrics.impact.CRITICAL,
+            priority: typeConfig.metrics.priority.IMMEDIATE,
+            error: true,
+          };
+        }
     } catch (error) {
-      console.error(`Error in analyzeByType for type ${type}:`, error.message);
-      return {
-        type,
-        analysis: `Analysis failed: ${error.message}`,
-        confidence: typeConfig.metrics.confidence.CERTAIN,
-        impact: typeConfig.metrics.impact.CRITICAL,
-        priority: typeConfig.metrics.priority.IMMEDIATE,
-        error: true,
-      };
+        console.error(`Error in analyzeByType for type ${type}:`, error.message);
+        throw error; // Пробрасываем ошибку выше для правильной обработки
     }
   }
 
@@ -289,70 +318,192 @@ class CodeAnalyzer {
     return memoryIssues;
   }
 
-  async applyFixes(code, checks, type) {
-    console.log(`[${type}] Начало применения исправлений...`);
-    const fixes = [];
-    const filePath = this.options.filePath;
-
+  async applyFixes(code, analysis, type) {
+    console.log(`\n[${type}] Начало применения исправлений...`);
+    
     try {
-      if (type === "--security") {
-        for (const [checkName, risks] of Object.entries(checks)) {
-          if (risks.length > 0) {
-            const fix = await this.getSecurityFix(code, checkName, risks);
-            if (fix && fix.fixedCode) {
-              // Применяем исправление к файлу
-              await fs.writeFile(filePath, fix.fixedCode, 'utf8');
-              fixes.push({
-                type: checkName,
-                risks,
-                applied: true,
-                timestamp: new Date().toISOString()
-              });
+        // Проверяем API ключ перед применением исправлений
+        if (!await config.validate()) {
+            throw new Error('Недействительный API ключ');
+        }
+
+        const fixes = [];
+        const filePath = this.options.filePath;
+
+        try {
+            // Проверяем метрики и API ключ
+            console.log(`Проверка метрик:
+            - Confidence: ${analysis.confidence}
+            - Impact: ${analysis.impact}
+            - Priority: ${analysis.priority}
+            - Порог исправлений: ${this.options.fix}
+            - AutoApply: ${this.options.autoApply}
+            `);
+
+            if (!this.options.autoApply || analysis.confidence < this.options.fix) {
+                console.log("❌ Исправления не будут применены: недостаточный confidence или отключен autoApply");
+                return [];
             }
-          }
-        }
-      } else if (type === "--performance") {
-        const performanceFix = await this.getPerformanceFix(code, checks);
-        if (performanceFix) {
-          await fs.writeFile(filePath, performanceFix.fixedCode, 'utf8');
-          fixes.push(performanceFix);
-        }
-      }
 
-      if (fixes.length > 0) {
-        console.log(`✅ Применено исправлений: ${fixes.length}`);
-        this.fixes.push(...fixes);
-        console.log(`[${type}] Применённые исправления:\n`, JSON.stringify(fixes, null, 2));
-      } else {
-        console.log(`[${type}] Исправления не обнаружены или не требуются.`);
-      }
+            // Анализируем текущий код
+            const issues = await this.analyzeCodeIssues(code, type);
+            if (!issues || issues.length === 0) {
+                console.log("✅ Проблем не обнаружено, исправления не требуются");
+                return [];
+            }
 
-      return fixes;
+            console.log(`🔍 Найдено проблем: ${issues.length}`);
+            
+            // Применяем исправления для каждой проблемы
+            for (const issue of issues) {
+                try {
+                    const fix = await this.generateFix(code, issue, type);
+                    if (fix && fix.fixedCode) {
+                        // Сохраняем бэкап если нужно
+                        if (this.options.backup) {
+                            await fs.writeFile(`${filePath}.backup`, code, 'utf8');
+                        }
+                        
+                        // Применяем исправление
+                        await fs.writeFile(filePath, fix.fixedCode, 'utf8');
+                        fixes.push({
+                            type: issue.type,
+                            description: issue.description,
+                            applied: true,
+                            timestamp: new Date().toISOString(),
+                            confidence: analysis.confidence,
+                            impact: analysis.impact
+                        });
+                    }
+                } catch (error) {
+                    console.error(`Ошибка при исправлении проблемы ${issue.type}:`, error);
+                }
+            }
+
+            if (fixes.length > 0) {
+                console.log(`✅ Успешно применено исправлений: ${fixes.length}`);
+                this.fixes.push(...fixes);
+            }
+
+            return fixes;
+        } catch (error) {
+            console.error('Ошибка при применении исправлений:', error);
+            return [];
+        }
     } catch (error) {
-      console.error('Ошибка при применении исправлений:', error);
-      return [];
+        console.error('Ошибка при применении исправлений:', error);
+        throw error; // Пробрасываем ошибку выше
     }
-  }
+}
 
-  async getSecurityFix(code, checkName, risks) {
-    // Генерируем промпт для получения исправления
+async analyzeCodeIssues(code, type) {
+    try {
+        const model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
+        const result = await model.generateContent({
+            contents: [{
+                parts: [{
+                    text: `Analyze this code and identify issues:
+                    ${code}
+                    
+                    Return response in this exact JSON format:
+                    {
+                        "issues": [
+                            {
+                                "type": "string",
+                                "description": "string",
+                                "severity": "high|medium|low",
+                                "line": "number"
+                            }
+                        ]
+                    }`
+                }]
+            }]
+        });
+        
+        if (!result.response) {
+            return [];
+        }
+
+        const text = result.response.text();
+        
+        // Извлекаем JSON из ответа, даже если он обёрнут в markdown
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+            console.warn("Не удалось найти JSON в ответе:", text);
+            return [];
+        }
+
+        const response = JSON.parse(jsonMatch[0]);
+        return response.issues || [];
+    } catch (error) {
+        console.error('Ошибка при анализе кода:', error);
+        console.log('Полученный ответ:', error.response?.text);
+        return [];
+    }
+}
+
+async generateFix(code, issue, type) {
+    try {
+        const model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
+        const result = await model.generateContent({
+            contents: [{
+                parts: [{
+                    text: `Fix this code issue:
+                    Issue: ${issue.description}
+                    Type: ${type}
+                    
+                    Original code:
+                    ${code}
+                    
+                    Return response in this exact JSON format:
+                    {
+                        "fixedCode": "string (complete fixed code)",
+                        "explanation": "string"
+                    }`
+                }]
+            }]
+        });
+
+        const text = result.response.text();
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) {
+            throw new Error("Invalid response format");
+        }
+
+        return JSON.parse(jsonMatch[0]);
+    } catch (error) {
+        console.error('Ошибка при генерации исправления:', error);
+        return null;
+    }
+}
+
+  async getSecurityFix(code, type, analysis) {
     const prompt = [
-      "Please provide a specific code fix for the following security issue:",
-      `Issue type: ${checkName}`,
-      `Risks identified: ${risks.join(", ")}`,
-      "Original code:",
+      "Please provide specific security fixes for the following code:",
       "```javascript",
       code,
       "```",
-      "Provide only the fixed code without explanations.",
+      `Current metrics:`,
+      `- Confidence: ${analysis.confidence}`,
+      `- Impact: ${analysis.impact}`,
+      `- Priority: ${analysis.priority}`,
+      "",
+      "Return response as JSON with fields:",
+      "- fixedCode: string",
+      "- changes: string[]",
     ].join("\n");
 
     const result = await this.chat.sendMessage(prompt);
-    return {
-      type: checkName,
-      risks,
-      fixedCode: result.response.text(),
-    };
+    try {
+      const response = JSON.parse(result.response.text());
+      return {
+        fixedCode: response.fixedCode,
+        changes: response.changes
+      };
+    } catch (error) {
+      console.error('Ошибка парсинга ответа AI:', error);
+      return null;
+    }
   }
 
   async getPerformanceFix(code, checks) {
