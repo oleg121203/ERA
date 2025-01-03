@@ -23,24 +23,33 @@ node src/main.js analyze scripts/project-structure.ts \
 
   node src/main.js analyze scripts/project-structure.ts --types=basic --fix=80
 
-  # Базовый анализ файла
-node src/main.js analyze ./src/main.js --basic
+ 
 
-# Анализ с проверкой безопасности и производительности
-node src/main.js analyze ./src/main.js \
+
+ # Базовый анализ TypeScript файла
+node src/main.js analyze /workspaces/ERA/.devcontainer/extension.ts \
+  --basic \
+  --lang=typescript
+
+# Анализ безопасности и производительности
+node src/main.js analyze /workspaces/ERA/.devcontainer/extension.ts \
   --types=security,performance \
   --fix=80 \
-  --auto-apply
+  --auto-apply \
+  --ts-config=/workspaces/ERA/tsconfig.json
 
 # Полный анализ с метриками
-node src/main.js analyze ./src/main.js \
+node src/main.js analyze /workspaces/ERA/.devcontainer/extension.ts \
   --types=basic,security,performance \
   --metrics \
   --fix=80 \
-  --format
+  --format \
+  --strict
 
-# Интерактивный режим
-node src/main.js analyze ./src \
+# Интерактивный анализ расширения
+node src/main.js analyze /workspaces/ERA/.devcontainer \
   --interactive \
   --metrics \
-  --depth=2
+  --depth=2 \
+  --include="**/*.ts" \
+  --exclude="node_modules"

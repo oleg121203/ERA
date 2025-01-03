@@ -1,0 +1,169 @@
+{
+    "name": "Node.js & Python",
+    "image": "mcr.microsoft.com/devcontainers/javascript-node:20-bookworm",
+
+    "features": {
+        "ghcr.io/devcontainers/features/python:1": {
+            "version": "3.12",
+            "installTools": true,
+            "installPytest": true,
+            "installPylint": true
+        },
+        "ghcr.io/devcontainers/features/git:1": {
+            "version": "latest",
+            "ppa": true
+        }
+    },
+
+    "postCreateCommand": "npm install -g prettier typescript eslint && chmod +x scripts/setup-env.sh && bash ./scripts/setup-env.sh",
+    "postStartCommand": ". ~/.bashrc && export PATH=\"$(yarn global bin):$PATH\" && bash ./scripts/setup-env.sh && yarn verify-dependencies",
+
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "editor.formatOnSave": true,
+                "editor.codeActionsOnSave": {
+                    "source.fixAll": "explicit",
+                    "source.organizeImports": "explicit"
+                },
+                "[python]": {
+                    "editor.defaultFormatter": "ms-python.black-formatter",
+                    "editor.formatOnSave": true,
+                    "editor.codeActionsOnSave": {
+                        "source.organizeImports": "explicit"
+                    }
+                },
+                "[typescript]": {
+                    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+                    "editor.formatOnSave": true
+                },
+                "[javascript]": {
+                    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+                    "editor.formatOnSave": true,
+                    "editor.codeActionsOnSave": {
+                        "source.fixAll.eslint": "explicit"
+                    }
+                },
+                "python.linting.enabled": true,
+                "python.linting.pylintEnabled": true,
+                "python.linting.flake8Enabled": true,
+                "python.linting.mypyEnabled": true,
+                "python.sortImports.args": ["--profile", "black"],
+                "python.formatting.blackPath": "black",
+                "python.formatting.blackArgs": ["--line-length", "88"],
+                "isort.args": [
+                    "--profile",
+                    "black",
+                    "--line-length",
+                    "88"
+                ],
+                "isort.check": true,
+                "python.formatting.autopep8Path": "none",
+                "[javascriptreact]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode",
+                    "editor.formatOnSave": true
+                },
+                "[typescriptreact]": {
+                    "editor.defaultFormatter": "esbenp.prettier-vscode",
+                    "editor.formatOnSave": true
+                },
+                "eslint.format.enable": true,
+                "python.formatting.provider": "none",
+                "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+                "files.autoSave": "afterDelay",
+                "files.autoSaveDelay": 5000,
+                "eslint.enable": true,
+                "eslint.run": "onType",
+                "eslint.lintTask.enable": true,
+                "eslint.codeActionsOnSave.mode": "all",
+                "eslint.alwaysShowStatus": true,
+                "eslint.debug": true,
+                "eslint.packageManager": "yarn",
+                "eslint.probe": [
+                    "javascript",
+                    "typescript",
+                    "javascriptreact",
+                    "typescriptreact"
+                ],
+                "eslint.quiet": false,
+                "eslint.validate": [
+                    "javascript",
+                    "javascriptreact",
+                    "typescript",
+                    "typescriptreact"
+                ],
+                "npm.packageManager": "yarn",
+                "terminal.integrated.defaultProfile.linux": "bash",
+                "git.enableSmartCommit": true,
+                "files.eol": "\n",
+                "files.exclude": {
+                    "**/.git": true,
+                    "**/.svn": true,
+                    "**/.hg": true,
+                    "**/CVS": true,
+                    "**/.DS_Store": true,
+                    "**/node_modules": true
+                },
+                "files.watcherExclude": {
+                    "**/.git/**": true,
+                    "**/node_modules/**": true,
+                    "**/bower_components/**": true
+                },
+                "readonly.files": [
+                    "**/node_modules/**",
+                    "**/.git/**"
+                ]
+            },
+            "extensions": [
+                "esbenp.prettier-vscode",
+                "dbaeumer.vscode-eslint",
+                "ms-python.python",
+                "ms-python.black-formatter",
+                "ms-python.autopep8",
+                "ms-python.flake8",
+                "ms-python.isort",
+                "GitHub.copilot",
+                "GitHub.copilot-chat",
+                "google.geminicodeassist",
+                "eamodio.gitlens",
+                "christian-kohler.path-intellisense",
+                "visualstudioexptteam.vscodeintellicode",
+                "ms-azuretools.vscode-docker",
+                "swagatachaudhuri.github-copilot-tools-pack",
+                "github.copilot-workspace"
+            ]
+        }
+    },
+
+    "workspaceFolder": "/workspaces/ERA",
+
+    "mounts": [
+        "source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached,readonly",
+        "source=${localWorkspaceFolder}/.env,target=/workspaces/ERA/.env,type=bind,consistency=cached"
+    ],
+
+    "containerEnv": {
+        "GEMINI_API_KEY": "AIzaSyCDXOtzi7lrTIv8307xNUgGrFd16NFy8zg",
+        "DEBUG": "true"
+    },
+    "remoteEnv": {
+        "PATH": "${containerEnv:PATH}:/usr/local/share/.config/yarn/global/node_modules/.bin",
+        "GEMINI_API_KEY": "AIzaSyCDXOtzi7lrTIv8307xNUgGrFd16NFy8zg"
+    },
+
+    "remoteUser": "node",
+    "updateRemoteUserUID": true,
+
+    "portsAttributes": {
+        "3000": {
+            "label": "Local Development",
+            "onAutoForward": "notify"
+        },
+        "4000": {
+            "label": "Remote Access",
+            "onAutoForward": "notify",
+            "visibility": "public"
+        }
+    },
+    "forwardPorts": [3000, 4000]
+}
