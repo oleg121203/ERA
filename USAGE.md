@@ -413,3 +413,42 @@ node src/main.js analyze scripts/project-structure.ts --types=basic,security,per
 ```bash
 node src/main.js analyze scripts/project-structure.ts --types=basic,security,performance,breakpoint,imports
 ```
+
+node src/main.js analyze scripts/project-structure.ts --types=imports:confidence=85:impact=75:priority=80,breakpoint:confidence=80:impact=70:priority=75 --fix=70 --auto-apply --format --metrics --strict --log-file=analysis_report757465.json
+
+
+
+node src/main.js analyze ./tsrc \
+  --recursive \
+  --types=basic:confidence=80:impact=70:priority=75,\
+security:confidence=90:impact=80:priority=85,\
+performance:confidence=85:impact=75:priority=80,\
+syntax:confidence=95:impact=60:priority=70,\
+imports:confidence=85:impact=75:priority=80,\
+breakpoint:confidence=80:impact=70:priority=75 \
+  --fix=70 \
+  --auto-apply \
+  --format \
+  --metrics \
+  --strict \
+  --depth=2 \
+  --exclude="node_modules" \
+  --log-file=analysis_report.json
+
+
+  node src/main.js analyze ./tsrc \
+  --recursive \
+  --types=basic:confidence=80:impact=70:priority=75,\
+security:confidence=90:impact=80:priority=85,\
+performance:confidence=85:impact=75:priority=80,\
+syntax:confidence=95:impact=60:priority=70,\
+imports:confidence=85:impact=75:priority=80,\
+breakpoint:confidence=80:impact=70:priority=75 \
+  --fix=70 \
+  --auto-apply \
+  --format \
+  --metrics \
+  --strict \
+  --depth=2 \
+  --exclude="node_modules" \
+  --log-file=analysis_report.json

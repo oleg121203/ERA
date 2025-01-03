@@ -1,0 +1,294 @@
+[2025-01-03T14:36:53.782Z] 🔄 Начало проверки API ключа...
+[2025-01-03T14:36:53.782Z] 🔑 Проверка API ключа: AIzaSy...y8zg
+[2025-01-03T14:36:54.922Z] ✅ API ключ успешно валидирован
+[2025-01-03T14:36:54.922Z] 📝 Получены типы анализа:
+[2025-01-03T14:36:54.922Z] 🔧 Установлен порог исправлений: 70 (autoApply включен)
+[2025-01-03T14:36:54.923Z] 📂 Указан путь для анализа: ./tsrc
+[2025-01-03T14:36:54.926Z] 📁 Найдено файлов: 4
+[2025-01-03T14:36:54.926Z] 📄 Анализ файла (1/4): tsrc/analyzer.js
+[2025-01-03T14:36:54.928Z] 📋 Полученные типы анализа:
+[2025-01-03T14:36:54.928Z] 🔍 Разбор типа imports:
+[2025-01-03T14:36:54.928Z] 
+🔧 Форматирование файла: tsrc/analyzer.js
+[2025-01-03T14:36:54.929Z]    Применяем prettier-vscode...
+[2025-01-03T14:36:55.108Z]    ✅ prettier-vscode completed
+[2025-01-03T14:36:55.108Z]    Применяем eslint...
+[2025-01-03T14:36:55.326Z]    ✅ eslint completed
+[2025-01-03T14:36:55.326Z] 
+📊 Анализ типа --imports
+[2025-01-03T14:36:57.387Z] Результаты анализа:
+          - Confidence: 85
+          - Impact: 75
+          - Priority: 80
+          
+[2025-01-03T14:36:57.388Z] 
+[--imports] Текущее значение confidence: 85, порог fix: 70
+[2025-01-03T14:36:57.388Z] 
+[--imports] autoApply: true, confidence: 85, fix: 70
+[2025-01-03T14:36:57.388Z] 🔧 Применяем исправления для типа: --imports
+[2025-01-03T14:36:57.389Z] 
+[--imports] Начало применения исправлений...
+[2025-01-03T14:36:57.389Z] 🔑 Проверка API ключа: AIzaSy...y8zg
+[2025-01-03T14:36:57.545Z] ✅ API ключ успешно валидирован
+[2025-01-03T14:36:57.545Z] Проверка метрик:
+            - Confidence: 85
+            - Impact: 75
+            - Priority: 80
+            - Порог исправлений: 70
+            - AutoApply: true
+            
+[2025-01-03T14:36:59.948Z] ✅ Проблем не обнаружено, исправления не требуются
+[2025-01-03T14:36:59.948Z] [--imports] Исправления применены (фикс >= порога).
+[2025-01-03T14:36:59.948Z] 🔍 Начало анализа импортов...
+[2025-01-03T14:36:59.948Z] 
+📊 Детальный отчёт по файлу:
+[2025-01-03T14:36:59.949Z] [
+  {
+    "type": "--imports",
+    "analysis": "```json\n{\n  \"codeQualityScore\": 75,\n  \"specificIssuesFound\": [],\n  \"concreteImprovementSuggestions\": [],\n  \"codeExamplesForFixes\": []\n}\n```",
+    "confidence": 85,
+    "impact": 75,
+    "priority": 80,
+    "appliedFixes": [],
+    "importDetails": [
+      {
+        "importType": "external",
+        "dependencies": [
+          "react",
+          "lodash"
+        ],
+        "installed": true
+      },
+      {
+        "importType": "internal",
+        "dependencies": [
+          "./utils/logger",
+          "./constants"
+        ],
+        "installed": true
+      }
+    ],
+    "specificChecks": {},
+    "formattingApplied": true,
+    "fixesApplied": 0
+  }
+]
+[2025-01-03T14:36:59.949Z] 🔎 Завершён анализ файла:
+[2025-01-03T14:36:59.949Z] 📄 Анализ файла (2/4): tsrc/config/gemini.config.js
+[2025-01-03T14:36:59.950Z] 📋 Полученные типы анализа:
+[2025-01-03T14:36:59.950Z] 🔍 Разбор типа imports:
+[2025-01-03T14:36:59.950Z] 
+🔧 Форматирование файла: tsrc/config/gemini.config.js
+[2025-01-03T14:36:59.950Z]    Применяем prettier-vscode...
+[2025-01-03T14:37:00.091Z]    ✅ prettier-vscode completed
+[2025-01-03T14:37:00.091Z]    Применяем eslint...
+[2025-01-03T14:37:00.290Z]    ✅ eslint completed
+[2025-01-03T14:37:00.290Z] 
+📊 Анализ типа --imports
+[2025-01-03T14:37:01.630Z] Результаты анализа:
+          - Confidence: 85
+          - Impact: 75
+          - Priority: 80
+          
+[2025-01-03T14:37:01.631Z] 
+[--imports] Текущее значение confidence: 85, порог fix: 70
+[2025-01-03T14:37:01.631Z] 
+[--imports] autoApply: true, confidence: 85, fix: 70
+[2025-01-03T14:37:01.631Z] 🔧 Применяем исправления для типа: --imports
+[2025-01-03T14:37:01.631Z] 
+[--imports] Начало применения исправлений...
+[2025-01-03T14:37:01.631Z] 🔑 Проверка API ключа: AIzaSy...y8zg
+[2025-01-03T14:37:01.784Z] ✅ API ключ успешно валидирован
+[2025-01-03T14:37:01.784Z] Проверка метрик:
+            - Confidence: 85
+            - Impact: 75
+            - Priority: 80
+            - Порог исправлений: 70
+            - AutoApply: true
+            
+[2025-01-03T14:37:06.116Z] ✅ Проблем не обнаружено, исправления не требуются
+[2025-01-03T14:37:06.116Z] [--imports] Исправления применены (фикс >= порога).
+[2025-01-03T14:37:06.116Z] 🔍 Начало анализа импортов...
+[2025-01-03T14:37:06.116Z] 
+📊 Детальный отчёт по файлу:
+[2025-01-03T14:37:06.117Z] [
+  {
+    "type": "--imports",
+    "analysis": "```json\n{\n  \"codeQualityScore\": 100,\n  \"specificIssuesFound\": [],\n  \"concreteImprovementSuggestions\": [],\n  \"codeExamplesForFixes\": []\n}\n```",
+    "confidence": 85,
+    "impact": 75,
+    "priority": 80,
+    "appliedFixes": [],
+    "importDetails": [
+      {
+        "importType": "external",
+        "dependencies": [
+          "react",
+          "lodash"
+        ],
+        "installed": true
+      },
+      {
+        "importType": "internal",
+        "dependencies": [
+          "./utils/logger",
+          "./constants"
+        ],
+        "installed": true
+      }
+    ],
+    "specificChecks": {},
+    "formattingApplied": true,
+    "fixesApplied": 0
+  }
+]
+[2025-01-03T14:37:06.117Z] 🔎 Завершён анализ файла:
+[2025-01-03T14:37:06.117Z] 📄 Анализ файла (3/4): tsrc/constants.js
+[2025-01-03T14:37:06.117Z] 📋 Полученные типы анализа:
+[2025-01-03T14:37:06.118Z] 🔍 Разбор типа imports:
+[2025-01-03T14:37:06.118Z] 
+🔧 Форматирование файла: tsrc/constants.js
+[2025-01-03T14:37:06.118Z]    Применяем prettier-vscode...
+[2025-01-03T14:37:06.303Z]    ✅ prettier-vscode completed
+[2025-01-03T14:37:06.303Z]    Применяем eslint...
+[2025-01-03T14:37:06.523Z]    ✅ eslint completed
+[2025-01-03T14:37:06.524Z] 
+📊 Анализ типа --imports
+[2025-01-03T14:37:08.152Z] Результаты анализа:
+          - Confidence: 85
+          - Impact: 75
+          - Priority: 80
+          
+[2025-01-03T14:37:08.152Z] 
+[--imports] Текущее значение confidence: 85, порог fix: 70
+[2025-01-03T14:37:08.152Z] 
+[--imports] autoApply: true, confidence: 85, fix: 70
+[2025-01-03T14:37:08.153Z] 🔧 Применяем исправления для типа: --imports
+[2025-01-03T14:37:08.153Z] 
+[--imports] Начало применения исправлений...
+[2025-01-03T14:37:08.153Z] 🔑 Проверка API ключа: AIzaSy...y8zg
+[2025-01-03T14:37:08.968Z] ✅ API ключ успешно валидирован
+[2025-01-03T14:37:08.968Z] Проверка метрик:
+            - Confidence: 85
+            - Impact: 75
+            - Priority: 80
+            - Порог исправлений: 70
+            - AutoApply: true
+            
+[2025-01-03T14:37:14.531Z] ✅ Проблем не обнаружено, исправления не требуются
+[2025-01-03T14:37:14.531Z] [--imports] Исправления применены (фикс >= порога).
+[2025-01-03T14:37:14.531Z] 🔍 Начало анализа импортов...
+[2025-01-03T14:37:14.531Z] 
+📊 Детальный отчёт по файлу:
+[2025-01-03T14:37:14.531Z] [
+  {
+    "type": "--imports",
+    "analysis": "```json\n{\n  \"codeQualityScore\": 85,\n  \"specificIssuesFound\": [],\n  \"concreteImprovementSuggestions\": [],\n  \"codeExamplesForFixes\": []\n}\n```",
+    "confidence": 85,
+    "impact": 75,
+    "priority": 80,
+    "appliedFixes": [],
+    "importDetails": [
+      {
+        "importType": "external",
+        "dependencies": [
+          "react",
+          "lodash"
+        ],
+        "installed": true
+      },
+      {
+        "importType": "internal",
+        "dependencies": [
+          "./utils/logger",
+          "./constants"
+        ],
+        "installed": true
+      }
+    ],
+    "specificChecks": {},
+    "formattingApplied": true,
+    "fixesApplied": 0
+  }
+]
+[2025-01-03T14:37:14.531Z] 🔎 Завершён анализ файла:
+[2025-01-03T14:37:14.531Z] 📄 Анализ файла (4/4): tsrc/main.js
+[2025-01-03T14:37:14.533Z] 📋 Полученные типы анализа:
+[2025-01-03T14:37:14.533Z] 🔍 Разбор типа imports:
+[2025-01-03T14:37:14.533Z] 
+🔧 Форматирование файла: tsrc/main.js
+[2025-01-03T14:37:14.533Z]    Применяем prettier-vscode...
+[2025-01-03T14:37:14.796Z]    ✅ prettier-vscode completed
+[2025-01-03T14:37:14.797Z]    Применяем eslint...
+[2025-01-03T14:37:15.066Z]    ✅ eslint completed
+[2025-01-03T14:37:15.067Z] 
+📊 Анализ типа --imports
+[2025-01-03T14:37:27.492Z] Результаты анализа:
+          - Confidence: 85
+          - Impact: 75
+          - Priority: 80
+          
+[2025-01-03T14:37:27.493Z] 
+[--imports] Текущее значение confidence: 85, порог fix: 70
+[2025-01-03T14:37:27.493Z] 
+[--imports] autoApply: true, confidence: 85, fix: 70
+[2025-01-03T14:37:27.493Z] 🔧 Применяем исправления для типа: --imports
+[2025-01-03T14:37:27.493Z] 
+[--imports] Начало применения исправлений...
+[2025-01-03T14:37:27.493Z] 🔑 Проверка API ключа: AIzaSy...y8zg
+[2025-01-03T14:37:28.296Z] ✅ API ключ успешно валидирован
+[2025-01-03T14:37:28.296Z] Проверка метрик:
+            - Confidence: 85
+            - Impact: 75
+            - Priority: 80
+            - Порог исправлений: 70
+            - AutoApply: true
+            
+[2025-01-03T14:37:33.451Z] ✅ Проблем не обнаружено, исправления не требуются
+[2025-01-03T14:37:33.451Z] [--imports] Исправления применены (фикс >= порога).
+[2025-01-03T14:37:33.451Z] 🔍 Начало анализа импортов...
+[2025-01-03T14:37:33.451Z] 
+📊 Детальный отчёт по файлу:
+[2025-01-03T14:37:33.452Z] [
+  {
+    "type": "--imports",
+    "analysis": "```json\n{\n  \"codeQualityScore\": 85,\n  \"specificIssuesFound\": [\n    {\n      \"issueType\": \"Maintainability\",\n      \"description\": \"Lack of comments and documentation\",\n      \"example\": \"The function `handleCodeAnalysis` does not have any comments explaining its purpose or how it works.\"\n    },\n    {\n      \"issueType\": \"Security\",\n      \"description\": \"Insecure handling of user input\",\n      \"example\": \"The function `makeDirectRequest` does not validate the user input before sending it to the API, which could lead to potential security vulnerabilities.\"\n    },\n    {\n      \"issueType\": \"Performance\",\n      \"description\": \"Inefficient use of resources\",\n      \"example\": \"The function `getAllFilesRecursive` uses a synchronous recursive algorithm, which can be slow and inefficient for large directories.\"\n    }\n  ],\n  \"concreteImprovementSuggestions\": [\n    {\n      \"suggestionType\": \"Maintainability\",\n      \"description\": \"Add comments and documentation to explain the purpose and functionality of the code.\",\n      \"example\": \"Add comments to the `handleCodeAnalysis` function explaining its purpose, parameters, and return value.\"\n    },\n    {\n      \"suggestionType\": \"Security\",\n      \"description\": \"Validate user input before sending it to the API to prevent potential security vulnerabilities.\",\n      \"example\": \"Add input validation to the `makeDirectRequest` function to ensure that the user input is valid before sending it to the API.\"\n    },\n    {\n      \"suggestionType\": \"Performance\",\n      \"description\": \"Use a more efficient algorithm for traversing directories.\",\n      \"example\": \"Use an asynchronous iterative algorithm for traversing directories, which can be faster and more efficient for large directories.\"\n    }\n  ],\n  \"codeExamplesForFixes\": [\n    {\n      \"issueType\": \"Maintainability\",\n      \"example\": \"```javascript\\n// Function to analyze code and provide feedback\\nasync function handleCodeAnalysis(chat, options) {\\n  try {\\n    // ...\\n  } catch (error) {\\n    console.error(`❌ Error:`, error.message);\\n  }\\n}\\n```\"\n    },\n    {\n      \"issueType\": \"Security\",\n      \"example\": \"```javascript\\nasync function makeDirectRequest(prompt) {\\n  try {\\n    // Validate user input\\n    if (!prompt || prompt.trim() === '') {\\n      console.error('❌ Invalid input: Prompt cannot be empty.');\\n      return;\\n    }\\n    // ...\\n  } catch (error) {\\n    console.error(`❌ Error:`, error.message);\\n  }\\n}\\n```\"\n    },\n    {\n      \"issueType\": \"Performance\",\n      \"example\": \"```javascript\\nasync function getAllFilesRecursive(dir) {\\n  const files = [];\\n\\n  const scan = async (currentPath) => {\\n    try {\\n      const entries = await fs.readdir(currentPath, { withFileTypes: true });\\n\\n      for (const entry of entries) {\\n        const fullPath = path.join(currentPath, entry.name);\\n        if (entry.isDirectory()) {\\n          await scan(fullPath);\\n        } else if (entry.name.endsWith('.js')) {\\n          files.push(fullPath);\\n        }\\n      }\\n    } catch (error) {\\n      console.error(`❌ Error scanning ${currentPath}:`, error.message);\\n    }\\n  };\\n\\n  try {\\n    await fs.access(dir); // Check if directory exists\\n    await scan(dir);\\n    return files;\\n  } catch (error) {\\n    throw new Error(`Directory ${dir} not found or inaccessible`);\\n  }\\n}\\n```\"\n    }\n  ]\n}\n```",
+    "confidence": 85,
+    "impact": 75,
+    "priority": 80,
+    "appliedFixes": [],
+    "importDetails": [
+      {
+        "importType": "external",
+        "dependencies": [
+          "react",
+          "lodash"
+        ],
+        "installed": true
+      },
+      {
+        "importType": "internal",
+        "dependencies": [
+          "./utils/logger",
+          "./constants"
+        ],
+        "installed": true
+      }
+    ],
+    "specificChecks": {},
+    "formattingApplied": true,
+    "fixesApplied": 0
+  }
+]
+[2025-01-03T14:37:33.452Z] 🔎 Завершён анализ файла:
+[2025-01-03T14:37:33.452Z] 
+✅ Анализ завершен
+[2025-01-03T14:37:33.453Z] Итоговый отчет:
+{
+  "timestamp": "2025-01-03T14:37:33.453Z",
+  "errors": [],
+  "fixes": [],
+  "breakpoints": [],
+  "unresolvedErrors": 0,
+  "reasons": []
+}
