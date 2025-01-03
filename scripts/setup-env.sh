@@ -1,5 +1,17 @@
 #!/bin/bash
 
+# Проверяем системную переменную
+if [ -n "$GEMINI_API_KEY" ]; then
+    echo "Используется GEMINI_API_KEY из системных переменных"
+    # Обновляем .env файл с существующим ключом
+    cat > "$(dirname "$0")/../.env" << EOL
+GEMINI_API_KEY=${GEMINI_API_KEY}
+DEBUG=${DEBUG:-true}
+EOL
+    echo "Конфигурация обновлена"
+    exit 0
+fi
+
 # Запрашиваем API ключ у пользователя если он не передан
 if [ -z "$1" ]; then
   read -p "Введите ваш Gemini API ключ: " GEMINI_API_KEY

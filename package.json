@@ -23,7 +23,7 @@
     "setup": "bash ./scripts/setup-env.sh && yarn install && yarn add chokidar @types/chokidar && pip3 install --no-cache-dir -r requirements.txt && yarn compile",
     "prettier": "prettier --write \"src/**/*.{js,ts,jsx,tsx,html,php,java}\"",
     "typescript": "tsc --noEmit",
-    "verify-dependencies": "yarn check || yarn install",
+    "verify-dependencies": "yarn check || yarn install --silent",
     "install-extensions": "code --install-extension google.geminicodeassist",
     "start": "node ./src/main.js",
     "fix": "eslint --fix \"src/**/*.{js,ts,jsx,tsx,java,py,html,php}\"",
@@ -41,7 +41,7 @@
     "analyze": "node src/main.js analyze",
     "setup:env": "bash ./scripts/setup-env.sh",
     "test:api": "bash -c 'source ./scripts/setup-env.sh && node scripts/test-api-runner.js'",
-    "postinstall": "bash ./scripts/setup-env.sh"
+    "postinstall": "[ -f .env ] || [ -n \"$GEMINI_API_KEY\" ] || bash ./scripts/setup-env.sh"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",

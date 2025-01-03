@@ -195,3 +195,21 @@ DEBUG=true node src/main.js analyze ./src
 git pull
 npm install
 ```
+
+## Настройка API ключа
+
+Для безопасного хранения API ключа Gemini:
+
+1. Добавьте ключ в системные переменные:
+```bash
+echo "export GEMINI_API_KEY=ваш_ключ" >> ~/.bashrc
+source ~/.bashrc
+```
+
+2. Или создайте .env файл:
+```bash
+GEMINI_API_KEY=ваш_ключ
+DEBUG=true
+```
+
+**Важно:** Никогда не коммитьте .env файл в репозиторий!
