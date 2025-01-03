@@ -16,12 +16,12 @@ const config = {
 
   async validate() {
     if (!this.apiKey) {
-      console.error("❌ GEMINI_API_KEY не установлен в .env файле");
+      logger.error("❌ GEMINI_API_KEY не установлен в .env файле");
       return false;
     }
 
     const maskedKey = `${this.apiKey.substring(0, 6)}...${this.apiKey.slice(-4)}`;
-    console.log(`🔑 Проверка API ключа: ${maskedKey}`);
+    logger.log(`🔑 Проверка API ключа: ${maskedKey}`);
 
     try {
       const url = `${this.endpoint}/models/gemini-pro?key=${this.apiKey}`;

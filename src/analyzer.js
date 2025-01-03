@@ -28,7 +28,7 @@ class CodeAnalyzer {
 
     for (const { type, metrics } of types) {
       if (!ANALYSIS_TYPES[type]) {
-        console.log(`Skipping unknown type: ${type}`);
+        logger.log(`Skipping unknown type: ${type}`);
         continue;
       }
 

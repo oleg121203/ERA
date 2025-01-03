@@ -22,11 +22,25 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 const args = process.argv.slice(2);
+let extraLogFile = null; // Дополнительный файл логов
+
+for (let i = 0; i < args.length; i++) {
+  const arg = args[i];
+  if (arg.startsWith("--log-file=")) {
+    extraLogFile = arg.replace("--log-file=", "");
+    logger.log(`Дополнительный лог-файл: ${extraLogFile}`);
+  }
+}
+
+// Устанавливаем дополнительный файл логирования
+if (extraLogFile) {
+  logger.setAdditionalLogFile(extraLogFile);
+}
 
 function showHelp() {
-  console.log("Доступные команды:");
-  console.log("/help - показать список команд");
-  console.log("/code - режим генерации кода");
+  logger.log("Доступные команды:");
+  logger.log("/help - показать список команд");
+  logger.log("/code - режим генерации кода");
 }
 
 function promptUser(question) {
@@ -63,7 +77,7 @@ async function runChat() {
         await handleCodeGeneration(chat);
       } else {
         const result = await chat.sendMessage(prompt);
-        console.log(result.response.text());
+        logger.log(result.response.text());
       }
     }
   } catch (error) {
@@ -144,7 +158,7 @@ function parseAnalysisOptions(args) {
 
     if (arg.startsWith("--types=")) {
       const typesStr = arg.replace("--types=", "");
-      console.log("📝 Получены типы анализа:", typesStr);
+      logger.log("📝 Получены типы анализа:", typesStr);
       options.types = typesStr;
     } else if (arg === "--recursive") {
       options.recursive = true;
@@ -156,7 +170,7 @@ function parseAnalysisOptions(args) {
       options.fix = parseInt(arg.split("=")[1], 10);
       // Автоматически включаем автоисправление при указании --fix
       options.autoApply = true;
-      console.log(
+      logger.log(
         `🔧 Установлен порог исправлений: ${options.fix} (autoApply включен)`,
       );
     }
@@ -167,7 +181,7 @@ function parseAnalysisOptions(args) {
 
 async function validateApiKey() {
   try {
-    console.log("🔄 Начало проверки API ключа...");
+    logger.log("🔄 Начало проверки API ключа...");
 
     // Проверяем наличие и формат ключа
     if (!API_KEY || !/^AIza[0-9A-Za-z-_]{35}$/.test(API_KEY)) {
@@ -180,10 +194,10 @@ async function validateApiKey() {
     return true;
   } catch (error) {
     logger.error(`❌ Ошибка валидации API: ${error.message}`);
-    console.log("\n📌 Рекомендации по исправлению:");
-    console.log('1. Проверьте формат API ключа (должен начинаться с "AIza")');
-    console.log("2. Активируйте API в Google Cloud Console");
-    console.log("3. Убедитесь, что у ключа есть доступ к Gemini API");
+    logger.log("\n📌 Рекомендации по исправлению:");
+    logger.log('1. Проверьте формат API ключа (должен начинаться с "AIza")');
+    logger.log("2. Активируйте API в Google Cloud Console");
+    logger.log("3. Убедитесь, что у ключа есть доступ к Gemini API");
     return false;
   }
 }
@@ -197,33 +211,37 @@ async function handleCodeAnalysis(chat, args) {
 
     const options = parseAnalysisOptions(args);
     const targetPath = options.filePath || args[0] || ".";
+
+    // Логирование указания файла для анализа
+    logger.log(`📂 Указан путь для анализа: ${targetPath}`);
+
     const files = options.recursive
       ? await getAllFilesRecursive(targetPath)
       : [targetPath];
 
-    console.log(`\n📁 Найдено файлов: ${files.length}`);
+    logger.log(`📁 Найдено файлов: ${files.length}`);
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      console.log(`\n📄 Анализ файла (${i + 1}/${files.length}): ${file}`);
+      logger.log(`📄 Анализ файла (${i + 1}/${files.length}): ${file}`);
 
       const code = await fs.readFile(file, "utf8");
       const analyzer = new CodeAnalyzer(chat, { ...options, filePath: file }); // Передаем опции в конструктор
       const results = await analyzer.analyze(code, options);
 
-      console.log("\n📊 Детальный отчёт по файлу:");
-      console.log(JSON.stringify(results, null, 2));
-      console.log("🔎 Завершён анализ файла:", file);
+      logger.log("\n📊 Детальный отчёт по файлу:");
+      logger.log(JSON.stringify(results, null, 2));
+      logger.log("🔎 Завершён анализ файла:", file);
     }
 
-    console.log("\n✅ Анализ завершен");
+    logger.log("\n✅ Анализ завершен");
   } catch (error) {
     logger.error(`❌ Ошибка анализа: ${error.message}`);
     if (error.message.includes("API")) {
-      console.log("\n📌 Рекомендации по исправлению:");
-      console.log("1. Проверьте подключение к интернету");
-      console.log("2. Убедитесь в наличии прав доступа у ключа");
-      console.log("3. Проверьте правильность endpoint URL");
+      logger.log("\n📌 Рекомендации по исправлению:");
+      logger.log("1. Проверьте подключение к интернету");
+      logger.log("2. Убедитесь в наличии прав доступа у ключа");
+      logger.log("3. Проверьте правильность endpoint URL");
     }
     process.exit(1);
   }
@@ -260,7 +278,7 @@ async function main() {
           handleCodeGeneration();
           break;
         default:
-          console.log(
+          logger.log(
             "Неизвестная команда. Доступные команды: chat, direct, code, analyze",
           );
       }
@@ -269,12 +287,12 @@ async function main() {
     }
     rl.close();
   } else {
-    console.log("Добро пожаловать в Gemini AI Assistant!");
+    logger.log("Добро пожаловать в Gemini AI Assistant!");
     while (true) {
-      console.log("Главное меню:");
-      console.log("1. Chat режим");
-      console.log("2. Прямой запрос");
-      console.log("3. Выход");
+      logger.log("Главное меню:");
+      logger.log("1. Chat режим");
+      logger.log("2. Прямой запрос");
+      logger.log("3. Выход");
 
       const choice = await promptUser("Выберите режим (1-3): ");
       switch (choice) {
@@ -286,14 +304,14 @@ async function main() {
           await makeDirectRequest(prompt);
           break;
         case "3":
-          console.log("До свидания!");
+          logger.log("До свидания!");
           rl.close();
           return;
         default:
-          console.log("Неверный выбор. Попробуйте снова.");
+          logger.log("Неверный выбор. Попробуйте снова.");
       }
     }
   }
 }
 
-main().catch(console.error);
+main().catch(logger.error);
