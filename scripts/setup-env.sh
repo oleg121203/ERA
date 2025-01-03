@@ -1,10 +1,23 @@
 #!/bin/bash
 
-# Экспортируем переменные окружения
-export GEMINI_API_KEY="AIzaSyCKdHXI2CND5TlsGscB2vlIUluet5MQrDo"
+# Запрашиваем API ключ у пользователя если он не передан
+if [ -z "$1" ]; then
+  read -p "Введите ваш Gemini API ключ: " GEMINI_API_KEY
+else
+  GEMINI_API_KEY=$1
+fi
+
+# Проверяем что ключ не пустой
+if [ -z "$GEMINI_API_KEY" ]; then
+  echo "Error: API ключ не может быть пустым"
+  exit 1
+fi
+
+# Экспортируем переменные
+export GEMINI_API_KEY="${GEMINI_API_KEY}"
 export DEBUG=true
 
-# Сохраняем переменные в файл .env
+# Сохраняем в .env
 cat > "$(dirname "$0")/../.env" << EOL
 GEMINI_API_KEY=${GEMINI_API_KEY}
 DEBUG=${DEBUG}
@@ -28,3 +41,6 @@ if [ -z "$GEMINI_API_KEY" ]; then
     echo "Ошибка: GEMINI_API_KEY не установлен"
     exit 1
 fi
+
+# Выводим сообщение об успехе
+echo "API ключ успешно установлен в .env файл"

@@ -57,11 +57,11 @@
     "@typescript-eslint/utils": "^5.50.0",
     "cross-env": "^7.0.3",
     "eslint": "^8.57.1",
-    "prettier": "^3.4.2",
-    "typescript": "^5.7.2",
-    "rimraf": "^4.0.0",
     "glob": "^9.0.0",
-    "inflight": "^1.0.6"
+    "inflight": "^1.0.6",
+    "prettier": "^3.4.2",
+    "rimraf": "^4.0.0",
+    "typescript": "^5.7.2"
   },
   "contributes": {
     "commands": [

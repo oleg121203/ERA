@@ -15,8 +15,8 @@
         }
     },
 
-    "postCreateCommand": "bash ./scripts/setup-env.sh && python -m pip install --upgrade pip && yarn global add prettier eslint@^8.50.0 typescript && yarn add --dev @typescript-eslint/eslint-plugin@^5.50.0 @typescript-eslint/parser@^5.50.0 @typescript-eslint/utils@^5.50.0 && yarn install && yarn verify-dependencies",
-    "postStartCommand": ". ~/.bashrc && bash ./scripts/setup-env.sh && pip install -r requirements.txt && yarn install",
+    "postCreateCommand": "chmod +x scripts/setup-env.sh && bash ./scripts/setup-env.sh && python -m pip install --upgrade pip && yarn global add prettier eslint@^8.50.0 typescript && yarn add --dev @typescript-eslint/eslint-plugin@^5.50.0 @typescript-eslint/parser@^5.50.0 @typescript-eslint/utils@^5.50.0 && yarn install && yarn verify-dependencies",
+    "postStartCommand": "bash ./scripts/setup-env.sh \"${localEnv:GEMINI_API_KEY}\" && pip install -r requirements.txt && yarn install",
 
     "customizations": {
         "vscode": {
@@ -143,7 +143,7 @@
     ],
 
     "containerEnv": {
-        "GEMINI_API_KEY": "AIzaSyCKdHXI2CND5TlsGscB2vlIUluet5MQrDo",
+        "GEMINI_API_KEY": "${localEnv:GEMINI_API_KEY}",
         "DEBUG": "true"
     },
 
