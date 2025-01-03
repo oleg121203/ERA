@@ -1,5 +1,16 @@
 #!/bin/bash
 
+# Встановлюємо глобальні пакети
+npm install -g prettier typescript eslint
+
+# Додаємо шлях до глобальних пакетів
+export PATH="$(yarn global bin):$PATH"
+
+# Проверяем наличие форматтеров
+command -v prettier >/dev/null 2>&1 || { echo "Устанавливаем prettier..."; yarn global add prettier; }
+command -v eslint >/dev/null 2>&1 || { echo "Устанавливаем eslint..."; yarn global add eslint; }
+command -v tsc >/dev/null 2>&1 || { echo "Устанавливаем typescript..."; yarn global add typescript; }
+
 # Проверяем системную переменную
 if [ -n "$GEMINI_API_KEY" ]; then
     echo "Используется GEMINI_API_KEY из системных переменных"

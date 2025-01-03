@@ -15,8 +15,8 @@
         }
     },
 
-    "postCreateCommand": "chmod +x scripts/setup-env.sh && bash ./scripts/setup-env.sh",
-    "postStartCommand": ". ~/.bashrc && bash ./scripts/setup-env.sh && yarn verify-dependencies",
+    "postCreateCommand": "npm install -g prettier typescript eslint && chmod +x scripts/setup-env.sh && bash ./scripts/setup-env.sh",
+    "postStartCommand": ". ~/.bashrc && export PATH=\"$(yarn global bin):$PATH\" && bash ./scripts/setup-env.sh && yarn verify-dependencies",
 
     "customizations": {
         "vscode": {
@@ -147,6 +147,7 @@
         "DEBUG": "true"
     },
     "remoteEnv": {
+        "PATH": "${containerEnv:PATH}:/usr/local/share/.config/yarn/global/node_modules/.bin",
         "GEMINI_API_KEY": "AIzaSyCDXOtzi7lrTIv8307xNUgGrFd16NFy8zg"
     },
 

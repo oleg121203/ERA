@@ -41,7 +41,10 @@
     "analyze": "node src/main.js analyze",
     "setup:env": "bash ./scripts/setup-env.sh",
     "test:api": "bash -c 'source ./scripts/setup-env.sh && node scripts/test-api-runner.js'",
-    "postinstall": "[ -f .env ] || [ -n \"$GEMINI_API_KEY\" ] || bash ./scripts/setup-env.sh"
+    "postinstall": "[ -f .env ] || [ -n \"$GEMINI_API_KEY\" ] || bash ./scripts/setup-env.sh",
+    "format:check": "prettier --check \"src/**/*.{js,ts,jsx,tsx}\"",
+    "lint:check": "eslint --ext .js,.ts,.jsx,.tsx src",
+    "verify": "yarn format:check && yarn lint:check && yarn typescript"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
