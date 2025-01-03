@@ -8,7 +8,10 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Main Program",
-            "program": "${workspaceFolder}/main.js"
+            "program": "${workspaceFolder}/main.js",
+            "env": {
+                "GEMINI_API_KEY": "${env:GEMINI_API_KEY}"
+            }
         }
     ]
 }
