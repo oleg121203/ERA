@@ -16,7 +16,7 @@
     "setup": "bash scripts/setup-env.sh",
     "format": "prettier --write \"src/**/*.{js,ts}\" --config config/.prettierrc.js",
     "lint": "eslint \"src/**/*.{js,ts}\" --config config/.eslintrc.js",
-    "postinstall": "npm run setup",
+    "postinstall": "echo 'Setup completed'",
     "verify-dependencies": "node ./scripts/verify-dependencies.js",
     "generate-structure": "ts-node scripts/project-structure.ts",
     "watch-structure": "ts-node scripts/project-structure.ts --watch"

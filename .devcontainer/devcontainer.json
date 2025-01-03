@@ -1,6 +1,8 @@
 {
     "name": "ERA Dev Container",
-    "image": "mcr.microsoft.com/devcontainers/javascript-node:20-bookworm",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
 
     "features": {
         "ghcr.io/devcontainers/features/python:1": {
@@ -15,8 +17,12 @@
         }
     },
 
-    "postCreateCommand": "npm install -g ts-node typescript && npm install",
-    "postStartCommand": "bash -c '. ~/.bashrc && bash ./scripts/setup-env.sh || true && npm run verify-dependencies || true && npm run watch-structure || true'",
+    "postCreateCommand": "chmod +x ${containerWorkspaceFolder}/scripts/*.sh && ${containerWorkspaceFolder}/scripts/post-create.sh",
+    "postStartCommand": "bash -c '. ~/.bashrc && bash ./scripts/setup-env.sh || true && npm run verify-dependencies || true' && nohup code-server --bind-addr 0.0.0.0:4580 --auth none /workspaces/ERA &",
+
+    "initializeCommand": {
+        "set-permissions": "mkdir -p ${localWorkspaceFolder} && touch ${localWorkspaceFolder}/.env && chmod 666 ${localWorkspaceFolder}/.env"
+    },
 
     "customizations": {
         "vscode": {
@@ -156,12 +162,12 @@
             "onAutoForward": "notify",
             "protocol": "http"
         },
-        "4000": {
+        "4580": {
             "label": "Remote Access",
             "onAutoForward": "notify",
             "protocol": "http",
             "visibility": "public"
         }
     },
-    "forwardPorts": [3000, 4000]
+    "forwardPorts": [3000, 4580]
 }

@@ -1,5 +1,25 @@
 #!/bin/bash
 
+check_var() {
+    if [ -n "$1" ]; then
+        echo "Variable $2 is set"
+        return 0
+    else
+        echo "Error: Variable $2 is not set"
+        return 1
+    fi
+}
+
+# В начало скрипта добавим настройку прав
+sudo chown -R node:node /workspaces/ERA
+sudo chmod 755 /workspaces
+sudo chmod 666 /workspaces/ERA/.env
+sudo chmod 666 /workspaces/project-structure.txt 2>/dev/null || true
+
+# Ensure proper permissions for working directory
+sudo find /workspaces/ERA -type d -exec chmod 755 {} \;
+sudo find /workspaces/ERA -type f -exec chmod 644 {} \;
+
 # Переходим на npm вместо yarn
 npm install -g prettier typescript eslint
 
@@ -40,7 +60,7 @@ else
 fi
 
 # Проверяем что ключ не пустой
-if [ -з "$GEMINI_API_KEY" ]; then
+if [ -z "$GEMINI_API_KEY" ]; then
   echo "Error: API ключ не может быть пустым"
   exit 1
 fi
@@ -48,6 +68,10 @@ fi
 # Экспортируем переменные
 export GEMINI_API_KEY="${GEMINI_API_KEY}"
 export DEBUG=true
+
+# Перед сохранением в .env убедимся что файл доступен для записи
+touch "$(dirname "$0")/../.env"
+chmod 666 "$(dirname "$0")/../.env"
 
 # Сохраняем в .env
 cat > "$(dirname "$0")/../.env" << EOL
@@ -65,13 +89,24 @@ if [ -f ~/.bashrc ]; then
     mv ~/.bashrc.tmp ~/.bashrc
 fi
 
+# Ensure proper permissions for project structure
+sudo chown -R node:node /workspaces/ERA
+sudo chmod 755 /workspaces
+
+# Generate initial project structure
+echo "Generating project structure..."
+ts-node scripts/project-structure.ts
+
+# Run the structure watcher in background with proper permissions
+nohup ts-node scripts/project-structure.ts --watch > /tmp/structure-watcher.log 2>&1 &
+
 # Выводим текущие значения:
 echo "Текущие значения:"
 echo "GEMINI_API_KEY=${GEMINI_API_KEY}"
 echo "DEBUG=${DEBUG}"
 
 # Проверяем установку переменных
-if [ -з "$GEMINI_API_KEY" ]; then
+if [ -z "$GEMINI_API_KEY" ]; then
     echo "Ошибка: GEMINI_API_KEY не установлен"
     exit 1
 fi
