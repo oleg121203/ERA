@@ -1,0 +1,203 @@
+[2025-01-03T09:21:44.687Z] 🔄 Начало проверки API ключа...
+[2025-01-03T09:21:44.687Z] 🔑 Проверка API ключа: AIzaSy...dX3Y
+[2025-01-03T09:21:45.544Z] ✅ API ключ успешно валидирован
+[2025-01-03T09:21:45.544Z] 📝 Получены типы анализа:
+[2025-01-03T09:21:45.545Z] 🔧 Установлен порог исправлений: 70 (autoApply включен)
+[2025-01-03T09:21:45.545Z] 📂 Указан путь для анализа: ./tests
+[2025-01-03T09:21:45.547Z] 📁 Найдено файлов: 1
+[2025-01-03T09:21:45.548Z] 📄 Анализ файла (1/1): tests/test-api.js
+[2025-01-03T09:21:45.549Z] 📋 Полученные типы анализа:
+[2025-01-03T09:21:45.549Z] 🔍 Разбор типа basic:
+[2025-01-03T09:21:45.549Z] 🔍 Разбор типа security:
+[2025-01-03T09:21:45.550Z] 🔍 Разбор типа performance:
+[2025-01-03T09:21:45.550Z] 🔍 Разбор типа syntax:
+[2025-01-03T09:21:45.550Z] 
+🔧 Форматирование файла: tests/test-api.js
+[2025-01-03T09:21:45.550Z]    Применяем prettier-vscode...
+[2025-01-03T09:21:45.728Z]    ✅ prettier-vscode completed
+[2025-01-03T09:21:45.729Z]    Применяем eslint...
+[2025-01-03T09:21:45.944Z]    ✅ eslint completed
+[2025-01-03T09:21:45.944Z] 
+📊 Анализ типа --basic
+[2025-01-03T09:21:45.945Z] 🔧 Применяем форматтеры для --basic...
+[2025-01-03T09:21:45.945Z]    Running prettier-vscode...
+[2025-01-03T09:21:46.114Z]    ✅ prettier-vscode completed
+[2025-01-03T09:21:46.115Z]    Running eslint...
+[2025-01-03T09:21:46.326Z]    ✅ eslint completed
+[2025-01-03T09:21:54.191Z] Результаты анализа:
+          - Confidence: 80
+          - Impact: 70
+          - Priority: 75
+          
+[2025-01-03T09:21:54.191Z] 
+[--basic] Текущее значение confidence: 80, порог fix: 70
+[2025-01-03T09:21:54.192Z] 
+[--basic] autoApply: true, confidence: 80, fix: 70
+[2025-01-03T09:21:54.192Z] 🔧 Применяем исправления для типа: --basic
+[2025-01-03T09:21:54.192Z] 
+[--basic] Начало применения исправлений...
+[2025-01-03T09:21:54.192Z] 🔑 Проверка API ключа: AIzaSy...dX3Y
+[2025-01-03T09:21:55.088Z] ✅ API ключ успешно валидирован
+[2025-01-03T09:21:55.088Z] Проверка метрик:
+            - Confidence: 80
+            - Impact: 70
+            - Priority: 75
+            - Порог исправлений: 70
+            - AutoApply: true
+            
+[2025-01-03T09:22:01.003Z] ✅ Проблем не обнаружено, исправления не требуются
+[2025-01-03T09:22:01.003Z] [--basic] Исправления применены (фикс >= порога).
+[2025-01-03T09:22:01.004Z] 
+📊 Анализ типа --security
+[2025-01-03T09:22:05.013Z] Результаты анализа:
+          - Confidence: 90
+          - Impact: 80
+          - Priority: 85
+          
+[2025-01-03T09:22:05.013Z] 
+[--security] Текущее значение confidence: 90, порог fix: 70
+[2025-01-03T09:22:05.013Z] 
+[--security] autoApply: true, confidence: 90, fix: 70
+[2025-01-03T09:22:05.013Z] 🔧 Применяем исправления для типа: --security
+[2025-01-03T09:22:05.013Z] 
+[--security] Начало применения исправлений...
+[2025-01-03T09:22:05.014Z] 🔑 Проверка API ключа: AIzaSy...dX3Y
+[2025-01-03T09:22:05.814Z] ✅ API ключ успешно валидирован
+[2025-01-03T09:22:05.815Z] Проверка метрик:
+            - Confidence: 90
+            - Impact: 80
+            - Priority: 85
+            - Порог исправлений: 70
+            - AutoApply: true
+            
+[2025-01-03T09:22:11.930Z] ✅ Проблем не обнаружено, исправления не требуются
+[2025-01-03T09:22:11.931Z] [--security] Исправления применены (фикс >= порога).
+[2025-01-03T09:22:11.931Z] 
+📊 Анализ типа --performance
+[2025-01-03T09:22:21.571Z] Результаты анализа:
+          - Confidence: 85
+          - Impact: 75
+          - Priority: 80
+          
+[2025-01-03T09:22:21.572Z] 
+[--performance] Текущее значение confidence: 85, порог fix: 70
+[2025-01-03T09:22:21.572Z] 
+[--performance] autoApply: true, confidence: 85, fix: 70
+[2025-01-03T09:22:21.572Z] 🔧 Применяем исправления для типа: --performance
+[2025-01-03T09:22:21.572Z] 
+[--performance] Начало применения исправлений...
+[2025-01-03T09:22:21.572Z] 🔑 Проверка API ключа: AIzaSy...dX3Y
+[2025-01-03T09:22:22.377Z] ✅ API ключ успешно валидирован
+[2025-01-03T09:22:22.377Z] Проверка метрик:
+            - Confidence: 85
+            - Impact: 75
+            - Priority: 80
+            - Порог исправлений: 70
+            - AutoApply: true
+            
+[2025-01-03T09:22:28.512Z] ✅ Проблем не обнаружено, исправления не требуются
+[2025-01-03T09:22:28.512Z] [--performance] Исправления применены (фикс >= порога).
+[2025-01-03T09:22:28.513Z] 
+📊 Анализ типа --syntax
+[2025-01-03T09:22:28.513Z] 🔧 Применяем форматтеры для --syntax...
+[2025-01-03T09:22:28.513Z]    Running eslint...
+[2025-01-03T09:22:28.730Z]    ✅ eslint completed
+[2025-01-03T09:22:38.684Z] Результаты анализа:
+          - Confidence: 95
+          - Impact: 60
+          - Priority: 70
+          
+[2025-01-03T09:22:38.684Z] 
+[--syntax] Текущее значение confidence: 95, порог fix: 70
+[2025-01-03T09:22:38.684Z] 
+[--syntax] autoApply: true, confidence: 95, fix: 70
+[2025-01-03T09:22:38.685Z] 🔧 Применяем исправления для типа: --syntax
+[2025-01-03T09:22:38.685Z] 
+[--syntax] Начало применения исправлений...
+[2025-01-03T09:22:38.685Z] 🔑 Проверка API ключа: AIzaSy...dX3Y
+[2025-01-03T09:22:39.494Z] ✅ API ключ успешно валидирован
+[2025-01-03T09:22:39.494Z] Проверка метрик:
+            - Confidence: 95
+            - Impact: 60
+            - Priority: 70
+            - Порог исправлений: 70
+            - AutoApply: true
+            
+[2025-01-03T09:22:43.431Z] ✅ Проблем не обнаружено, исправления не требуются
+[2025-01-03T09:22:43.431Z] [--syntax] Исправления применены (фикс >= порога).
+[2025-01-03T09:22:43.432Z] 
+📊 Детальный отчёт по файлу:
+[2025-01-03T09:22:43.432Z] [
+  {
+    "type": "--basic",
+    "analysis": "```json\n{\n  \"codeQualityScore\": 80,\n  \"specificIssuesFound\": [\n    {\n      \"issue\": \"The `console.log` statements are not prefixed with the `console.log` method.\",\n      \"fix\": \"Prefix the `console.log` statements with the `console.log` method, e.g.:\\n```\\nconsole.log(\\\"Проверка API ключа:\\\", config.apiKey ? \\\"***\\\" + \\\"*****\\\".slice(-5) : \\\"отсутствует\\\");\\n```\"\n    },\n    {\n      \"issue\": \"The `try` block does not have a corresponding `catch` block.\",\n      \"fix\": \"Add a `catch` block to the `try` block to handle errors, e.g.:\\n```\\ntry {\\n  // code to be executed\\n} catch (error) {\\n  // code to handle errors\\n}\\n```\"\n    },\n    {\n      \"issue\": \"The `result` variable is not used after it is declared.\",\n      \"fix\": \"Remove the `result` variable declaration, or use it in the code, e.g.:\\n```\\nconst result = await model.generateContent(\\\"тест\\\");\\nconst response = await result.response;\\n```\"\n    }\n  ],\n  \"concreteImprovementSuggestions\": [\n    {\n      \"suggestion\": \"Use the `console.log` method to prefix the `console.log` statements.\",\n      \"example\": \"```\\nconsole.log(\\\"Проверка API ключа:\\\", config.apiKey ? \\\"***\\\" + \\\"*****\\\".slice(-5) : \\\"отсутствует\\\");\\n```\"\n    },\n    {\n      \"suggestion\": \"Add a `catch` block to the `try` block to handle errors.\",\n      \"example\": \"```\\ntry {\\n  // code to be executed\\n} catch (error) {\\n  // code to handle errors\\n}\\n```\"\n    },\n    {\n      \"suggestion\": \"Remove the `result` variable declaration, or use it in the code.\",\n      \"example\": \"```\\nconst result = await model.generateContent(\\\"тест\\\");\\nconst response = await result.response;\\n```\"\n    }\n  ]\n}\n```",
+    "confidence": 80,
+    "impact": 70,
+    "priority": 75,
+    "appliedFixes": [],
+    "specificChecks": {},
+    "formattingApplied": true,
+    "fixesApplied": 0
+  },
+  {
+    "type": "--security",
+    "analysis": "```json\n{\n  \"codeQualityScore\": 70,\n  \"specificIssuesFound\": [\n    {\n      \"issue\": \"The API key is stored in plain text in the configuration file.\",\n      \"severity\": \"High\",\n      \"description\": \"Storing the API key in plain text makes it vulnerable to unauthorized access and theft. An attacker could potentially access the configuration file and use the API key to make unauthorized requests to the API.\"\n    }\n  ],\n  \"concreteImprovementSuggestions\": [\n    {\n      \"suggestion\": \"Store the API key in a secure environment variable.\",\n      \"description\": \"Environment variables are a more secure way to store sensitive information than plain text configuration files. They are not stored in the codebase and are only accessible to the running application.\"\n    }\n  ],\n  \"codeExamplesForFixes\": [\n    {\n      \"before\": \"const config = require('../src/config/gemini.config');\",\n      \"after\": \"const config = require('../src/config/gemini.config');\\nconst apiKey = process.env.GEMINI_API_KEY;\"\n    }\n  ]\n}\n```",
+    "confidence": 90,
+    "impact": 80,
+    "priority": 85,
+    "appliedFixes": [],
+    "specificChecks": {
+      "sqlInjection": [],
+      "xss": [],
+      "unsafeEval": []
+    },
+    "formattingApplied": true,
+    "fixesApplied": 0
+  },
+  {
+    "type": "--performance",
+    "analysis": "```json\n{\n  \"codeQualityScore\": 70,\n  \"specificIssuesFound\": [\n    {\n      \"issue\": \"The code is not using async/await syntax for all asynchronous operations, which can lead to performance issues and make the code harder to read and maintain.\",\n      \"example\": \"The following code uses callbacks for asynchronous operations, which can be replaced with async/await syntax:\"\n    }\n  ],\n  \"concreteImprovementSuggestions\": [\n    {\n      \"suggestion\": \"Use async/await syntax for all asynchronous operations.\",\n      \"example\": \"The following code uses async/await syntax for asynchronous operations:\"\n    }\n  ],\n  \"codeExamplesForFixes\": [\n    {\n      \"before\": \"```javascript\\nconst { GoogleGenerativeAI } = require('@google/generative-ai');\\nconst config = require('../src/config/gemini.config');\\n\\nasync function testGeminiAPI() {\\ntry {\\n    config.validate();\\n\\n    console.log(\\n      'Проверка API ключа:',\\n      config.apiKey ? '***' + '*****'.slice(-5) : 'отсутствует',\\n    );\\n\\n    const genAI = new GoogleGenerativeAI(config.apiKey);\\n    const model = genAI.getGenerativeModel({ model: config.modelName });\\n\\n    const result = await model.generateContent('тест');\\n    const response = await result.response;\\n\\n    console.log('Ответ API получен:', response ? 'успешно' : 'ошибка');\\n    return true;\\n  } catch (error) {\\n    console.error('Ошибка при тестировании API:', error.message);\\n    if (config.debug) {\\n      console.error('Детали ошибки:', error);\\n    }\\n    return false;\\n  }\\n}\\n\\nmodule.exports = { testGeminiAPI };\\n```\",\n      \"after\": \"```javascript\\nconst { GoogleGenerativeAI } = require('@google/generative-ai');\\nconst config = require('../src/config/gemini.config');\\n\\nasync function testGeminiAPI() {\\ntry {\\n    config.validate();\\n\\n    console.log(\\n      'Проверка API ключа:',\\n      config.apiKey ? '***' + '*****'.slice(-5) : 'отсутствует',\\n    );\\n\\n    const genAI = new GoogleGenerativeAI(config.apiKey);\\n    const model = genAI.getGenerativeModel({ model: config.modelName });\\n\\n    const result = await model.generateContent('тест');\\n    const response = await result.response;\\n\\n    console.log('Ответ API получен:', response ? 'успешно' : 'ошибка');\\n    return true;\\n  } catch (error) {\\n    console.error('Ошибка при тестировании API:', error.message);\\n    if (config.debug) {\\n      console.error('Детали ошибки:', error);\\n    }\\n    return false;\\n  }\\n}\\n\\nmodule.exports = { testGeminiAPI };\\n```\"\n    }\n  ]\n}\n```",
+    "confidence": 85,
+    "impact": 75,
+    "priority": 80,
+    "appliedFixes": [],
+    "specificChecks": {
+      "complexity": [
+        "Найдено 1 функций."
+      ],
+      "memoryUsage": []
+    },
+    "formattingApplied": true,
+    "fixesApplied": 0
+  },
+  {
+    "type": "--syntax",
+    "analysis": "```json\n{\n  \"codeQualityScore\": 80,\n  \"specificIssuesFound\": [\n    {\n      \"issue\": \"The code does not follow the best practices of JavaScript code styling.\",\n      \"example\": \"The code should be formatted using a consistent style guide, such as Airbnb or Standard.\",\n      \"fix\": \"Use a linter and formatter to ensure consistent code styling.\"\n    },\n    {\n      \"issue\": \"The code does not handle errors gracefully.\",\n      \"example\": \"The code does not catch and handle errors that may occur during the API call.\",\n      \"fix\": \"Wrap the API call in a try-catch block and handle errors appropriately.\"\n    },\n    {\n      \"issue\": \"The code does not validate the API key before making the API call.\",\n      \"example\": \"The code does not check if the API key is valid before making the API call.\",\n      \"fix\": \"Add a check to validate the API key before making the API call.\"\n    }\n  ],\n  \"concreteImprovementSuggestions\": [\n    {\n      \"suggestion\": \"Use a linter and formatter to ensure consistent code styling.\",\n      \"example\": \"Use a linter such as ESLint and a formatter such as Prettier to ensure consistent code styling.\"\n    },\n    {\n      \"suggestion\": \"Wrap the API call in a try-catch block and handle errors appropriately.\",\n      \"example\": \"Wrap the API call in a try-catch block and log the error message if an error occurs.\"\n    },\n    {\n      \"suggestion\": \"Add a check to validate the API key before making the API call.\",\n      \"example\": \"Add a check to validate the API key before making the API call.\"\n    }\n  ],\n  \"codeExamplesForFixes\": [\n    {\n      \"fix\": \"Use a linter and formatter to ensure consistent code styling.\",\n      \"example\": \"```javascript\\n// Install ESLint and Prettier\\nnpm install eslint prettier --save-dev\\n\\n// Create a .eslintrc file\\n{\\n  \\\"extends\\\": \\\"airbnb\\\"\\n}\\n\\n// Create a .prettierrc file\\n{\\n  \\\"semi\\\": true,\\n  \\\"trailingComma\\\": \\\"all\\\"\\n}\\n\\n// Run ESLint and Prettier\\nnpm run lint\\n```\"\n    },\n    {\n      \"fix\": \"Wrap the API call in a try-catch block and handle errors appropriately.\",\n      \"example\": \"```javascript\\ntry {\\n  const result = await model.generateContent(\\\"test\\\");\\n  const response = await result.response;\\n\\n  console.log(\\\"Ответ API получен:\\\", response ? \\\"успешно\\\" : \\\"ошибка\\\");\\n  return true;\\n} catch (error) {\\n  console.error(\\\"Ошибка при тестировании API:\\\", error.message);\\n  if (config.debug) {\\n    console.error(\\\"Детали ошибки:\\\", error);\\n  }\\n  return false;\\n}\\n```\"\n    },\n    {\n      \"fix\": \"Add a check to validate the API key before making the API call.\",\n      \"example\": \"```javascript\\nif (!config.apiKey) {\\n  throw new Error(\\\"API key is missing\\\");\\n}\\n```\"\n    }\n  ]\n}\n```",
+    "confidence": 95,
+    "impact": 60,
+    "priority": 70,
+    "appliedFixes": [],
+    "specificChecks": {
+      "syntax": [],
+      "style": [
+        {
+          "type": "style",
+          "message": "Trailing whitespace found"
+        },
+        {
+          "type": "style",
+          "message": "Missing newline at end of file"
+        },
+        {
+          "type": "style",
+          "message": "Trailing comma style violation"
+        }
+      ]
+    },
+    "formattingApplied": true,
+    "fixesApplied": 0
+  }
+]
+[2025-01-03T09:22:43.432Z] 🔎 Завершён анализ файла:
+[2025-01-03T09:22:43.432Z] 
+✅ Анализ завершен

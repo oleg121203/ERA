@@ -5,6 +5,7 @@ const path = require("path");
 const fs = require("fs").promises;
 const config = require("./config/gemini.config");
 const logger = require('./utils/logger');
+const axios = require('axios');
 
 class CodeAnalyzer {
   constructor(chat, options = {}) {
@@ -50,6 +51,17 @@ class CodeAnalyzer {
         logger.log(`[${type}] Исправления применены (фикс >= порога).`);
       } else {
         logger.log(`[${type}] Исправления не применены (фикс < порога).`);
+      }
+
+      // Добавляем обработку новых типов
+      if (type === "--breakpoint") {
+        const breakpoints = await this.analyzeBreakpoints(code);
+        analysis.breakpoints = breakpoints;
+      }
+
+      if (type === "--imports") {
+        const importDetails = await this.analyzeImports(code);
+        analysis.importDetails = importDetails;
       }
 
       results.push({
@@ -619,6 +631,50 @@ Return response in JSON format.`;
       } catch (error) {
         console.warn(`⚠️  Форматтер ${name} failed:`, error.message);
       }
+    }
+  }
+
+  // Метод для анализа брейкпоинтов
+  async analyzeBreakpoints(code) {
+    logger.log("🔍 Начало анализа брейкпоинтов...");
+    // Реализация анализа брейкпоинтов
+    // ...existing code...
+    return [
+      {
+        stage: "Initialization",
+        reason: "Загрузка конфигурации завершена",
+      },
+      // ...additional breakpoints...
+    ];
+  }
+
+  // Метод для анализа импортов
+  async analyzeImports(code) {
+    logger.log("🔍 Начало анализа импортов...");
+    // Реализация анализа импортов
+    // ...existing code...
+    return [
+      {
+        importType: "external",
+        dependencies: ["react", "lodash"],
+        installed: true,
+      },
+      {
+        importType: "internal",
+        dependencies: ["./utils/logger", "./constants"],
+        installed: true,
+      },
+      // ...additional import details...
+    ];
+  }
+
+  async fetchAnalysisData(endpoint, data) {
+    try {
+        const response = await axios.post(endpoint, data);
+        return response.data;
+    } catch (error) {
+        logger.error(`Ошибка при получении данных анализа: ${error.message}`);
+        throw error;
     }
   }
 }

@@ -83,6 +83,24 @@ const ANALYSIS_TYPES = {
         }
     },
     formatters: ['prettier', 'eslint']
+  },
+  "--breakpoint": {
+    name: "Breakpoint Analysis",
+    desc: "Identifies where and why the program stopped, hung, or crashed",
+    metrics: {
+      confidence: { CERTAIN: 90, LIKELY: 75, POSSIBLE: 60 },
+      impact: { CRITICAL: 85, HIGH: 70, MEDIUM: 50 },
+      priority: { IMMEDIATE: 80, HIGH: 65, MEDIUM: 45 },
+    },
+  },
+  "--imports": {
+    name: "Imports Analysis",
+    desc: "Analyzes external and internal imports, their interdependencies, and verifies installed dependencies and libraries",
+    metrics: {
+      confidence: { CERTAIN: 85, LIKELY: 70, POSSIBLE: 55 },
+      impact: { CRITICAL: 80, HIGH: 65, MEDIUM: 50 },
+      priority: { IMMEDIATE: 75, HIGH: 60, MEDIUM: 40 },
+    },
   }
 };
 

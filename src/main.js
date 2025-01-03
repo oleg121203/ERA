@@ -13,6 +13,7 @@ const { ANALYSIS_TYPES } = require("./constants");
 const { testGeminiAPI } = require("../tests/test-api");
 const config = require("./config/gemini.config");
 const logger = require('./utils/logger');
+const axios = require('axios');
 
 const MODEL_NAME = config.modelName;
 const API_KEY = config.apiKey;
@@ -173,6 +174,15 @@ function parseAnalysisOptions(args) {
       logger.log(
         `🔧 Установлен порог исправлений: ${options.fix} (autoApply включен)`,
       );
+    }
+    // Добавляем обработку новых типов
+    else if (arg === "--breakpoint") {
+      options.types.push("--breakpoint");
+      logger.log("🛑 Добавлен тип анализа: --breakpoint");
+    }
+    else if (arg === "--imports") {
+      options.types.push("--imports");
+      logger.log("📦 Добавлен тип анализа: --imports");
     }
   }
 

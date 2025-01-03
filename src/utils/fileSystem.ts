@@ -1,4 +1,5 @@
 import { workspace, Uri } from 'vscode';
+import axios from 'axios';
 const logger = require('../utils/logger');
 
 export async function isWritable(uri: Uri): Promise<boolean> {

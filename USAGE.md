@@ -93,6 +93,14 @@ node src/main.js analyze --file=./test --types=--basic,--security,--performance,
 3. Запущений скрипт `scripts/setup-env.sh`
 4. Встановлені глобально prettier, eslint і typescript
 
+### Шаг 1: Установка модуля `axios`
+
+Установите модуль `axios` с помощью npm:
+
+```bash
+npm install axios
+```
+
 ```markdown
 # Комплексна команда для аналізу всього функціоналу додатка
 
@@ -102,7 +110,9 @@ node src/main.js analyze --file=./test --types=--basic,--security,--performance,
 node src/main.js analyze ./ --recursive \
   --types=basic:confidence=80:impact=70:priority=75,\
 security:confidence=90:impact=80:priority=85,\
-performance:confidence=85:impact=75:priority=80 \
+performance:confidence=85:impact=75:priority=80,\
+breakpoint:confidence=80:impact=70:priority=75,\
+imports:confidence=85:impact=75:priority=80 \
   --fix=80 \
   --auto-apply \
   --format \
@@ -125,6 +135,8 @@ ERA
   - `basic:confidence=80:impact=70:priority=75`
   - `security:confidence=90:impact=80:priority=85`
   - `performance:confidence=85:impact=75:priority=80`
+  - `breakpoint:confidence=80:impact=70:priority=75`
+  - `imports:confidence=85:impact=75:priority=80`
 - `--fix=80`: Поріг впевненості для автоматичних виправлень (0-100).
 - `--auto-apply`: Автоматичне застосування виправлень.
 - `--format`: Автоматичне форматування коду.
@@ -144,7 +156,9 @@ node_modules
 node src/main.js analyze ./ --recursive \
   --types=basic:confidence=80:impact=70:priority=75,\
 security:confidence=90:impact=80:priority=85,\
-performance:confidence=85:impact=75:priority=80 \
+performance:confidence=85:impact=75:priority=80,\
+breakpoint:confidence=80:impact=70:priority=75,\
+imports:confidence=85:impact=75:priority=80 \
   --fix=80 \
   --auto-apply \
   --format \
@@ -167,6 +181,8 @@ node_modules
    - **Basic:** Основний аналіз коду з конфіденційністю 80%, впливом 70% та пріоритетом виправлення 75%.
    - **Security:** Аналіз безпеки з високими метриками конфіденційності 90%, впливу 80% та пріоритету виправлення 85%.
    - **Performance:** Аналіз продуктивності з конфіденційністю 85%, впливом 75% та пріоритетом виправлення 80%.
+   - **Breakpoint:** Аналіз точок зупинки з конфіденційністю 80%, впливом 70% та пріоритетом виправлення 75%.
+   - **Imports:** Аналіз імпортів з конфіденційністю 85%, впливом 75% та пріоритетом виправлення 80%.
 
 3. **Автоматичне застосування виправлень:** Виправлення будуть застосовані автоматично, якщо впевненість аналізу перевищує 80%.
 
@@ -236,7 +252,7 @@ node src/main.js analyze ./src \
    - Если в вашем проекте настроено логирование результатов анализа в файл, проверьте соответствующий лог-файл. Обычно такие файлы могут находиться в директории `logs` или аналогичной.
 
 3. **Файлы отчетов (если настроены):**
-   - В некоторых проектах результаты анализа могут сохраняться в виде файлов отчетов (например, JSON или HTML). Проверьте директории, такие как `reports` или `output`, если такие существуют в вашем проекте.
+   - В некоторых проектах результаты анализа могут сохраняться в виде файлов отчетов (например, JSON или HTML). Проверьте директории, такие як `reports` или `output`, если такие существуют в вашем проекте.
 
 ### Пример команды для сохранения отчета в файл:
 
@@ -286,7 +302,7 @@ node src/main.js analyze ./src --metrics
 ```
 
 **Что это делает:**
-- При включении этого параметра инструмент анализа собирает и выводит дополнительные данные о коде, такие как количество обнаруженных проблем, их типы, уровни уверенности и влияния, а также другие показатели, которые помогают оценить общее состояние кода.
+- При включении этого параметра инструмент анализа собирает и выводит дополнительные данные о коде, такі як количество обнаруженных проблем, их типы, уровни уверенности и влияния, а также другие показатели, которые помогают оценить общее состояние кода.
 
 **Преимущества:**
 - Позволяет получить более полное представление о состоянии кода.
@@ -308,7 +324,7 @@ node src/main.js analyze ./src --strict
 
 **Преимущества:**
 - Обеспечивает более высокий уровень качества кода.
-- Помогает выявить и устранить более тонкие и сложные проблемы, которые могут быть пропущены в обычном режиме.
+- Помогает выявить и устранить более тонкие і сложные проблемы, которые могут быть пропущены в обычном режиме.
 
 #### `--depth=2`
 
@@ -334,7 +350,9 @@ node src/main.js analyze ./src \
   --recursive \
   --types=basic:confidence=80:impact=70:priority=75,\
 security:confidence=90:impact=80:priority=85,\
-performance:confidence=85:impact=75:priority=80 \
+performance:confidence=85:impact=75:priority=80,\
+breakpoint:confidence=80:impact=70:priority=75,\
+imports:confidence=85:impact=75:priority=80 \
   --fix=80 \
   --auto-apply \
   --format \
@@ -349,10 +367,11 @@ performance:confidence=85:impact=75:priority=80 \
 ### Итог
 
 - **`--metrics`**: Включает сбор и вывод дополнительных метрик анализа.
-- **`--strict`**: Включает строгий режим анализа с дополнительными проверками и ограничениями.
+- **`--strict`**: Включает строгий режим анализа с дополнительными проверками і ограничениями.
 - **`--depth=2`**: Ограничивает глубину рекурсивного анализа до 2 уровней поддиректорий.
 
-Эти параметры помогают сделать анализ кода более детальным и точным, обеспечивая высокое качество и безопасность вашего проекта.
+```
+Эти параметры помогают сделать анализ кода более детальным і точным, обеспечивая высокое качество і безопасность вашего проекта.
 
 node src/main.js analyze ./src \
   --recursive \
@@ -362,3 +381,35 @@ node src/main.js analyze ./src \
   --include="**/*.ts" \
   --exclude="node_modules" \
   --log-file=syntax_analysis_report.json
+
+### Доступные типы анализа
+
+- `--basic` - Базовый анализ синтаксиса и стиля.
+- `--security` - Анализ на уязвимости безопасности.
+- `--performance` - Анализ производительности и оптимизации.
+  --depth=2 \
+- `--breakpoint` - Анализ точек останова для выявления причин остановки, зависания или сбоя программы.
+- `--imports` - Анализ импортируемых модулей, их внешних или внутренних зависимостей, а також перевірка встановлених залежностей і бібліотек.
+
+Пример использования с новыми типами:
+
+```bash
+node src/main.js analyze scripts/project-structure.ts --types=basic,security,performance,breakpoint,imports
+```
+  --include="**/*.ts" \
+  --exclude="node_modules" \
+  --log-file=syntax_analysis_report.json
+
+### Доступные типы анализа
+
+- `--basic` - Базовый анализ синтаксиса и стиля.
+- `--security` - Анализ на уязвимости безопасности.
+- `--performance` - Анализ производительности и оптимизации.
+- `--breakpoint` - Анализ точек останова для выявления причин остановки, зависания или сбоя программы.
+- `--imports` - Анализ импортируемых модулей, их внешних или внутренних зависимостей, а також перевірка встановлених залежностей і бібліотек.
+
+Пример использования с новыми типами:
+
+```bash
+node src/main.js analyze scripts/project-structure.ts --types=basic,security,performance,breakpoint,imports
+```

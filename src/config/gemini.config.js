@@ -1,6 +1,7 @@
 const path = require("path");
 const dotenv = require("dotenv");
 const fetch = require("node-fetch");
+const axios = require('axios');
 const logger = require('../utils/logger');
 
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
@@ -42,6 +43,12 @@ const config = {
   getApiUrl(model = "gemini-pro") {
     return `${this.endpoint}/models/${model}:generateContent?key=${this.apiKey}`;
   },
+  
+  axiosInstance: axios.create({
+    baseURL: 'https://api.example.com',
+    timeout: 1000,
+    headers: { 'X-Custom-Header': 'foobar' }
+  }),
 };
 
 module.exports = config;
