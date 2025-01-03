@@ -1,0 +1,132 @@
+[2025-01-03T10:35:49.451Z] 🔄 Начало проверки API ключа...
+[2025-01-03T10:35:49.451Z] 🔑 Проверка API ключа: AIzaSy...y8zg
+[2025-01-03T10:35:50.474Z] ✅ API ключ успешно валидирован
+[2025-01-03T10:35:50.474Z] 📝 Получены типы анализа:
+[2025-01-03T10:35:50.475Z] 🔧 Установлен порог исправлений: 70 (autoApply включен)
+[2025-01-03T10:35:50.475Z] 📂 Указан путь для анализа: scripts/project-structure.ts
+[2025-01-03T10:35:50.475Z] 📁 Найдено файлов: 1
+[2025-01-03T10:35:50.475Z] 📄 Анализ файла (1/1): scripts/project-structure.ts
+[2025-01-03T10:35:50.479Z] 📋 Полученные типы анализа:
+[2025-01-03T10:35:50.479Z] 🔍 Разбор типа imports:
+[2025-01-03T10:35:50.479Z] 🔍 Разбор типа breakpoint:
+[2025-01-03T10:35:50.480Z] 
+🔧 Форматирование файла: scripts/project-structure.ts
+[2025-01-03T10:35:50.480Z]    Применяем prettier-vscode...
+[2025-01-03T10:35:50.710Z]    ✅ prettier-vscode completed
+[2025-01-03T10:35:50.710Z]    Применяем eslint...
+[2025-01-03T10:35:50.929Z]    ✅ eslint completed
+[2025-01-03T10:35:50.929Z]    Применяем typescript...
+[2025-01-03T10:35:53.650Z] 
+📊 Анализ типа --imports
+[2025-01-03T10:35:57.339Z] Результаты анализа:
+          - Confidence: 85
+          - Impact: 75
+          - Priority: 80
+          
+[2025-01-03T10:35:57.340Z] 
+[--imports] Текущее значение confidence: 85, порог fix: 70
+[2025-01-03T10:35:57.340Z] 
+[--imports] autoApply: true, confidence: 85, fix: 70
+[2025-01-03T10:35:57.340Z] 🔧 Применяем исправления для типа: --imports
+[2025-01-03T10:35:57.341Z] 
+[--imports] Начало применения исправлений...
+[2025-01-03T10:35:57.341Z] 🔑 Проверка API ключа: AIzaSy...y8zg
+[2025-01-03T10:35:58.153Z] ✅ API ключ успешно валидирован
+[2025-01-03T10:35:58.153Z] Проверка метрик:
+            - Confidence: 85
+            - Impact: 75
+            - Priority: 80
+            - Порог исправлений: 70
+            - AutoApply: true
+            
+[2025-01-03T10:36:03.343Z] ✅ Проблем не обнаружено, исправления не требуются
+[2025-01-03T10:36:03.343Z] [--imports] Исправления применены (фикс >= порога).
+[2025-01-03T10:36:03.344Z] 🔍 Начало анализа импортов...
+[2025-01-03T10:36:03.344Z] 
+📊 Анализ типа --breakpoint
+[2025-01-03T10:36:06.247Z] Результаты анализа:
+          - Confidence: 80
+          - Impact: 70
+          - Priority: 75
+          
+[2025-01-03T10:36:06.247Z] 
+[--breakpoint] Текущее значение confidence: 80, порог fix: 70
+[2025-01-03T10:36:06.247Z] 
+[--breakpoint] autoApply: true, confidence: 80, fix: 70
+[2025-01-03T10:36:06.247Z] 🔧 Применяем исправления для типа: --breakpoint
+[2025-01-03T10:36:06.247Z] 
+[--breakpoint] Начало применения исправлений...
+[2025-01-03T10:36:06.248Z] 🔑 Проверка API ключа: AIzaSy...y8zg
+[2025-01-03T10:36:07.059Z] ✅ API ключ успешно валидирован
+[2025-01-03T10:36:07.059Z] Проверка метрик:
+            - Confidence: 80
+            - Impact: 70
+            - Priority: 75
+            - Порог исправлений: 70
+            - AutoApply: true
+            
+[2025-01-03T10:36:08.065Z] ✅ Проблем не обнаружено, исправления не требуются
+[2025-01-03T10:36:08.065Z] [--breakpoint] Исправления применены (фикс >= порога).
+[2025-01-03T10:36:08.065Z] 🔍 Начало анализа брейкпоинтов...
+[2025-01-03T10:36:08.066Z] 
+📊 Детальный отчёт по файлу:
+[2025-01-03T10:36:08.066Z] [
+  {
+    "type": "--imports",
+    "analysis": "```json\n{\n  \"codeQualityScore\": 90,\n  \"specificIssuesFound\": [],\n  \"concreteImprovementSuggestions\": [\n    {\n      \"suggestion\": \"Consider using a linter to enforce code style and identify potential issues.\",\n      \"codeExample\": \"Add a linter such as ESLint to your project and configure it to enforce your desired code style.\"\n    },\n    {\n      \"suggestion\": \"Use more descriptive variable names to improve code readability.\",\n      \"codeExample\": \"Instead of using `dir` as the variable name for the directory path, use a more descriptive name such as `projectDirectory`.\"\n    }\n  ],\n  \"codeExamplesForFixes\": []\n}\n```",
+    "confidence": 85,
+    "impact": 75,
+    "priority": 80,
+    "appliedFixes": [],
+    "importDetails": [
+      {
+        "importType": "external",
+        "dependencies": [
+          "react",
+          "lodash"
+        ],
+        "installed": true
+      },
+      {
+        "importType": "internal",
+        "dependencies": [
+          "./utils/logger",
+          "./constants"
+        ],
+        "installed": true
+      }
+    ],
+    "specificChecks": {},
+    "formattingApplied": true,
+    "fixesApplied": 0
+  },
+  {
+    "type": "--breakpoint",
+    "analysis": "```json\n{\n  \"codeQualityScore\": 85,\n  \"specificIssuesFound\": [],\n  \"concreteImprovementSuggestions\": [\n    {\n      \"description\": \"The code should be more robust to handle errors that may occur during the file system operations.\",\n      \"codeExample\": `\n        try {\n          // File system operations\n        } catch (error) {\n          // Handle the error\n        }\n      `\n    },\n    {\n      \"description\": \"The code should be more efficient by using async/await for file system operations.\",\n      \"codeExample\": `\n        const items = await fs.promises.readdir(dir, { withFileTypes: true });\n      `\n    }\n  ]\n}\n```",
+    "confidence": 80,
+    "impact": 70,
+    "priority": 75,
+    "appliedFixes": [],
+    "breakpoints": [
+      {
+        "stage": "Initialization",
+        "reason": "Загрузка конфигурации завершена"
+      }
+    ],
+    "specificChecks": {},
+    "formattingApplied": true,
+    "fixesApplied": 0
+  }
+]
+[2025-01-03T10:36:08.066Z] 🔎 Завершён анализ файла:
+[2025-01-03T10:36:08.066Z] 
+✅ Анализ завершен
+[2025-01-03T10:36:08.067Z] Итоговый отчет:
+{
+  "timestamp": "2025-01-03T10:36:08.067Z",
+  "errors": [],
+  "fixes": [],
+  "breakpoints": [],
+  "unresolvedErrors": 0,
+  "reasons": []
+}
