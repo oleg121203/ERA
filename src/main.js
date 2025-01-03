@@ -324,4 +324,11 @@ async function main() {
   }
 }
 
+const eslintConfigPath = path.join(__dirname, '../config/.eslintrc.js');
+const prettierConfigPath = path.join(__dirname, '../config/.prettierrc.js');
+
+// Пример использования путей конфигурации
+const eslint = new ESLint({ overrideConfigFile: eslintConfigPath });
+const prettierOptions = require(prettierConfigPath);
+
 main().catch(logger.error);

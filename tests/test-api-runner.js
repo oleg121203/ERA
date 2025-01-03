@@ -1,4 +1,4 @@
-const { testGeminiAPI } = require('../tests/test-api');
+const { testGeminiAPI } = require('./test-api');
 const config = require('../src/config/gemini.config');
 const fs = require('fs');
 const path = require('path');

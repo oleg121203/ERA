@@ -8,6 +8,16 @@ import {
     Uri,
     Disposable
 } from 'vscode';
+import * as path from 'path';
+import { ESLint } from 'eslint';
+import * as prettier from 'prettier';
+
+const eslintConfigPath = path.join(__dirname, '../config/.eslintrc.js');
+const prettierConfigPath = path.join(__dirname, '../config/.prettierrc.js');
+
+// Пример использования путей конфигурации
+const eslint = new ESLint({ overrideConfigFile: eslintConfigPath });
+const prettierOptions = require(prettierConfigPath);
 
 let autoLockTimeout: NodeJS.Timeout | undefined;
 let disposable: Disposable;

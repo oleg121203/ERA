@@ -14,16 +14,19 @@
   "scripts": {
     "start": "node src/main.js",
     "setup": "bash scripts/setup-env.sh",
-    "format": "prettier --write \"src/**/*.{js,ts}\"",
-    "lint": "eslint \"src/**/*.{js,ts}\"",
+    "format": "prettier --write \"src/**/*.{js,ts}\" --config config/.prettierrc.js",
+    "lint": "eslint \"src/**/*.{js,ts}\" --config config/.eslintrc.js",
     "postinstall": "npm run setup",
-    "verify-dependencies": "node ./scripts/verify-dependencies.js"
+    "verify-dependencies": "node ./scripts/verify-dependencies.js",
+    "generate-structure": "ts-node scripts/project-structure.ts",
+    "watch-structure": "ts-node scripts/project-structure.ts --watch"
   },
   "dependencies": {
     "@google/generative-ai": "^0.1.0",
     "dotenv": "^16.0.0",
     "node-fetch": "^2.6.7",
-    "axios": "^0.21.1"
+    "axios": "^0.21.1",
+    "chokidar": "^3.5.3"
   },
   "devDependencies": {
     "@types/node": "^18.0.0",

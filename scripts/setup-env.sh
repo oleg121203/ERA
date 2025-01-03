@@ -11,6 +11,10 @@ command -v prettier >/dev/null 2>&1 || { echo "Installing prettier..."; npm inst
 command -v eslint >/dev/null 2>&1 || { echo "Installing eslint..."; npm install -g eslint; }
 command -v tsc >/dev/null 2>&1 || { echo "Installing typescript..."; npm install -g typescript; }
 
+# Пример использования путей конфигурации
+ESLINT_CONFIG_PATH="../config/.eslintrc.js"
+PRETTIER_CONFIG_PATH="../config/.prettierrc.js"
+
 # Проверяем системную переменную
 if [ -n "$GEMINI_API_KEY" ]; then
     echo "Используется GEMINI_API_KEY из системных переменных"
@@ -33,7 +37,7 @@ else
 fi
 
 # Проверяем что ключ не пустой
-if [ -z "$GEMINI_API_KEY" ]; then
+if [ -з "$GEMINI_API_KEY" ]; then
   echo "Error: API ключ не может быть пустым"
   exit 1
 fi

@@ -97,8 +97,8 @@ const [, , ...args] = process.argv;
 const isWatch = args.includes("--watch");
 
 const generator = new ProjectStructureGenerator(
-  process.cwd(),
-  path.join(process.cwd(), "project-structure.txt"),
+  path.join(process.cwd(), ".."), // Обновляем путь к корневой директории на уровень выше
+  path.join(process.cwd(), "../project-structure.txt"), // Обновляем путь к выходному файлу на уровень выше
 );
 
 if (isWatch) {

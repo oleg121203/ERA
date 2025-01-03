@@ -16,7 +16,7 @@
     },
 
     "postCreateCommand": "npm install -g ts-node typescript && npm install",
-    "postStartCommand": "bash -c '. ~/.bashrc && bash ./scripts/setup-env.sh || true && npm run verify-dependencies || true'",
+    "postStartCommand": "bash -c '. ~/.bashrc && bash ./scripts/setup-env.sh || true && npm run verify-dependencies || true && npm run generate-structure || true && npm run watch-structure || true'",
 
     "customizations": {
         "vscode": {
@@ -92,6 +92,10 @@
                     "typescript",
                     "typescriptreact"
                 ],
+                "eslint.options": {
+                    "configFile": "/workspaces/ERA/config/.eslintrc.js"
+                },
+                "prettier.configPath": "/workspaces/ERA/config/.prettierrc.js",
                 "npm.packageManager": "npm",
                 "terminal.integrated.defaultProfile.linux": "bash",
                 "terminal.integrated.shell.linux": "/bin/bash",
