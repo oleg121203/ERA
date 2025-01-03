@@ -1,11 +1,16 @@
 const { ANALYSIS_TYPES, FORMATTERS } = require("./constants");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { execSync } = require("child_process");
-const path = require("path"); // Добавляем импорт path
+const path = require("path");
+const fs = require("fs").promises;
+const config = require("./config/gemini.config");
 
 class CodeAnalyzer {
   constructor(chat, options = {}) {
     this.chat = chat;
-    this.options = options; // Сохраняем опции в конструкторе
+    this.options = options;
+    this.genAI = new GoogleGenerativeAI(config.apiKey);
+    this.fixes = [];
   }
 
   async analyze(code, options) {
@@ -29,6 +34,7 @@ class CodeAnalyzer {
 
       // Применяем исправления если включен autoApply
       if (options.autoApply && analysis.confidence >= options.fix) {
+        console.log(`🔧 Применяем исправления для типа: ${type}`);
         const fixes = await this.applyFixes(code, specificChecks, type);
         analysis.appliedFixes = fixes;
       }
@@ -37,6 +43,7 @@ class CodeAnalyzer {
         ...analysis,
         specificChecks,
         formattingApplied: options.format,
+        fixesApplied: this.fixes.length,
       });
     }
     return results;
@@ -97,21 +104,26 @@ class CodeAnalyzer {
         throw new Error("Empty prompt generated");
       }
 
-      // Отправляем запрос с обработкой ошибок безопасности
-      const result = await this.chat.sendMessage(prompt, {
-        safetySettings: [
-          {
-            category: "HARM_CATEGORY_HARASSMENT",
-            threshold: "BLOCK_ONLY_HIGH",
-          },
-        ],
+      const model = this.genAI.getGenerativeModel({ 
+        model: config.modelName,
+        apiEndpoint: config.endpoint 
       });
 
-      if (!result?.response) {
+      // Отправляем запрос с обработкой ошибок безопасности
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+
+      if (!response) {
         throw new Error("Empty response from AI");
       }
 
-      return this.parseResult(result, type);
+      return {
+        type,
+        analysis: response.text(),
+        confidence: typeConfig.metrics.confidence.CERTAIN,
+        impact: typeConfig.metrics.impact.CRITICAL,
+        priority: typeConfig.metrics.priority.IMMEDIATE,
+      };
     } catch (error) {
       console.error(`Error in analyzeByType for type ${type}:`, error.message);
       return {
@@ -275,20 +287,43 @@ class CodeAnalyzer {
 
   async applyFixes(code, checks, type) {
     const fixes = [];
+    const filePath = this.options.filePath;
 
-    if (type === "--security") {
-      // Применяем исправления безопасности
-      for (const [checkName, risks] of Object.entries(checks)) {
-        if (risks.length > 0) {
-          const fix = await this.getSecurityFix(code, checkName, risks);
-          if (fix) {
-            fixes.push(fix);
+    try {
+      if (type === "--security") {
+        for (const [checkName, risks] of Object.entries(checks)) {
+          if (risks.length > 0) {
+            const fix = await this.getSecurityFix(code, checkName, risks);
+            if (fix && fix.fixedCode) {
+              // Применяем исправление к файлу
+              await fs.writeFile(filePath, fix.fixedCode, 'utf8');
+              fixes.push({
+                type: checkName,
+                risks,
+                applied: true,
+                timestamp: new Date().toISOString()
+              });
+            }
           }
         }
+      } else if (type === "--performance") {
+        const performanceFix = await this.getPerformanceFix(code, checks);
+        if (performanceFix) {
+          await fs.writeFile(filePath, performanceFix.fixedCode, 'utf8');
+          fixes.push(performanceFix);
+        }
       }
-    }
 
-    return fixes;
+      if (fixes.length > 0) {
+        console.log(`✅ Применено исправлений: ${fixes.length}`);
+        this.fixes.push(...fixes);
+      }
+
+      return fixes;
+    } catch (error) {
+      console.error('Ошибка при применении исправлений:', error);
+      return [];
+    }
   }
 
   async getSecurityFix(code, checkName, risks) {
@@ -310,6 +345,36 @@ class CodeAnalyzer {
       risks,
       fixedCode: result.response.text(),
     };
+  }
+
+  async getPerformanceFix(code, checks) {
+    if (checks.complexity.length === 0 && checks.memoryUsage.length === 0) {
+      return null;
+    }
+
+    const prompt = [
+      "Optimize the following code for performance:",
+      "```javascript",
+      code,
+      "```",
+      "Issues to address:",
+      ...checks.complexity,
+      ...checks.memoryUsage
+    ].join("\n");
+
+    try {
+      const result = await this.chat.sendMessage(prompt);
+      return {
+        type: 'performance',
+        issues: [...checks.complexity, ...checks.memoryUsage],
+        fixedCode: result.response.text(),
+        applied: true,
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      console.error('Ошибка при получении оптимизаций:', error);
+      return null;
+    }
   }
 
   async formatCode(code) {

@@ -10,9 +10,11 @@ const path = require("path");
 const fetch = require("node-fetch");
 const CodeAnalyzer = require("./analyzer");
 const { ANALYSIS_TYPES } = require("./constants");
+const { testGeminiAPI } = require('../tests/test-api');
+const config = require('./config/gemini.config');
 
-const MODEL_NAME = process.env.GEMINI_MODEL || "gemini-pro";
-const API_KEY = process.env.GEMINI_API_KEY || "AIzaSyBuTog72XmOWzmcOQG64LRke7z9wtn6mUE";
+const MODEL_NAME = config.modelName;
+const API_KEY = config.apiKey;
 console.log("GEMINI_API_KEY:", API_KEY);
 const rl = readline.createInterface({
   input: process.stdin,
@@ -71,7 +73,7 @@ async function runChat() {
 async function makeDirectRequest(prompt) {
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`,
+      config.getApiUrl(),
       {
         method: "POST",
         headers: {
@@ -159,6 +161,13 @@ function parseAnalysisOptions(args) {
 
 async function handleCodeAnalysis(chat, args) {
   try {
+    // Проверка API ключа перед анализом
+    const isApiValid = await testGeminiAPI();
+    if (!isApiValid) {
+      console.error('Invalid API key or API access error');
+      process.exit(1);
+    }
+    
     const options = parseAnalysisOptions(args);
     const targetPath = options.filePath || args[0] || ".";
     const files = options.recursive

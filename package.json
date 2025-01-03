@@ -23,7 +23,7 @@
     "pytest": "python3 -m pytest",
     "structure": "ts-node scripts/project-structure.ts",
     "structure:watch": "ts-node scripts/project-structure.ts --watch",
-    "setup": "yarn install && yarn add chokidar @types/chokidar && pip3 install --no-cache-dir -r requirements.txt && yarn compile",
+    "setup": "bash ./scripts/setup-env.sh && yarn install && yarn add chokidar @types/chokidar && pip3 install --no-cache-dir -r requirements.txt && yarn compile",
     "prettier": "prettier --write \"src/**/*.{js,ts,jsx,tsx,html,php,java}\"",
     "typescript": "tsc --noEmit",
     "verify-dependencies": "yarn check || yarn install",
@@ -41,10 +41,13 @@
     "format:html": "prettier --write \"src/**/*.html\"",
     "refactor:html": "prettier --write \"src/**/*.html\"",
     "check-types": "typescript",
-    "analyze": "node src/main.js analyze"
+    "analyze": "node src/main.js analyze",
+    "setup:env": "bash ./scripts/setup-env.sh",
+    "test:api": "bash -c 'source ./scripts/setup-env.sh && node scripts/test-api-runner.js'",
+    "postinstall": "bash ./scripts/setup-env.sh"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.1.0",
+    "@google/generative-ai": "^0.21.0",
     "dotenv": "^16.0.0",
     "node-fetch": "^2.6.7",
     "validator": "^13.12.0"
@@ -55,6 +58,7 @@
     "@typescript-eslint/eslint-plugin": "^5.50.0",
     "@typescript-eslint/parser": "^5.50.0",
     "@typescript-eslint/utils": "^5.50.0",
+    "cross-env": "^7.0.3",
     "eslint": "^8.50.0",
     "prettier": "^3.4.2",
     "typescript": "^5.7.2"
