@@ -16,7 +16,7 @@
     },
 
     "postCreateCommand": "bash ./scripts/setup-env.sh && python -m pip install --upgrade pip && yarn global add prettier eslint@^8.50.0 typescript && yarn add --dev @typescript-eslint/eslint-plugin@^5.50.0 @typescript-eslint/parser@^5.50.0 @typescript-eslint/utils@^5.50.0 && yarn install && yarn verify-dependencies",
-    "postStartCommand": "source ~/.bashrc && bash ./scripts/setup-env.sh && pip install -r requirements.txt && yarn install",
+    "postStartCommand": ". ~/.bashrc && bash ./scripts/setup-env.sh && pip install -r requirements.txt && yarn install",
 
     "customizations": {
         "vscode": {
