@@ -1,15 +1,15 @@
 #!/bin/bash
 
-# Встановлюємо глобальні пакети
+# Переходим на npm вместо yarn
 npm install -g prettier typescript eslint
 
-# Додаємо шлях до глобальних пакетів
-export PATH="$(yarn global bin):$PATH"
+# Добавляем путь к глобальным npm пакетам
+export PATH="/usr/local/share/npm-global/bin:$PATH"
 
 # Проверяем наличие форматтеров
-command -v prettier >/dev/null 2>&1 || { echo "Устанавливаем prettier..."; yarn global add prettier; }
-command -v eslint >/dev/null 2>&1 || { echo "Устанавливаем eslint..."; yarn global add eslint; }
-command -v tsc >/dev/null 2>&1 || { echo "Устанавливаем typescript..."; yarn global add typescript; }
+command -v prettier >/dev/null 2>&1 || { echo "Installing prettier..."; npm install -g prettier; }
+command -v eslint >/dev/null 2>&1 || { echo "Installing eslint..."; npm install -g eslint; }
+command -v tsc >/dev/null 2>&1 || { echo "Installing typescript..."; npm install -g typescript; }
 
 # Проверяем системную переменную
 if [ -n "$GEMINI_API_KEY" ]; then
@@ -18,6 +18,8 @@ if [ -n "$GEMINI_API_KEY" ]; then
     cat > "$(dirname "$0")/../.env" << EOL
 GEMINI_API_KEY=${GEMINI_API_KEY}
 DEBUG=${DEBUG:-true}
+NODE_ENV=development
+PATH=${PATH}
 EOL
     echo "Конфигурация обновлена"
     exit 0
@@ -44,6 +46,8 @@ export DEBUG=true
 cat > "$(dirname "$0")/../.env" << EOL
 GEMINI_API_KEY=${GEMINI_API_KEY}
 DEBUG=${DEBUG}
+NODE_ENV=development
+PATH=${PATH}
 EOL
 
 # Добавляем переменные в текущую сессию
@@ -54,13 +58,13 @@ if [ -f ~/.bashrc ]; then
     mv ~/.bashrc.tmp ~/.bashrc
 fi
 
-# Выводим текущие значения
+# Выводим текущие значения:
 echo "Текущие значения:"
 echo "GEMINI_API_KEY=${GEMINI_API_KEY}"
 echo "DEBUG=${DEBUG}"
 
 # Проверяем установку переменных
-if [ -z "$GEMINI_API_KEY" ]; then
+if [ -з "$GEMINI_API_KEY" ]; then
     echo "Ошибка: GEMINI_API_KEY не установлен"
     exit 1
 fi

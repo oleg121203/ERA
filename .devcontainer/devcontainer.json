@@ -1,6 +1,11 @@
 {
-    "name": "Node.js & Python",
+    "name": "ERA Dev Container",
     "image": "mcr.microsoft.com/devcontainers/javascript-node:20-bookworm",
+
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": ".."
+    },
 
     "features": {
         "ghcr.io/devcontainers/features/python:1": {
@@ -15,8 +20,8 @@
         }
     },
 
-    "postCreateCommand": "npm install -g prettier typescript eslint && chmod +x scripts/setup-env.sh && bash ./scripts/setup-env.sh",
-    "postStartCommand": ". ~/.bashrc && export PATH=\"$(yarn global bin):$PATH\" && bash ./scripts/setup-env.sh && yarn verify-dependencies",
+    "postCreateCommand": "npm install",
+    "postStartCommand": "bash -c '. ~/.bashrc && bash ./scripts/setup-env.sh || true && npm run verify-dependencies || true'",
 
     "customizations": {
         "vscode": {
@@ -78,7 +83,7 @@
                 "eslint.codeActionsOnSave.mode": "all",
                 "eslint.alwaysShowStatus": true,
                 "eslint.debug": true,
-                "eslint.packageManager": "yarn",
+                "eslint.packageManager": "npm",
                 "eslint.probe": [
                     "javascript",
                     "typescript",
@@ -92,8 +97,9 @@
                     "typescript",
                     "typescriptreact"
                 ],
-                "npm.packageManager": "yarn",
+                "npm.packageManager": "npm",
                 "terminal.integrated.defaultProfile.linux": "bash",
+                "terminal.integrated.shell.linux": "/bin/bash",
                 "git.enableSmartCommit": true,
                 "files.eol": "\n",
                 "files.exclude": {
@@ -142,26 +148,19 @@
         "source=${localWorkspaceFolder}/.env,target=/workspaces/ERA/.env,type=bind,consistency=cached"
     ],
 
-    "containerEnv": {
-        "GEMINI_API_KEY": "AIzaSyCDXOtzi7lrTIv8307xNUgGrFd16NFy8zg",
-        "DEBUG": "true"
-    },
-    "remoteEnv": {
-        "PATH": "${containerEnv:PATH}:/usr/local/share/.config/yarn/global/node_modules/.bin",
-        "GEMINI_API_KEY": "AIzaSyCDXOtzi7lrTIv8307xNUgGrFd16NFy8zg"
-    },
-
     "remoteUser": "node",
     "updateRemoteUserUID": true,
 
     "portsAttributes": {
         "3000": {
             "label": "Local Development",
-            "onAutoForward": "notify"
+            "onAutoForward": "notify",
+            "protocol": "http"
         },
         "4000": {
             "label": "Remote Access",
             "onAutoForward": "notify",
+            "protocol": "http",
             "visibility": "public"
         }
     },

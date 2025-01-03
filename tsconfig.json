@@ -1,13 +1,20 @@
 {
   "compilerOptions": {
-    "target": "ES6",
+    "target": "ES2020",
     "module": "commonjs",
+    "lib": ["ES2020"],
+    "sourceMap": true,
+    "rootDir": "src",
+    "outDir": "out",
     "strict": true,
-    "esModuleInterop": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "skipLibCheck": true
+    "esModuleInterop": true, // Дозволяє імпорт CommonJS модулів як ES6 модулів
+    "skipLibCheck": true, // Пропускає перевірку типів у файлах декларацій
+    "forceConsistentCasingInFileNames": true, // Забезпечує консистентність регістру в іменах файлів
+    "noImplicitAny": true, // Забороняє неявний тип any
+    "noUnusedLocals": true, // Забороняє невикористані локальні змінні
+    "noUnusedParameters": true, // Забороняє невикористані параметри
+    "noImplicitReturns": true, // Забороняє функції без явного return
+    "noFallthroughCasesInSwitch": true // Забороняє пропускання випадків у switch
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "**/*.spec.ts"]
+  "exclude": ["node_modules", ".vscode-test"]
 }
