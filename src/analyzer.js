@@ -32,11 +32,15 @@ class CodeAnalyzer {
       const specificChecks = await this.runSpecificChecks(code, type);
       const analysis = await this.analyzeByType(code, type, metrics);
 
+      console.log(`\n[${type}] Текущее значение confidence: ${analysis.confidence}, порог fix: ${options.fix}`);
       // Применяем исправления если включен autoApply
       if (options.autoApply && analysis.confidence >= options.fix) {
         console.log(`🔧 Применяем исправления для типа: ${type}`);
         const fixes = await this.applyFixes(code, specificChecks, type);
         analysis.appliedFixes = fixes;
+        console.log(`[${type}] Исправления применены (фикс >= порога).`);
+      } else {
+        console.log(`[${type}] Исправления не применены (фикс < порога).`);
       }
 
       results.push({
@@ -286,6 +290,7 @@ class CodeAnalyzer {
   }
 
   async applyFixes(code, checks, type) {
+    console.log(`[${type}] Начало применения исправлений...`);
     const fixes = [];
     const filePath = this.options.filePath;
 
@@ -317,6 +322,9 @@ class CodeAnalyzer {
       if (fixes.length > 0) {
         console.log(`✅ Применено исправлений: ${fixes.length}`);
         this.fixes.push(...fixes);
+        console.log(`[${type}] Применённые исправления:\n`, JSON.stringify(fixes, null, 2));
+      } else {
+        console.log(`[${type}] Исправления не обнаружены или не требуются.`);
       }
 
       return fixes;

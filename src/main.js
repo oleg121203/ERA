@@ -184,8 +184,9 @@ async function handleCodeAnalysis(chat, args) {
       const analyzer = new CodeAnalyzer(chat, { ...options, filePath: file }); // Передаем опции в конструктор
       const results = await analyzer.analyze(code, options);
 
-      console.log("\n📊 Результаты анализа:");
+      console.log("\n📊 Детальный отчёт по файлу:");
       console.log(JSON.stringify(results, null, 2));
+      console.log("🔎 Завершён анализ файла:", file);
     }
 
     console.log("\n✅ Анализ завершен");
