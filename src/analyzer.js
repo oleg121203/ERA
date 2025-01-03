@@ -4,6 +4,7 @@ const { execSync } = require("child_process");
 const path = require("path");
 const fs = require("fs").promises;
 const config = require("./config/gemini.config");
+const logger = require('./utils/logger');
 
 class CodeAnalyzer {
   constructor(chat, options = {}) {
@@ -11,7 +12,7 @@ class CodeAnalyzer {
     this.options = options;
     this.genAI = new GoogleGenerativeAI(config.apiKey, {
       apiEndpoint: config.endpoint,
-      timeout: 30000
+      timeout: 30000,
     });
     this.fixes = [];
   }
@@ -35,16 +36,20 @@ class CodeAnalyzer {
       const specificChecks = await this.runSpecificChecks(code, type);
       const analysis = await this.analyzeByType(code, type, metrics);
 
-      console.log(`\n[${type}] Текущее значение confidence: ${analysis.confidence}, порог fix: ${options.fix}`);
-      console.log(`\n[${type}] autoApply: ${options.autoApply}, confidence: ${analysis.confidence}, fix: ${options.fix}`);
+      logger.log(
+        `\n[${type}] Текущее значение confidence: ${analysis.confidence}, порог fix: ${options.fix}`,
+      );
+      logger.log(
+        `\n[${type}] autoApply: ${options.autoApply}, confidence: ${analysis.confidence}, fix: ${options.fix}`,
+      );
       // Применяем исправления если включен autoApply
       if (options.autoApply && analysis.confidence >= options.fix) {
-        console.log(`🔧 Применяем исправления для типа: ${type}`);
+        logger.log(`🔧 Применяем исправления для типа: ${type}`);
         const fixes = await this.applyFixes(code, analysis, type);
         analysis.appliedFixes = fixes;
-        console.log(`[${type}] Исправления применены (фикс >= порога).`);
+        logger.log(`[${type}] Исправления применены (фикс >= порога).`);
       } else {
-        console.log(`[${type}] Исправления не применены (фикс < порога).`);
+        logger.log(`[${type}] Исправления не применены (фикс < порога).`);
       }
 
       results.push({
@@ -59,20 +64,23 @@ class CodeAnalyzer {
 
   parseTypes(typesStr) {
     if (!typesStr || typesStr.trim() === "") {
-      console.log("🔍 Используется базовый тип анализа");
+      logger.log("🔍 Используется базовый тип анализа");
       return [{ type: "--basic", metrics: {} }];
     }
 
     // Разбиваем строку типов по запятой
-    const typesArray = typesStr.split(",").map(type => type.trim()).filter(type => type !== "");
-    console.log("📋 Полученные типы анализа:", typesArray);
+    const typesArray = typesStr
+      .split(",")
+      .map((type) => type.trim())
+      .filter((type) => type !== "");
+    logger.log("📋 Полученные типы анализа:", typesArray);
 
     const analysisTypes = typesArray.map((typeStr) => {
       const [typeRaw, ...metricsArr] = typeStr.split(":");
       const type = typeRaw.replace(/^--/, "");
       const metrics = this.parseMetrics(metricsArr.join(":"));
 
-      console.log(`🔍 Разбор типа ${type}:`, { metrics });
+      logger.log(`🔍 Разбор типа ${type}:`, { metrics });
       return {
         type: `--${type}`,
         metrics,
@@ -103,75 +111,77 @@ class CodeAnalyzer {
 
   async analyzeByType(code, type, metrics = {}) {
     const typeConfig = ANALYSIS_TYPES[type];
-    console.log(`\n📊 Анализ типа ${type}`);
-    
+    logger.log(`\n📊 Анализ типа ${type}`);
+
     try {
-        const model = this.genAI.getGenerativeModel({
-            model: 'gemini-pro',
-            generationConfig: {
-                temperature: 0.7,
-                topP: 0.8,
-                maxOutputTokens: 2048,
-            }
-        });
+      const model = this.genAI.getGenerativeModel({
+        model: "gemini-pro",
+        generationConfig: {
+          temperature: 0.7,
+          topP: 0.8,
+          maxOutputTokens: 2048,
+        },
+      });
 
-        try {
-          // Применяем форматирование
-          if (typeConfig.formatters && this.options.format) {
-            await this.applyFormatters(type, typeConfig.formatters);
-          }
+      try {
+        // Применяем форматирование
+        if (typeConfig.formatters && this.options.format) {
+          await this.applyFormatters(type, typeConfig.formatters);
+        }
 
-          // Подготавливаем и проверяем промпт
-          const prompt = this.buildPrompt(code, typeConfig, metrics);
-          if (!prompt.trim()) {
-            throw new Error("Empty prompt generated");
-          }
+        // Подготавливаем и проверяем промпт
+        const prompt = this.buildPrompt(code, typeConfig, metrics);
+        if (!prompt.trim()) {
+          throw new Error("Empty prompt generated");
+        }
 
-          // Отправляем запрос с обработкой ошибок безопасности
-          const result = await model.generateContent(prompt);
-          const response = await result.response;
+        // Отправляем запрос с обработкой ошибок безопасности
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
 
-          if (!response) {
-            throw new Error("Empty response from AI");
-          }
+        if (!response) {
+          throw new Error("Empty response from AI");
+        }
 
-          // Используем переданные метрики или значения по умолчанию
-          const confidence = metrics.confidence || typeConfig.metrics.confidence.CERTAIN;
-          const impact = metrics.impact || typeConfig.metrics.impact.CRITICAL;
-          const priority = metrics.priority || typeConfig.metrics.priority.IMMEDIATE;
+        // Используем переданные метрики или значения по умолчанию
+        const confidence =
+          metrics.confidence || typeConfig.metrics.confidence.CERTAIN;
+        const impact = metrics.impact || typeConfig.metrics.impact.CRITICAL;
+        const priority =
+          metrics.priority || typeConfig.metrics.priority.IMMEDIATE;
 
-          console.log(`Результаты анализа:
+        logger.log(`Результаты анализа:
           - Confidence: ${confidence}
           - Impact: ${impact}
           - Priority: ${priority}
           `);
 
-          return {
-            type,
-            analysis: response.text(),
-            confidence,
-            impact,
-            priority
-          };
-        } catch (error) {
-          console.error(`Error in analyzeByType for type ${type}:`, error.message);
-          return {
-            type,
-            analysis: `Analysis failed: ${error.message}`,
-            confidence: typeConfig.metrics.confidence.CERTAIN,
-            impact: typeConfig.metrics.impact.CRITICAL,
-            priority: typeConfig.metrics.priority.IMMEDIATE,
-            error: true,
-          };
-        }
+        return {
+          type,
+          analysis: response.text(),
+          confidence,
+          impact,
+          priority,
+        };
+      } catch (error) {
+        logger.error(`Error in analyzeByType for type ${type}: ${error.message}`);
+        return {
+          type,
+          analysis: `Analysis failed: ${error.message}`,
+          confidence: typeConfig.metrics.confidence.CERTAIN,
+          impact: typeConfig.metrics.impact.CRITICAL,
+          priority: typeConfig.metrics.priority.IMMEDIATE,
+          error: true,
+        };
+      }
     } catch (error) {
-        console.error(`Error in analyzeByType for type ${type}:`, error.message);
-        throw error; // Пробрасываем ошибку выше для правильной обработки
+      logger.error(`Error in analyzeByType for type ${type}: ${error.message}`);
+      throw error; // Пробрасываем ошибку выше для правильной обработки
     }
   }
 
   async applyFormatters(type, formatters) {
-    console.log(`🔧 Применяем форматтеры для ${type}...`);
+    logger.log(`🔧 Применяем форматтеры для ${type}...`);
     const filePath = this.options.filePath;
     const extension = path.extname(filePath);
 
@@ -179,10 +189,10 @@ class CodeAnalyzer {
       const config = FORMATTERS[formatter];
       if (config && config.extensions.includes(extension)) {
         try {
-          console.log(`   Running ${formatter}...`);
+          logger.log(`   Running ${formatter}...`);
           const command = `${config.command} ${config.args.join(" ")} "${filePath}"`;
           execSync(command, { stdio: "pipe" });
-          console.log(`   ✅ ${formatter} completed`);
+          logger.log(`   ✅ ${formatter} completed`);
         } catch (error) {
           console.warn(`⚠️  Formatter ${formatter} failed:`, error.message);
         }
@@ -257,6 +267,9 @@ class CodeAnalyzer {
     } else if (type === "--performance") {
       checks.complexity = this.checkComplexity(code);
       checks.memoryUsage = this.checkMemoryUsage(code);
+    } else if (type === "--syntax") {
+      checks.syntax = this.checkSyntax(code);
+      checks.style = this.checkStyle(code);
     }
 
     return checks;
@@ -318,21 +331,54 @@ class CodeAnalyzer {
     return memoryIssues;
   }
 
-  async applyFixes(code, analysis, type) {
-    console.log(`\n[${type}] Начало применения исправлений...`);
-    
+  checkSyntax(code) {
+    const issues = [];
     try {
-        // Проверяем API ключ перед применением исправлений
-        if (!await config.validate()) {
-            throw new Error('Недействительный API ключ');
+      // Проверка базового синтаксиса
+      Function(code);
+    } catch (error) {
+      issues.push({
+        type: 'syntax-error',
+        message: error.message,
+        line: error.lineNumber
+      });
+    }
+    return issues;
+  }
+
+  checkStyle(code) {
+    const styleIssues = [];
+    const patterns = [
+        { regex: /\t/g, message: "Tabs found, use spaces instead" },
+        { regex: /\s+$/gm, message: "Trailing whitespace found" },
+        { regex: /[^\n]\n*$/g, message: "Missing newline at end of file" },
+        { regex: /[;,]\s*\n\s*[}\]]/, message: "Trailing comma style violation" }
+    ];
+
+    patterns.forEach(({ regex, message }) => {
+        if (regex.test(code)) {
+            styleIssues.push({ type: 'style', message });
         }
+    });
 
-        const fixes = [];
-        const filePath = this.options.filePath;
+    return styleIssues;
+  }
 
-        try {
-            // Проверяем метрики и API ключ
-            console.log(`Проверка метрик:
+  async applyFixes(code, analysis, type) {
+    logger.log(`\n[${type}] Начало применения исправлений...`);
+
+    try {
+      // Проверяем API ключ перед применением исправлений
+      if (!(await config.validate())) {
+        throw new Error("Недействительный API ключ");
+      }
+
+      const fixes = [];
+      const filePath = this.options.filePath;
+
+      try {
+        // Проверяем метрики и API ключ
+        logger.log(`Проверка метрик:
             - Confidence: ${analysis.confidence}
             - Impact: ${analysis.impact}
             - Priority: ${analysis.priority}
@@ -340,94 +386,111 @@ class CodeAnalyzer {
             - AutoApply: ${this.options.autoApply}
             `);
 
-            if (!this.options.autoApply || analysis.confidence < this.options.fix) {
-                console.log("❌ Исправления не будут применены: недостаточный confidence или отключен autoApply");
-                return [];
-            }
-
-            // Анализируем текущий код
-            const issues = await this.analyzeCodeIssues(code, type);
-            if (!issues || issues.length === 0) {
-                console.log("✅ Проблем не обнаружено, исправления не требуются");
-                return [];
-            }
-
-            console.log(`🔍 Найдено проблем: ${issues.length}`);
-            
-            // Применяем исправления для каждой проблемы
-            for (const issue of issues) {
-                try {
-                    const fix = await this.generateFix(code, issue, type);
-                    if (fix && fix.fixedCode) {
-                        // Сохраняем бэкап если нужно
-                        if (this.options.backup) {
-                            await fs.writeFile(`${filePath}.backup`, code, 'utf8');
-                        }
-                        
-                        // Применяем исправление
-                        await fs.writeFile(filePath, fix.fixedCode, 'utf8');
-                        fixes.push({
-                            type: issue.type,
-                            description: issue.description,
-                            applied: true,
-                            timestamp: new Date().toISOString(),
-                            confidence: analysis.confidence,
-                            impact: analysis.impact
-                        });
-                    }
-                } catch (error) {
-                    console.error(`Ошибка при исправлении проблемы ${issue.type}:`, error);
-                }
-            }
-
-            if (fixes.length > 0) {
-                console.log(`✅ Успешно применено исправлений: ${fixes.length}`);
-                this.fixes.push(...fixes);
-            }
-
-            return fixes;
-        } catch (error) {
-            console.error('Ошибка при применении исправлений:', error);
-            return [];
+        if (!this.options.autoApply || analysis.confidence < this.options.fix) {
+          logger.log(
+            "❌ Исправления не будут применены: недостаточный confidence или отключен autoApply",
+          );
+          return [];
         }
-    } catch (error) {
-        console.error('Ошибка при применении исправлений:', error);
-        throw error; // Пробрасываем ошибку выше
-    }
-}
 
-async analyzeCodeIssues(code, type) {
+        // Анализируем текущий код
+        const issues = await this.analyzeCodeIssues(code, type);
+        if (!issues || issues.length === 0) {
+          logger.log("✅ Проблем не обнаружено, исправления не требуются");
+          return [];
+        }
+
+        logger.log(`🔍 Найдено проблем: ${issues.length}`);
+
+        // Применяем исправления для каждой проблемы
+        for (const issue of issues) {
+          try {
+            const fix = await this.generateFix(code, issue, type);
+            if (fix && fix.fixedCode) {
+              // Сохраняем бэкап если нужно
+              if (this.options.backup) {
+                await fs.writeFile(`${filePath}.backup`, code, "utf8");
+              }
+
+              // Применяем исправление
+              await fs.writeFile(filePath, fix.fixedCode, "utf8");
+              fixes.push({
+                type: issue.type,
+                description: issue.description,
+                applied: true,
+                timestamp: new Date().toISOString(),
+                confidence: analysis.confidence,
+                impact: analysis.impact,
+              });
+            }
+          } catch (error) {
+            logger.error(
+              `Ошибка при исправлении проблемы ${issue.type}: ${error.message}`,
+            );
+          }
+        }
+
+        if (fixes.length > 0) {
+          logger.log(`✅ Успешно применено исправлений: ${fixes.length}`);
+          this.fixes.push(...fixes);
+        }
+
+        return fixes;
+      } catch (error) {
+        logger.error("Ошибка при применении исправлений:", error.message);
+        return [];
+      }
+    } catch (error) {
+      logger.error("Ошибка при применении исправлений:", error.message);
+      throw error; // Пробрасываем ошибку выше
+    }
+  }
+
+  async analyzeCodeIssues(code, type) {
     try {
         const model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
-        const result = await model.generateContent({
-            contents: [{
-                parts: [{
-                    text: `Analyze this code and identify issues:
-                    ${code}
-                    
-                    Return response in this exact JSON format:
-                    {
-                        "issues": [
-                            {
-                                "type": "string",
-                                "description": "string",
-                                "severity": "high|medium|low",
-                                "line": "number"
-                            }
-                        ]
-                    }`
-                }]
-            }]
-        });
         
+        // Определяем промпт в зависимости от типа анализа
+        let prompt = '';
+        
+        if (type === '--syntax') {
+            prompt = `Analyze this code for syntax and style issues:
+${code}
+
+Return response in this exact JSON format:
+{
+    "issues": [
+        {
+            "type": "syntax|style",
+            "description": "string",
+            "severity": "high|medium|low",
+            "line": "number",
+            "suggestion": "string"
+        }
+    ]
+}`;
+        } else {
+            // Промпты для других типов анализа
+            prompt = `Analyze this code for general issues:
+${code}
+
+Return response in JSON format.`;
+        }
+
+        // Отправляем запрос к API
+        const result = await model.generateContent({
+            contents: [{ parts: [{ text: prompt }] }]
+        });
+
         if (!result.response) {
+            logger.log("Нет ответа от API");
             return [];
         }
 
         const text = result.response.text();
-        
-        // Извлекаем JSON из ответа, даже если он обёрнут в markdown
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
+
+        // Извлекаем JSON из ответа
+        const jsonMatch = text.match(/\{[\с\S]*\}/);
         if (!jsonMatch) {
             console.warn("Не удалось найти JSON в ответе:", text);
             return [];
@@ -435,20 +498,22 @@ async analyzeCodeIssues(code, type) {
 
         const response = JSON.parse(jsonMatch[0]);
         return response.issues || [];
+        
     } catch (error) {
-        console.error('Ошибка при анализе кода:', error);
-        console.log('Полученный ответ:', error.response?.text);
+        logger.error("Ошибка при анализе кода:", error.message);
         return [];
     }
 }
 
-async generateFix(code, issue, type) {
+  async generateFix(code, issue, type) {
     try {
-        const model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
-        const result = await model.generateContent({
-            contents: [{
-                parts: [{
-                    text: `Fix this code issue:
+      const model = this.genAI.getGenerativeModel({ model: "gemini-pro" });
+      const result = await model.generateContent({
+        contents: [
+          {
+            parts: [
+              {
+                text: `Fix this code issue:
                     Issue: ${issue.description}
                     Type: ${type}
                     
@@ -459,23 +524,25 @@ async generateFix(code, issue, type) {
                     {
                         "fixedCode": "string (complete fixed code)",
                         "explanation": "string"
-                    }`
-                }]
-            }]
-        });
+                    }`,
+              },
+            ],
+          },
+        ],
+      });
 
-        const text = result.response.text();
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) {
-            throw new Error("Invalid response format");
-        }
+      const text = result.response.text();
+      const jsonMatch = text.match(/\{[\с\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error("Invalid response format");
+      }
 
-        return JSON.parse(jsonMatch[0]);
+      return JSON.parse(jsonMatch[0]);
     } catch (error) {
-        console.error('Ошибка при генерации исправления:', error);
-        return null;
+      logger.error("Ошибка при генерации исправления:", error.message);
+      return null;
     }
-}
+  }
 
   async getSecurityFix(code, type, analysis) {
     const prompt = [
@@ -498,10 +565,10 @@ async generateFix(code, issue, type) {
       const response = JSON.parse(result.response.text());
       return {
         fixedCode: response.fixedCode,
-        changes: response.changes
+        changes: response.changes,
       };
     } catch (error) {
-      console.error('Ошибка парсинга ответа AI:', error);
+      logger.error("Ошибка парсинга ответа AI:", error);
       return null;
     }
   }
@@ -518,36 +585,36 @@ async generateFix(code, issue, type) {
       "```",
       "Issues to address:",
       ...checks.complexity,
-      ...checks.memoryUsage
+      ...checks.memoryUsage,
     ].join("\n");
 
     try {
       const result = await this.chat.sendMessage(prompt);
       return {
-        type: 'performance',
+        type: "performance",
         issues: [...checks.complexity, ...checks.memoryUsage],
         fixedCode: result.response.text(),
         applied: true,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     } catch (error) {
-      console.error('Ошибка при получении оптимизаций:', error);
+      logger.error("Ошибка при получении оптимизаций:", error);
       return null;
     }
   }
 
   async formatCode(code) {
     const filePath = this.options.filePath;
-    console.log(`\n🔧 Форматирование файла: ${filePath}`);
+    logger.log(`\n🔧 Форматирование файла: ${filePath}`);
     const extension = path.extname(filePath);
 
     for (const [name, config] of Object.entries(FORMATTERS)) {
       try {
         if (config.extensions.includes(extension)) {
-          console.log(`   Применяем ${name}...`);
+          logger.log(`   Применяем ${name}...`);
           const command = `${config.command} ${config.args.join(" ")} "${filePath}"`;
           execSync(command, { stdio: "pipe" });
-          console.log(`   ✅ ${name} completed`);
+          logger.log(`   ✅ ${name} completed`);
         }
       } catch (error) {
         console.warn(`⚠️  Форматтер ${name} failed:`, error.message);

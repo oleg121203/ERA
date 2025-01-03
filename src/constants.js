@@ -61,6 +61,40 @@ const ANALYSIS_TYPES = {
       priority: { IMMEDIATE: 80, HIGH: 70, MEDIUM: 60 },
     },
   },
+  "--syntax": {
+    name: "Syntax Analysis",
+    desc: "Code syntax and style checking",
+    depth: "basic",
+    metrics: {
+      confidence: { CERTAIN: 95, LIKELY: 85, POSSIBLE: 70 },
+      impact: { CRITICAL: 60, HIGH: 50, MEDIUM: 40 },
+      priority: { IMMEDIATE: 70, HIGH: 60, MEDIUM: 50 },
+    },
+    formatters: ["prettier-vscode", "eslint"],
+  },
+  '--syntax': {
+    name: 'Syntax Analysis',
+    desc: 'Code syntax and style checking',
+    depth: 'basic',
+    metrics: {
+        confidence: {
+            LOW: 60,
+            MEDIUM: 80,
+            CERTAIN: 95
+        },
+        impact: {
+            LOW: 30,
+            MEDIUM: 60,
+            HIGH: 90
+        },
+        priority: {
+            LOW: 40,
+            MEDIUM: 70,
+            HIGH: 90
+        }
+    },
+    formatters: ['prettier', 'eslint']
+  }
 };
 
 const FORMATTERS = {
