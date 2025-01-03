@@ -16,7 +16,7 @@
     },
 
     "postCreateCommand": "npm install -g ts-node typescript && npm install",
-    "postStartCommand": "bash -c '. ~/.bashrc && bash ./scripts/setup-env.sh || true && npm run verify-dependencies || true && npm run generate-structure || true && npm run watch-structure || true'",
+    "postStartCommand": "bash -c '. ~/.bashrc && bash ./scripts/setup-env.sh || true && npm run verify-dependencies || true && npm run watch-structure || true'",
 
     "customizations": {
         "vscode": {

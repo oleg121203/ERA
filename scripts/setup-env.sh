@@ -3,6 +3,9 @@
 # Переходим на npm вместо yarn
 npm install -g prettier typescript eslint
 
+# Установка зависимостей
+npm install
+
 # Добавляем путь к глобальным npm пакетам
 export PATH="/usr/local/share/npm-global/bin:$PATH"
 
@@ -72,6 +75,9 @@ if [ -з "$GEMINI_API_KEY" ]; then
     echo "Ошибка: GEMINI_API_KEY не установлен"
     exit 1
 fi
+
+# Запуск наблюдения за структурой проекта
+npm run watch-structure
 
 # Выводим сообщение об успехе
 echo "API ключ успешно установлен в .env файл"
