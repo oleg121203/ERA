@@ -72,3 +72,18 @@ export interface ImportsAnalysisResult {
         installed: boolean;
     }>;
 }
+
+export interface FileNode {
+    name: string;
+    type: 'file' | 'directory';
+    path: string;
+    children?: FileNode[];
+}
+
+export interface FileExplorerSelection {
+    selectedPaths: string[];
+    options: {
+        recursive: boolean;
+        depth: number;
+    };
+}

@@ -304,6 +304,40 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
+// Добавляем новый эндпоинт для получения файловой структуры
+app.get('/api/files', async (req, res) => {
+    const dirPath = req.query.path || './';
+    try {
+        const getFiles = async (dir) => {
+            const dirents = await fs.readdir(dir, { withFileTypes: true });
+            const files = await Promise.all(dirents.map(async (dirent) => {
+                const resPath = path.resolve(dir, dirent.name);
+                if (dirent.isDirectory()) {
+                    return {
+                        name: dirent.name,
+                        type: 'directory',
+                        path: resPath,
+                        children: await getFiles(resPath)
+                    };
+                } else {
+                    return {
+                        name: dirent.name,
+                        type: 'file',
+                        path: resPath
+                    };
+                }
+            }));
+            return files;
+        };
+
+        const files = await getFiles(dirPath);
+        res.json(files);
+    } catch (error) {
+        logger.error(`Ошибка при получении файловой структуры: ${error.message}`);
+        res.status(500).json({ error: 'Не удалось получить файловую структуру' });
+    }
+});
+
 // Подключаем папку со статическим фронтендом
 app.use(express.static('public')); 
 

@@ -1,10 +1,90 @@
+import React, { useState, useEffect } from 'react';
+
+function FileExplorer({ onSelectionChange }) {
+    const [treeData, setTreeData] = React.useState([]);
+    const [selectedPaths, setSelectedPaths] = React.useState([]);
+    const [recursive, setRecursive] = React.useState(false);
+    const [depth, setDepth] = React.useState(2);
+    const [warning, setWarning] = React.useState('');
+
+    React.useEffect(() => {
+        console.log('Fetching file structure...');
+        fetch('/api/files?path=./')
+            .then(res => res.json())
+            .then(data => {
+                console.log('File structure loaded:', data);
+                setTreeData(data);
+            })
+            .catch(err => console.error('Ошибка загрузки файлов:', err));
+    }, []);
+
+    const handleToggle = (node, isChecked) => {
+        let updatedSelected = [...selectedPaths];
+        if (isChecked) {
+            updatedSelected.push(node.path);
+            if (node.type === 'directory') {
+                setRecursive(true);
+                setWarning('Глубина анализа будет одинаковой для всех выбранных элементов.');
+            }
+        } else {
+            updatedSelected = updatedSelected.filter(path => path !== node.path);
+            if (node.type === 'directory') {
+                setRecursive(false);
+                setWarning('');
+            }
+        }
+        setSelectedPaths(updatedSelected);
+        onSelectionChange(updatedSelected, { recursive, depth });
+    };
+
+    const renderTree = (nodes) => {
+        return (
+            <ul>
+                {nodes.map(node => (
+                    <li key={node.path}>
+                        <label>
+                            <input
+                                type="checkbox"
+                                onChange={(e) => handleToggle(node, e.target.checked)}
+                            />
+                            {node.name}
+                        </label>
+                        {node.type === 'directory' && node.children && (
+                            <div style={{ marginLeft: '20px' }}>
+                                {renderTree(node.children)}
+                            </div>
+                        )}
+                    </li>
+                ))}
+            </ul>
+        );
+    };
+
+    return (
+        <div style={{ width: '300px', borderRight: '1px solid #ccc', padding: '10px', overflowY: 'auto', height: '100vh' }}>
+            <h3>Файловый менеджер</h3>
+            {renderTree(treeData)}
+            {recursive && (
+                <div style={{ marginTop: '10px' }}>
+                    <label>Глубина анализа: </label>
+                    <input
+                        type="number"
+                        value={depth}
+                        onChange={(e) => setDepth(Number(e.target.value))}
+                        style={{ width: '50px', marginRight: '10px' }}
+                    />
+                    {warning && <div style={{ color: 'red' }}>{warning}</div>}
+                </div>
+            )}
+        </div>
+    );
+}
+
 function App() {
-    const [selectedPath, setSelectedPath] = React.useState('');
-    const [recursive, setRecursive] = React.useState(true);
-    const [autoApply, setAutoApply] = React.useState(false);
-    const [format, setFormat] = React.useState(false);
-    const [metrics, setMetrics] = React.useState(false);
-    const [strict, setStrict] = React.useState(false);
+    const [selectedFiles, setSelectedFiles] = React.useState([]);
+    const [recursive, setRecursive] = React.useState(false);
+    const [depth, setDepth] = React.useState(2);
+    const [excludedPaths, setExcludedPaths] = React.useState('node_modules');
     const [logFile, setLogFile] = React.useState('analysis_report.json');
     const [analysisTypes, setAnalysisTypes] = React.useState({
         basic: { confidence: 80, impact: 70, priority: 75 },
@@ -16,9 +96,15 @@ function App() {
     });
     const [message, setMessage] = React.useState('');
 
+    const handleSelectionChange = (selectedPaths, options) => {
+        setSelectedFiles(selectedPaths);
+        setRecursive(options.recursive);
+        setDepth(options.depth);
+    };
+
     const handleRunAnalysis = async () => {
-        if (!selectedPath) {
-            alert('Пожалуйста, выберите путь к файлам или папкам для анализа.');
+        if (selectedFiles.length === 0) {
+            alert('Пожалуйста, выберите файлы или папки для анализа.');
             return;
         }
 
@@ -30,14 +116,16 @@ function App() {
             .join(',');
 
         const payload = {
-            path: selectedPath,
+            paths: selectedFiles,
             recursive,
+            depth,
             types: typesParam,
-            autoApply,
-            format,
-            metrics,
-            strict,
-            logFile,
+            autoApply: autoApply,
+            format: format,
+            metrics: metrics,
+            strict: strict,
+            exclude: excludedPaths,
+            logFile: logFile,
         };
 
         try {
@@ -60,10 +148,6 @@ function App() {
         }
     };
 
-    const handlePathChange = (e) => {
-        setSelectedPath(e.target.value);
-    };
-
     const handleTypeChange = (type, field, value) => {
         setAnalysisTypes(prev => ({
             ...prev,
@@ -75,124 +159,83 @@ function App() {
     };
 
     return (
-        <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-            <h1>ERA Code Analyzer</h1>
-            
-            <div style={{ marginBottom: '15px' }}>
-                <label>Путь к файлам/папкам: </label>
-                <input
-                    type="text"
-                    value={selectedPath}
-                    onChange={handlePathChange}
-                    placeholder="Введите путь..."
-                    style={{ width: '300px', marginLeft: '10px' }}
-                />
-            </div>
+        <div style={{ display: 'flex', fontFamily: 'Arial, sans-serif' }}>
+            <FileExplorer onSelectionChange={handleSelectionChange} />
 
-            <div style={{ marginBottom: '15px' }}>
-                <label>
-                    <input
-                        type="checkbox"
-                        checked={recursive}
-                        onChange={(e) => setRecursive(e.target.checked)}
-                    />
-                    Рекурсивный анализ
-                </label>
-                <label style={{ marginLeft: '20px' }}>
-                    <input
-                        type="checkbox"
-                        checked={autoApply}
-                        onChange={(e) => setAutoApply(e.target.checked)}
-                    />
-                    Авто-применение
-                </label>
-                <label style={{ marginLeft: '20px' }}>
-                    <input
-                        type="checkbox"
-                        checked={format}
-                        onChange={(e) => setFormat(e.target.checked)}
-                    />
-                    Форматирование
-                </label>
-                <label style={{ marginLeft: '20px' }}>
-                    <input
-                        type="checkbox"
-                        checked={metrics}
-                        onChange={(e) => setMetrics(e.target.checked)}
-                    />
-                    Метрики
-                </label>
-                <label style={{ marginLeft: '20px' }}>
-                    <input
-                        type="checkbox"
-                        checked={strict}
-                        onChange={(e) => setStrict(e.target.checked)}
-                    />
-                    Строгий режим
-                </label>
-            </div>
+            <div style={{ padding: '20px', flex: 1 }}>
+                <h1>ERA Code Analyzer</h1>
 
-            <div style={{ marginBottom: '15px' }}>
-                <label>Файл лога: </label>
-                <input
-                    type="text"
-                    value={logFile}
-                    onChange={(e) => setLogFile(e.target.value)}
-                    style={{ width: '200px', marginLeft: '10px' }}
-                />
-            </div>
+                <div style={{ marginBottom: '15px' }}>
+                    <label>Исключить: </label>
+                    <input
+                        value={excludedPaths}
+                        onChange={(e) => setExcludedPaths(e.target.value)}
+                        style={{ width: '200px', marginLeft: '10px' }}
+                    />
+                </div>
 
-            <h3>Типы анализа</h3>
-            {Object.keys(analysisTypes).map(type => (
-                <div key={type} style={{ border: '1px solid #ccc', padding: '10px', marginBottom: '10px' }}>
-                    <strong>{type.charAt(0).toUpperCase() + type.slice(1)}</strong>
-                    <div style={{ marginTop: '10px' }}>
-                        <label>Confidence: </label>
-                        <input
-                            type="number"
-                            value={analysisTypes[type].confidence}
-                            onChange={(e) => handleTypeChange(type, 'confidence', Number(e.target.value))}
-                            style={{ width: '60px', marginRight: '20px' }}
-                        />
-                        <label>Impact: </label>
-                        <input
-                            type="number"
-                            value={analysisTypes[type].impact}
-                            onChange={(e) => handleTypeChange(type, 'impact', Number(e.target.value))}
-                            style={{ width: '60px', marginRight: '20px' }}
-                        />
-                        <label>Priority: </label>
-                        <input
-                            type="number"
-                            value={analysisTypes[type].priority}
-                            onChange={(e) => handleTypeChange(type, 'priority', Number(e.target.value))}
-                            style={{ width: '60px' }}
-                        />
+                <div style={{ marginBottom: '15px' }}>
+                    <label>Лог-файл: </label>
+                    <input
+                        value={logFile}
+                        onChange={(e) => setLogFile(e.target.value)}
+                        style={{ width: '200px', marginLeft: '10px' }}
+                    />
+                </div>
+
+                <h3>Типы анализа</h3>
+                {Object.keys(analysisTypes).map(type => (
+                    <div key={type} style={{ border: '1px solid #ccc', padding: '10px', marginBottom: '10px' }}>
+                        <strong>{type.charAt(0).toUpperCase() + type.slice(1)}</strong>
+                        <div style={{ marginTop: '10px' }}>
+                            <label>Confidence: </label>
+                            <input
+                                type="number"
+                                value={analysisTypes[type].confidence}
+                                onChange={(e) => handleTypeChange(type, 'confidence', Number(e.target.value))}
+                                style={{ width: '60px', marginRight: '20px' }}
+                            />
+                            <label>Impact: </label>
+                            <input
+                                type="number"
+                                value={analysisTypes[type].impact}
+                                onChange={(e) => handleTypeChange(type, 'impact', Number(e.target.value))}
+                                style={{ width: '60px', marginRight: '20px' }}
+                            />
+                            <label>Priority: </label>
+                            <input
+                                type="number"
+                                value={analysisTypes[type].priority}
+                                onChange={(e) => handleTypeChange(type, 'priority', Number(e.target.value))}
+                                style={{ width: '60px' }}
+                            />
+                        </div>
                     </div>
-                </div>
-            ))}
+                ))}
 
-            <button
-                onClick={handleRunAnalysis}
-                style={{
-                    padding: '10px 20px',
-                    backgroundColor: '#28a745',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '5px',
-                    cursor: 'pointer',
-                }}
-            >
-                Запустить анализ
-            </button>
+                <button
+                    onClick={handleRunAnalysis}
+                    style={{
+                        padding: '10px 20px',
+                        backgroundColor: '#28a745',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '5px',
+                        cursor: 'pointer',
+                    }}
+                >
+                    Запустить анализ
+                </button>
 
-            {message && (
-                <div style={{ marginTop: '20px', padding: '10px', backgroundColor: '#f8f9fa', borderRadius: '5px' }}>
-                    {message}
-                </div>
-            )}
+                {message && (
+                    <div style={{ marginTop: '20px', padding: '10px', backgroundColor: '#f8f9fa', borderRadius: '5px' }}>
+                        {message}
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
 
+console.log('Rendering App...');
 ReactDOM.render(<App />, document.getElementById('root'));
