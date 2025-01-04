@@ -1,4 +1,3 @@
-
 const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,6 +18,7 @@ const { testGeminiAPI } = require("../tests/test-api");
 const config = require("./config/gemini.config");
 const logger = require('./utils/logger');
 const axios = require('axios');
+const { ESLint } = require('eslint');
 
 const MODEL_NAME = config.modelName;
 const API_KEY = config.apiKey;
@@ -262,73 +262,6 @@ async function handleCodeAnalysis(chat, args) {
   }
 }
 
-async function main() {
-  if (args.length > 0) {
-    const [command, ...commandArgs] = args;
-
-    try {
-      const genAI = new GoogleGenerativeAI({ apiKey: API_KEY });
-      const model = genAI.getGenerativeModel({ model: MODEL_NAME });
-      const chat = await model.startChat({
-        generationConfig: { maxOutputTokens: 2048 },
-        safetySettings: [
-          {
-            category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-            threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-          },
-        ],
-      });
-
-      switch (command) {
-        case "analyze":
-          await handleCodeAnalysis(chat, commandArgs);
-          break;
-        case "chat":
-          await runChat();
-          break;
-        case "direct":
-          await makeDirectRequest(args.slice(1).join(" "));
-          break;
-        case "code":
-          handleCodeGeneration();
-          break;
-        default:
-          logger.log(
-            "Неизвестная команда. Доступные команды: chat, direct, code, analyze",
-          );
-      }
-    } catch (error) {
-      logger.error(`Ошибка инициализации чата: ${error}`);
-    }
-    rl.close();
-  } else {
-    logger.log("Добро пожаловать в Gemini AI Assistant!");
-    while (true) {
-      logger.log("Главное меню:");
-      logger.log("1. Chat режим");
-      logger.log("2. Прямой запрос");
-      logger.log("3. Выход");
-
-      const choice = await promptUser("Выберите режим (1-3): ");
-      switch (choice) {
-        case "1":
-          await runChat();
-          break;
-        case "2":
-          const prompt = await promptUser("Введите ваш запрос: ");
-          await makeDirectRequest(prompt);
-          break;
-        case "3":
-          logger.log("До свидания!");
-          rl.close();
-          return;
-        default:
-          logger.log("Неверный выбор. Попробуйте снова.");
-      }
-    }
-  }
-}
-
 const eslintConfigPath = path.join(__dirname, '../config/.eslintrc.js');
 const prettierConfigPath = path.join(__dirname, '../config/.prettierrc.js');
 
@@ -336,18 +269,48 @@ const prettierConfigPath = path.join(__dirname, '../config/.prettierrc.js');
 const eslint = new ESLint({ overrideConfigFile: eslintConfigPath });
 const prettierOptions = require(prettierConfigPath);
 
-main().catch(logger.error);
-
 app.use(express.json());
 
 // Пример эндпоинта для запуска анализа кода
 app.post('/api/analyze', async (req, res) => {
-  // ...можно вызвать вашу логику анализа...
-  res.json({ result: 'Анализ запущен' });
+  try {
+    const { path, options } = req.body;
+    const genAI = new GoogleGenerativeAI({ apiKey: API_KEY });
+    const model = genAI.getGenerativeModel({ model: MODEL_NAME });
+    const chat = await model.startChat({
+      generationConfig: { maxOutputTokens: 2048 },
+      safetySettings: [
+        {
+          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+          threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+        },
+      ],
+    });
+    
+    const results = await handleCodeAnalysis(chat, [path, ...Object.entries(options).map(([k,v]) => `--${k}=${v}`)]);
+    res.json({ success: true, results });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post('/api/chat', async (req, res) => {
+  try {
+    const { message } = req.body;
+    const response = await makeDirectRequest(message);
+    res.json({ success: true, response });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
 });
 
 // Подключаем папку со статическим фронтендом
 app.use(express.static('public')); 
+
+// Обновляем обработчик корневого маршрута
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/index.html'));
+});
 
 app.listen(PORT, () => {
   console.log(`Web server running on port ${PORT}`);
