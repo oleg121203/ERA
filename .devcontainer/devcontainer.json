@@ -1,5 +1,5 @@
 {
-    "name": "ERA Dev Container",
+    "name": "ERA Development",
     "build": {
         "dockerfile": "Dockerfile"
     },
@@ -14,14 +14,19 @@
         "ghcr.io/devcontainers/features/git:1": {
             "version": "latest",
             "ppa": true
+        },
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "lts",
+            "nodeGypDependencies": true
         }
     },
 
-    "postCreateCommand": "chmod +x ${containerWorkspaceFolder}/scripts/*.sh && ${containerWorkspaceFolder}/scripts/post-create.sh",
-    "postStartCommand": "bash -c '. ~/.bashrc && bash ./scripts/setup-env.sh || true && npm run verify-dependencies || true' && nohup code-server --bind-addr 0.0.0.0:4580 --auth none /workspaces/ERA &",
+    "postCreateCommand": "if [ ! -d /workspaces/ERA ]; then mkdir -p /workspaces/ERA; fi && touch /workspaces/ERA/.env && chmod 666 /workspaces/ERA/.env && touch /workspaces/project-structure.txt && chmod 666 /workspaces/project-structure.txt && chown -R node:node /workspaces/ERA && git config --global user.name 'Kizyma Oleg' && git config --global user.email 'oleg1203@gmail.com' && npm install -g ts-node typescript && npm install --no-scripts",
+
+    "postStartCommand": "bash -c '. ~/.bashrc && bash ./scripts/setup-env.sh || true && npm run verify-dependencies || true && npm run watch-structure || true' && nohup code-server --bind-addr 0.0.0.0:4580 --auth none /workspaces/ERA &",
 
     "initializeCommand": {
-        "set-permissions": "mkdir -p ${localWorkspaceFolder} && touch ${localWorkspaceFolder}/.env && chmod 666 ${localWorkspaceFolder}/.env"
+        "set-permissions": "mkdir -p ${localWorkspaceFolder} && touch ${localWorkspaceFolder}/.env && chmod 666 ${localWorkspaceFolder}/.env && touch ${localWorkspaceFolder}/project-structure.txt && chmod 666 ${localWorkspaceFolder}/project-structure.txt"
     },
 
     "customizations": {
@@ -123,7 +128,8 @@
                 "readonly.files": [
                     "**/node_modules/**",
                     "**/.git/**"
-                ]
+                ],
+                "geminiCodeAssist.apiKey": "${env:GEMINI_API_KEY}"
             },
             "extensions": [
                 "esbenp.prettier-vscode",
@@ -141,7 +147,10 @@
                 "visualstudioexptteam.vscodeintellicode",
                 "ms-azuretools.vscode-docker",
                 "swagatachaudhuri.github-copilot-tools-pack",
-                "github.copilot-workspace"
+                "github.copilot-workspace",
+                "gemini.code-assist",
+                "Continue.continue",
+                "ms-python.debugpy"
             ]
         }
     },
@@ -149,8 +158,8 @@
     "workspaceFolder": "/workspaces/ERA",
 
     "mounts": [
-        "source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached,readonly",
-        "source=${localWorkspaceFolder}/.env,target=/workspaces/ERA/.env,type=bind,consistency=cached"
+        "source=${localWorkspaceFolder},target=/workspaces/ERA,type=bind,consistency=cached",
+        "source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached,readonly"
     ],
 
     "remoteUser": "node",
@@ -169,5 +178,8 @@
             "visibility": "public"
         }
     },
-    "forwardPorts": [3000, 4580]
+    "forwardPorts": [3000, 4580],
+    "remoteEnv": {
+        "GEMINI_API_KEY": "${localEnv:GEMINI_API_KEY}"
+    }
 }
