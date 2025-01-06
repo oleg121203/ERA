@@ -1,29 +1,27 @@
-# Используем Alpine Linux образ как базовый
 FROM n8nio/n8n:latest
 
-# Переключаемся на root для установки пакетов
+# Set the user to root
 USER root
 
-# Устанавливаем Python и pip используя apk (пакетный менеджер Alpine)
-RUN apk update && \
-    apk add --no-cache python3 py3-pip nginx && \
+# Install Python, pip, Nginx и Bash с проверкой ошибок
+RUN apt-get update && \
+    apt-get install -y python3 python3-pip nginx bash && \
     python3 -m venv /opt/venv && \
-    rm -rf /var/cache/apk/*
+    rm -rf /var/lib/apt/lists/*
 
-# Активируем виртуальное окружение
+# Activate virtual environment
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Создаем директорию для requirements
+# Create directory for requirements
 WORKDIR /workspaces/ERA
 
-# Копируем requirements из workspace
+# Copy requirements from workspace
 COPY ../requirements.txt .
 
-# Устанавливаем зависимости
+# Install dependencies once
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir pip-tools && \
     pip install --no-cache-dir -r requirements.txt && \
-    pip-compile --output-file requirements.lock requirements.txt
+    pip-compile requirements.txt
 
-# Возвращаемся к пользователю node
+# Set back to node user
 USER node
