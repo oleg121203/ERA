@@ -1,0 +1,75 @@
+{
+  "name": "era-code-analyzer",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "ts-node src/server.ts",
+    "dev": "npm run setup && nodemon --exec ts-node src/server.ts",
+    "setup": "pip install black autopep8 isort",
+    "build": "tsc && cp -r public dist/",
+    "serve": "node dist/server.js",
+    "cli": "ts-node src/cli.ts",
+    "test": "jest",
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:all": "npm run format:js && npm run format:py",
+    "format:js": "prettier --write \"src/**/*.{js,ts,jsx,tsx}\" && eslint --fix \"src/**/*.{js,ts,jsx,tsx}\"",
+    "format:py": "black . && isort . && autopep8 --in-place --recursive .",
+    "check-formatters": "ts-node src/utils/checkFormatters.ts",
+    "prepare": "husky install"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.23.0",
+    "@google/generative-ai": "^0.21.0",
+    "@types/commander": "^2.12.0",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
+    "@types/winston": "^2.4.4",
+    "commander": "^11.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "node-fetch": "^3.3.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "readline-sync": "^1.4.10",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.23.0",
+    "@babel/core": "^7.23.0",
+    "@babel/plugin-transform-runtime": "^7.23.0",
+    "@babel/preset-env": "^7.23.0",
+    "@babel/preset-react": "^7.23.0",
+    "@babel/preset-typescript": "^7.23.0",
+    "@types/cors": "^2.8.17",
+    "@types/eslint": "^7.28.0",
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
+    "eslint": "^8.57.1",
+    "husky": "^9.1.7",
+    "jest": "^29.7.0",
+    "lint-staged": "^15.3.0",
+    "nodemon": "^3.0.2",
+    "prettier": "^2.8.8",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.3.0"
+  },
+  "lint-staged": {
+    "**/*.{js,ts,jsx,tsx}": [
+      "npm run format:js",
+      "npm run lint",
+      "git add"
+    ],
+    "**/*.py": [
+      "npm run format:py",
+      "git add"
+    ]
+  }
+}

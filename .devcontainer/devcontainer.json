@@ -1,76 +1,120 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the
-// README at: https://github.com/devcontainers/templates/tree/main/src/javascript-node
 {
-	"name": "Node.js & Python",
-	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/javascript-node:1-18-bullseye",
-
-	"features": {
-		"ghcr.io/devcontainers/features/python:1": {
-			"version": "3.9"
-		}
-	},
-
-	// Configure tool-specific properties.
-	"customizations": {
-		// Configure properties specific to VS Code.
-		"vscode": {
-			"settings": {
-				"editor.formatOnSave": true,
-				"editor.codeActionsOnSave": {
-					"source.fixAll": "explicit",
-					"source.organizeImports": "explicit"
-				},
-				"files.autoSave": "afterDelay",
-				"files.autoSaveDelay": 3000,
-				"eslint.enable": true,
-				"npm.packageManager": "yarn",
-				"eslint.validate": [
-					"javascript",
-					"javascriptreact",
-					"typescript",
-					"typescriptreact"
-				],
-				"python.formatting.provider": "black",
-				"python.linting.enabled": true,
-				"python.linting.pylintEnabled": true,
-				"[python]": {
-					"editor.defaultFormatter": "ms-python.python",
-					"editor.formatOnSave": true
-				}
-			},
-			"extensions": [
-				"streetsidesoftware.code-spell-checker",
-				"ms-python.python",
-				"ms-python.vscode-pylance",
-				"esbenp.prettier-vscode",
-				"dbaeumer.vscode-eslint",
-				"ms-azuretools.vscode-docker",
-				"GitHub.copilot",
-				"GitHub.copilot-chat",
-				"GitHub.copilot-labs",
-				"ms-edgedevtools.vscode-edge-devtools",
-				"Continue.continue",
-				"swagatachaudhuri.github-copilot-tools-pack",
-				"github.copilot-workspace",
-				"eamodio.gitlens",
-				"ms-python.black-formatter",
-				"ms-python.isort"
-			]
-		}
-	},
-
-	"workspaceFolder": "/workspaces/ERA",
-	
-	"mounts": [
-		"source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached,readonly"
-	],
+    "name": "ERA Development Environment",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": "..",
+        "args": {
+            "NODE_VERSION": "lts/*"
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "editor.formatOnSave": true,
+                "editor.formatOnSaveTimeout": 2000,
+                "editor.codeActionsOnSave": {
+                    "source.fixAll": true,
+                    "source.fixAll.eslint": true,
+                    "source.organizeImports": true
+                },
+                "files.autoSave": "afterDelay",
+                "files.autoSaveDelay": 5000,
+                "python.formatting.provider": "black",
+                "python.linting.enabled": true,
+                "python.linting.pylintEnabled": true,
+                "python.linting.flake8Enabled": true,
+                "python.linting.mypyEnabled": false,
+                "python.testing.pytestEnabled": true,
+                "python.testing.pytestArgs": ["--cov", "."],
+                "node.version": "lts/*",
+                "npm.packageManager": "npm",
+                "eslint.enable": true,
+                "java.format.enabled": true,
+                "java.format.onType.enabled": true,
+                "java.format.settings.url": ".vscode/java-formatter.xml",
+                "java.format.settings.profile": "GoogleStyle"
+            },
+            "extensions": {
+                "python": [
+                    "ms-python.python",
+                    "ms-python.vscode-pylance",
+                    "ms-python.black-formatter",
+                    "ms-python.isort",
+                    "ms-python.flake8",
+                    "ms-python.jedi-language-server"
+                ],
+                "java": [
+                    "vscjava.vscode-java-pack",
+                    "vscjava.vscode-java-debug",
+                    "redhat.java",
+                    "vscjava.vscode-maven",
+                    "vscjava.vscode-java-dependency",
+                    "vscjava.vscode-java-test",
+                    "vscjava.vscode-spring-initializr",
+                    "vscjava.vscode-spring-boot-dashboard"
+                ],
+                "n8n": [
+                    "n8n-io.n8n-snippets",
+                    "n8nio.n8n-designer",
+                    "n8nio.n8n-workflow-ui"
+                ],
+                "general": [
+                    "GitHub.copilot",
+                    "GitHub.copilot-chat",
+                    "GitHub.copilot-labs",
+                    "eamodio.gitlens",
+                    "ms-vsliveshare.vsliveshare",
+                    "ms-toolsai.jupyter",
+                    "esbenp.prettier-vscode",
+                    "dbaeumer.vscode-eslint",
+                    "octokit.octokit-cli",
+                    "ms-kubernetes-tools.vscode-kubernetes-tools",
+                    "redhat.vscode-yaml",
+                    "ms-azuretools.vscode-docker",
+                    "ms-vscode-remote.remote-containers"
+                ]
+            }
+        }
+    },
+    "workspaceFolder": "/workspaces/ERA",
+    "mounts": [
+        {
+            "source": "${localEnv:HOME}/.ssh",
+            "target": "/home/node/.ssh",
+            "type": "bind",
+            "consistency": "cached",
+            "readonly": true
+        },
+        {
+            "source": "/var/run/docker.sock",
+            "target": "/var/run/docker.sock",
+            "type": "bind"
+        }
+    ],
     "portsAttributes": {
-        "3000": {
-            "label": "Hello Remote World",
+        "5678": {
+            "label": "n8n",
             "onAutoForward": "notify"
+        },
+        "80": {
+            "label": "Nginx",
+            "onAutoForward": "notify"
+        },
+        "8080": {
+            "label": "n8n Designer",
+            "onAutoForward": "notify"
+        },
+        "8081": {
+            "label": "n8n Workflow UI",
+            "onAutoForward": "notify"
+        },
+        "4500": {
+            "label": "n8n Web UI",
+            "onAutoForward": "openBrowser"
         }
     },
     "initializeCommand": "git config --global user.name 'Oleg Kizyma' && git config --global user.email 'oleg1203@gmail.com'",
-    "postCreateCommand": "yarn install && pip install black autopep8 isort pylint"
+    "postCreateCommand": [],
+    "remoteUser": "node",
+    "updateRemoteUserUID": true
 }

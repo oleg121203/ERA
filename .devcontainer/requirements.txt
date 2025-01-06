@@ -1,0 +1,20 @@
+# Essential linters and formatters
+black
+isort
+pylint
+flake8
+
+# Testing
+pytest
+pytest-cov
+
+# Web framework
+flask
+
+# Development tools
+ipython
+
+# Package management
+pip-tools
+
+# Removing git since it should be installed system-wide
