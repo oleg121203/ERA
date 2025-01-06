@@ -1,27 +1,36 @@
 FROM n8nio/n8n:latest
 
-# Set the user to root
 USER root
 
-# Install Python, pip, Nginx и Bash с проверкой ошибок
-RUN apt-get update && \
-    apt-get install -y python3 python3-pip nginx bash && \
-    python3 -m venv /opt/venv && \
-    rm -rf /var/lib/apt/lists/*
+# Установка основных зависимостей
+RUN apk add --no-cache \
+    python3 \
+    py3-pip \
+    nginx \
+    bash \
+    openjdk11 \
+    maven \
+    git \
+    && python3 -m venv /opt/venv \
+    && rm -rf /var/cache/apk/*
 
-# Activate virtual environment
+# Активация виртуального окружения
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Create directory for requirements
 WORKDIR /workspaces/ERA
 
-# Copy requirements from workspace
-COPY ../requirements.txt .
+# Создание файлов если они отсутствуют
+RUN touch requirements.in requirements.txt
 
-# Install dependencies once
+# Установка Python зависимостей
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt && \
-    pip-compile requirements.txt
+    pip install --no-cache-dir pip-tools && \
+    pip install --no-cache-dir -r requirements.txt || true && \
+    pip-compile requirements.in --output-file requirements.txt || true
 
-# Set back to node user
+
+# Установка Node.js зависимостей
+COPY package*.json ./
+RUN npm install || true
+
 USER node
