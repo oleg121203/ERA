@@ -10,6 +10,15 @@ else
   echo 'Docker Compose вже встановлений.'
 fi
 
+# Установка npm зависимостей
+npm install
+
+# Установка Git hooks
+mkdir -p .git/hooks
+echo '#!/bin/sh' > .git/hooks/pre-commit
+echo 'npm run lint-staged' >> .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+
 # Перевірка наявності структури проекту
 if [ ! -f src/index.js ]; then
   echo 'Структура проекту не знайдена. Створення структури...'
