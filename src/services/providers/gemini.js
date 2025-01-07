@@ -1,9 +1,10 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export class GeminiProvider {
-  constructor(apiKey, model = 'gemini-1.0-pro') {
+  constructor(apiKey, model = "gemini-pro") {
+    // изменена модель на gemini-pro
     if (!apiKey) {
-      throw new Error('GEMINI_API_KEY is not set in environment variables');
+      throw new Error("GEMINI_API_KEY is not set in environment variables");
     }
     this.genAI = new GoogleGenerativeAI(apiKey);
     this.model = this.genAI.getGenerativeModel({ model });
@@ -11,24 +12,8 @@ export class GeminiProvider {
 
   async analyze(content) {
     try {
-      // Настраиваем параметры генерации
-      const generationConfig = {
-        temperature: 0.7,
-        topK: 40,
-        topP: 0.8,
-        maxOutputTokens: 2048,
-      };
-
-      // Создаем промпт для анализа
-      const parts = [{ text: content }];
-      
-      const result = await this.model.generateContent({
-        contents: [{ role: 'user', parts }],
-        generationConfig,
-      });
-
-      const response = await result.response;
-      return response.text();
+      const result = await this.model.generateContent(content);
+      return result.response.text();
     } catch (error) {
       const errorMessage = error.response?.error?.message || error.message;
       throw new Error(`Gemini API error: ${errorMessage}`);

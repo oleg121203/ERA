@@ -1,11 +1,13 @@
 # ERA Project
 
 ## Описание
+
 Базовая структура современного веб-приложения с разделением на frontend и backend части, готовая к масштабированию.
 
 ## Структура проекта
 
 ### Backend:
+
 - src/
   - controllers/
   - models/
@@ -16,6 +18,7 @@
   - tests/
 
 ### Frontend:
+
 - client/
   - src/
     - components/
@@ -26,6 +29,7 @@
     - tests/
 
 ### Общие файлы:
+
 - docs/
 - scripts/
 - docker/
