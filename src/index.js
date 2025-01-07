@@ -1,8 +1,7 @@
-const express = require('express');
-const config = require('./config/app');
+import express from 'express';
+import config from './config/app.js';
 
 const app = express();
-
 app.use(express.json());
 
 app.listen(config.port, () => {

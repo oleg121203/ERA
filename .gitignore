@@ -336,6 +336,8 @@ out
 # Node.js
 node_modules/
 .env
+.env.local
+.env.*.local
 dist/
 coverage/
 .DS_Store
