@@ -43,7 +43,7 @@ async function main() {
       .description('Анализ кода')
       .option('-f, --fix', 'Автоисправление')
       .option('-r, --recursive', 'Рекурсивный анализ')
-      .option('-p, --provider <provider>', 'AI провайдер (none, gemini, deepseek)', 'none')
+      .option('-p, --provider <provider>', 'AI провайдер (none, gemini, deepseek, mistral)', 'none')
       .action(analyze);
 
     program

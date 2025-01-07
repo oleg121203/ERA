@@ -25,6 +25,10 @@ export class DeepSeekProvider {
 
       return completion.choices[0].message.content;
     } catch (error) {
+      // Добавляем обработку специфических ошибок
+      if (error.message.includes('402') || error.message.includes('Insufficient Balance')) {
+        throw new Error('DeepSeek API error: Недостаточно средств на балансе. Пополните баланс или используйте другого провайдера.');
+      }
       throw new Error(`DeepSeek API error: ${error.message}`);
     }
   }

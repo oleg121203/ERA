@@ -4,10 +4,11 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import dotenv from 'dotenv';
 import { globby } from 'globby';
+import { readFile } from 'node:fs/promises';  // Исправляем импорт
 import logger from '../utils/logger.js';
 import { GeminiProvider } from '../services/providers/gemini.js';
 import { DeepSeekProvider } from '../services/providers/deepseek.js';
-// Удаляем импорт OpenAI
+import { MistralProvider } from '../services/providers/mistral.js'; // Добавляем импорт Mistral
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -68,6 +69,20 @@ export default async function analyze(options) {
         logger.success('DeepSeek провайдер успешно инициализирован');
       } catch (error) {
         logger.error('Ошибка инициализации DeepSeek провайдера:', error);
+        return;
+      }
+    } else if (options.provider === 'mistral') {
+      logger.info('Инициализация Mistral провайдера...');
+      const apiKey = process.env.MISTRAL_API_KEY;
+      if (!apiKey) {
+        logger.error('MISTRAL_API_KEY не найден в переменных окружения');
+        return;
+      }
+      try {
+        provider = new MistralProvider(apiKey);
+        logger.success('Mistral провайдер успешно инициализирован');
+      } catch (error) {
+        logger.error('Ошибка инициализации Mistral провайдера:', error);
         return;
       }
     }
@@ -138,10 +153,11 @@ export default async function analyze(options) {
     if (provider) {
       logger.info('\nЗапуск AI анализа...');
       let analyzedFiles = 0;
+      let failedAttempts = 0;
       
       for (const stat of fileStats) {
         analyzedFiles++;
-        logger.info(`\nАнализ файла (${анализedFiles}/${fileStats.length}): ${stat.path}`);
+        logger.info(`\nАнализ файла (${analyzedFiles}/${fileStats.length}): ${stat.path}`);  // Исправлено с анализedFiles на analyzedFiles
         try {
           const eslintResult = results.find(r => r.filePath.endsWith(stat.path));
           const prompt = [
@@ -180,18 +196,26 @@ export default async function analyze(options) {
             console.log('-'.repeat(100));
           }
 
-          // Увеличиваем паузу для более стабильной работы API
+          // Сбрасываем счетчик ошибок при успешном анализе
+          failedAttempts = 0;
           await new Promise(resolve => setTimeout(resolve, 2000));
           
         } catch (error) {
           logger.error(`Ошибка AI анализа для ${stat.path}:`, error);
-          // Делаем паузу при ошибке
+          failedAttempts++;
+          
+          // Если 3 ошибки подряд - прекращаем AI анализ
+          if (failedAttempts >= 3) {
+            logger.error('Слишком много ошибок AI анализа подряд, продолжаем без AI');
+            break;
+          }
+          
           await new Promise(resolve => setTimeout(resolve, 5000));
           continue;
         }
       }
       
-      logger.success(`\nAI анализ завершен. Проанализировано файлов: ${analyzedFiles}`);
+      logger.success(`\nAI анализ завершен. Проанализировано файлов: ${analyzedFiles}`);  // Исправлено здесь тоже
     }
 
     if (options.fix && stats.fixable > 0) {
