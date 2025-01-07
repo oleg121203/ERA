@@ -8,32 +8,49 @@ class Environment {
     this.rootPath = rootPath;
     this.envPath = path.join(rootPath, '.env');
     this.requiredVars = ['NODE_ENV', 'GEMINI_API_KEY'];
+    this.defaultValues = {
+      NODE_ENV: 'development',
+      GEMINI_API_KEY: 'AIzaSyCDXOtzi7lrTIv8307xNUgGrFd16NFy8zg'
+    };
   }
 
   async isActive() {
     try {
-      await fs.access(this.envPath);
-      const env = dotenv.config({ path: this.envPath });
+      const exists = await fs.access(this.envPath)
+        .then(() => true)
+        .catch(() => false);
+
+      if (!exists) {
+        logger.warn('Файл .env не найден');
+        return false;
+      }
+
+      dotenv.config({ path: this.envPath });
       return this.requiredVars.every(key => !!process.env[key]);
     } catch (error) {
+      logger.error('Ошибка проверки окружения:', error);
       return false;
     }
   }
 
   async activate() {
     try {
-      const template = this.requiredVars
-        .map(key => `${key}=${process.env[key] || ''}`)
+      const content = this.requiredVars
+        .map(key => `${key}=${process.env[key] || this.defaultValues[key] || ''}`)
         .join('\n');
 
-      await fs.writeFile(this.envPath, template);
-      dotenv.config({ path: this.envPath });
-      logger.success('Окружение активировано');
+      await fs.writeFile(this.envPath, content);
+      const result = dotenv.config({ path: this.envPath, override: true });
       
-      const missing = this.requiredVars.filter(key => !process.env[key]);
-      if (missing.length > 0) {
-        logger.warn(`Необходимо установить следующие переменные в .env:\n${missing.join('\n')}`);
+      if (result.error) {
+        throw new Error('Ошибка загрузки .env файла');
       }
+
+      logger.success('Окружение активировано');
+      logger.info('Созданные переменные окружения:');
+      this.requiredVars.forEach(key => {
+        logger.info(`${key}=${process.env[key]}`);
+      });
     } catch (error) {
       logger.error('Ошибка активации окружения:', error);
       throw error;

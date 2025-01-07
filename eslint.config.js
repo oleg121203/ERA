@@ -31,7 +31,7 @@ export default [
     },
     rules: {
       'prettier/prettier': 'error',
-      'no-console': 'off',
+      'no-console': ['warn', { allow: ['log', 'error', 'warn'] }],
       'no-undef': 'error',
       'no-unused-vars': ['warn', { 'argsIgnorePattern': '^_' }]
     }
