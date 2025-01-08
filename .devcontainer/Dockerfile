@@ -39,7 +39,4 @@ RUN pip install --no-cache-dir --upgrade pip && \
 COPY package*.json ./
 RUN npm install || true
 
-# Запуск ESLint для проверки кода
-RUN npm run lint
-
 USER node

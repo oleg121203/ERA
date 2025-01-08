@@ -1,6 +1,6 @@
 import analyze from "./analyze.js";
 import format from "./format.js";
-import logger from "../utils/logger.js";
+import logger from "./logger.js";
 
 export default async function validate(options) {
   try {
@@ -22,6 +22,6 @@ export default async function validate(options) {
     logger.success("\n✓ Проверка кода успешно завершена");
   } catch (error) {
     logger.error("Ошибка при проверке кода:", error);
-    process.exit(1);
+    throw new Error("Exiting due to validation error");
   }
 }

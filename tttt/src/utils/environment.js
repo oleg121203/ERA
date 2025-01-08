@@ -14,7 +14,7 @@ class Environment {
     try {
       await fs.access(this.envPath);
       // const env = dotenv.parse(await fs.readFile(this.envPath));
-      return this.requiredVars.every((key) => !!process.env[key]);
+      return this.requiredVars.every((key) => !!os.env[key]);
     } catch (error) {
       return false;
     }
@@ -30,7 +30,7 @@ class Environment {
       dotenv.config({ path: this.envPath });
       logger.success("Окружение активировано");
 
-      const missing = this.requiredVars.filter((key) => !process.env[key]);
+      const missing = this.requiredVars.filter((key) => !os.env[key]);
       if (missing.length > 0) {
         logger.error(
           `Необходимо установить следующие переменные в .env:\n${missing.join("\n")}`,

@@ -38,17 +38,18 @@ create_config_file "jest.config.js" "$force" 'module.exports = {
   transform: {
     "^.+\\.ts$": "ts-jest",
   },
+  preset: "ts-jest",
 };'
 
-create_config_file "eslint.config.js" "$force" 'import { FlatCompat } from "@eslint/eslintrc";
-import js from "@eslint/js";
+create_config_file "eslint.config.js" "$force" 'const { FlatCompat } = require("@eslint/eslintrc");
+const js = require("@eslint/js");
 
 const compat = new FlatCompat({
-  baseDirectory: import.meta.url,
+  baseDirectory: __dirname,
   recommendedConfig: js.configs.recommended,
 });
 
-export default [
+module.exports = [
   {
     files: ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx"],
     languageOptions: {
@@ -82,14 +83,29 @@ else
     echo "⏺ Структура проекта уже существует"
 fi
 
-# Установка зависимостей
+# Проверка и установка зависимостей
+if ! command -v npm &> /dev/null; then
+    echo "Ошибка: npm не установлен. Установите Node.js и npm перед выполнением скрипта."
+    exit 1
+fi
+
+# Проверка и установка Prettier
+if ! npm list prettier &> /dev/null; then
+    npm install prettier --save-dev
+fi
+npm install @eslint/eslintrc @eslint/js eslint-plugin-prettier eslint-config-prettier eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin
 npm install
 
 # Инициализация Git hooks
-if [ "$force" = true ] || [ ! -f ".git/hooks/pre-commit" ]; then
+if ! command -v git &> /dev/null; then
+    echo "Предупреждение: Git не установлен. Git hooks не будут настроены."
+elif [ "$force" = true ] || [ ! -f ".git/hooks/pre-commit" ]; then
     mkdir -p .git/hooks
     echo '#!/bin/sh
-npm run lint-staged' > .git/hooks/pre-commit
+if ! npm run lint-staged; then
+  echo "Linting failed. Commit aborted."
+  exit 1
+fi' > .git/hooks/pre-commit
     chmod +x .git/hooks/pre-commit
     echo "✓ Git hooks установлены"
 else
