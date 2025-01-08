@@ -1,13 +1,14 @@
-/* global process */
 import { ESLint } from "eslint";
 import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import dotenv from "dotenv";
-import fs from "fs/promises"; // Добавлен импорт fs
+import { globby } from "globby";
+import { readFile, stat } from "node:fs/promises"; // Исправляем импорт
 import logger from "../utils/logger.js";
-import { ProviderFactory } from "../services/providers/factory.js"; // Импортируем фабрику провайдеров
-import { globby } from "globby"; // Убедитесь, что импортируете globby правильно
+import { GeminiProvider } from "../services/providers/gemini.js";
+import { DeepSeekProvider } from "../services/providers/deepseek.js";
+import { MistralProvider } from "../services/providers/mistral.js"; // Добавляем импорт Mistral
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -18,20 +19,68 @@ dotenv.config({ path: path.resolve(projectRoot, ".env") });
 
 export default async function analyze(options) {
   try {
-    const eslint = new ESLint(); // Удалено overrideConfig
+    logger.info("Запуск анализа кода...");
 
-    // Получение доступных провайдеров
-    const providers = ProviderFactory.getAvailableProviders();
-    logger.info('Доступные провайдеры:', providers.map(p => p.name).join(', '));
-    
-    if (!providers.length) {
-      throw new Error('Нет настроенных провайдеров AI. Проверьте переменные окружения.');
+    const eslint = new ESLint({
+      fix: options.fix,
+      cwd: projectRoot,
+      baseConfig: {
+        extends: ["eslint:recommended"],
+        parserOptions: {
+          ecmaVersion: "latest",
+          sourceType: "module",
+        }
+      }
+    });
+
+    // Объявляем provider в начале функции
+    let provider = null;
+
+    // Обновляем проверку провайдеров
+    if (options.provider === "gemini") {
+      logger.info("Инициализация AI провайдера...");
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        logger.error("GEMINI_API_KEY не найден в переменных окружения");
+        return;
+      }
+      try {
+        provider = new GeminiProvider(apiKey);
+        logger.success("AI провайдер успешно инициализирован");
+      } catch (error) {
+        logger.error("Ошибка инициализации AI провайдера:", error);
+        return;
+      }
+    } else if (options.provider === "deepseek") {
+      logger.info("Инициализация DeepSeek провайдера...");
+      const apiKey =
+        process.env.DeepSeek_API_SECRET || process.env.DEEPSEEK_API_KEY;
+      if (!apiKey) {
+        logger.error("DeepSeek API ключ не найден в переменных окружения");
+        return;
+      }
+      try {
+        provider = new DeepSeekProvider(apiKey);
+        logger.success("DeepSeek провайдер успешно инициализирован");
+      } catch (error) {
+        logger.error("Ошибка инициализации DeepSeek провайдера:", error);
+        return;
+      }
+    } else if (options.provider === "mistral") {
+      logger.info("Инициализация Mistral провайдера...");
+      const apiKey = process.env.MISTRAL_API_KEY;
+      if (!apiKey) {
+        logger.error("MISTRAL_API_KEY не найден в переменных окружения");
+        return;
+      }
+      try {
+        provider = new MistralProvider(apiKey);
+        logger.success("Mistral провайдер успешно инициализирован");
+      } catch (error) {
+        logger.error("Ошибка инициализации Mistral провайдера:", error);
+        return;
+      }
     }
-    
-    // Создание провайдера на основе опций или первого доступного провайдера
-    const providerName = options.provider || providers[0].name;
-    logger.info(`Используемый провайдер: ${providerName}`);
-    const provider = ProviderFactory.createProvider(providerName);
 
     // Безопасное получение путей с учетом корневой директории
     const filePaths =
@@ -39,175 +88,169 @@ export default async function analyze(options) {
         ? options.paths.map((p) => path.resolve(projectRoot, p))
         : [path.resolve(projectRoot, "src")];
 
-    logger.info("Resolved file paths:", filePaths); // Добавлено логирование разрешенных путей
-
     // Формируем паттерны для поиска файлов с абсолютными путями
-    const patterns = filePaths.map((filePath) => {
-      if (options.recursive && !filePath.includes("*")) {
-        return path.join(filePath, "**/*.{js,jsx,ts,tsx}");
+    const patterns = options.paths.map(p => {
+      if (p.includes('.devcontainer')) {
+        return `${p}/**/*.{json,jsonc,sh,Dockerfile}`;
       }
-      return filePath;
+      if (p.endsWith('.sh')) return p;
+      if (p.endsWith('.txt')) return p;
+      return `${p}/**/*.{js,json,md}`;
     });
 
-    logger.info("Generated glob patterns:", patterns); // Добавлено логирование паттернов
+    logger.info("Анализируемые паттерны:", patterns);
 
-    // Проверка наличия файлов перед анализом
-    const files = await globby(patterns, {
-      ignore: ["**/node_modules/**"],
+    // Загружаем содержимое файлов
+    const globOptions = {
       absolute: true,
-    }); // Обновлено исключение node_modules и добавлен абсолютный путь
-    logger.info("Files found by globby:", files); // Добавлено логирование найденных файлов
+      cwd: projectRoot,
+    };
 
-    if (files.length === 0) {
-      logger.error(
-        "Не найдено файлов для анализа по указанным путям:",
-        patterns,
-      );
+    const files = await globby(patterns, globOptions);
+    const fileContents = await Promise.all(
+      files.map(async (file) => ({
+        path: file,
+        content: await readFile(file, "utf-8"),
+      })),
+    );
+
+    // ESLint анализ
+    const results = await eslint.lintFiles(patterns);
+
+    if (results.length === 0) {
+      logger.warn("Не найдено файлов для анализа");
       return;
     }
 
-    const results = await eslint.lintFiles(files);
+    // Собираем статистику по файлам
+    const fileStats = fileContents.map((file) => {
+      const result = results.find((r) => r.filePath === file.path);
+      return {
+        path: path.relative(projectRoot, file.path),
+        lines: file.content.split("\n").length,
+        content: file.content,
+        errors: result?.errorCount || 0,
+        warnings: result?.warningCount || 0,
+        fixable:
+          (result?.fixableErrorCount || 0) + (result?.fixableWarningCount || 0),
+      };
+    });
 
-    // Используем AI анализ только если провайдер успешно инициализирован
+    // Общая статистика
+    const stats = fileStats.reduce(
+      (acc, file) => ({
+        files: acc.files + 1,
+        lines: acc.lines + file.lines,
+        errors: acc.errors + file.errors,
+        warnings: acc.warnings + file.warnings,
+        fixable: acc.fixable + file.fixable,
+      }),
+      { files: 0, lines: 0, errors: 0, warnings: 0, fixable: 0 },
+    );
+
+    logger.info("\nПроанализированные файлы:");
+    fileStats.forEach((file) => {
+      logger.info(`- ${file.path} (${file.lines} строк)`);
+    });
+
+    // Обновляем логику AI анализа
     if (provider) {
-      logger.info("Запуск AI анализа...");
+      logger.info("\nЗапуск AI анализа...");
       let analyzedFiles = 0;
-      const maxRetries = 3;
-      const delay = options.delay || 2000;
-      const allAnalysis = []; // Новый массив для итогового отчета
+      let failedAttempts = 0;
 
-      for (const file of files) {
+      for (const stat of fileStats) {
+        analyzedFiles++;
+        logger.info(
+          `Анализ файла (${analyzedFiles}/${files.length}): ${stat.path}`,
+        );
         try {
-          analyzedFiles++;
-          logger.info(`Анализ файла (${analyzedFiles}/${files.length}): ${file}`);
-          
-          const content = await fs.readFile(file, 'utf8');
-          logger.info(`Чтение файла: ${file}`); // Заменено debug на info
-          
-          // Добавляем повторные попытки при ошибках
-          for (let attempt = 1; attempt <= maxRetries; attempt++) {
-            try {
-              // Таймаут для запроса
-              const analysisPromise = provider.analyze(content);
-              const timeoutPromise = new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Таймаут запроса: 30 секунд')), 30000)
-              );
+          const eslintResult = results.find((r) =>
+            r.filePath.endsWith(stat.path),
+          );
+          const prompt = [
+            "# Code Analysis Request",
+            `## File: ${stat.path}`,
+            "## Code:",
+            stat.content,
+            "## Current Issues:",
+            eslintResult?.messages?.length
+              ? JSON.stringify(eslintResult.messages, null, 2)
+              : "No ESLint issues found",
+            "## Analysis Instructions:",
+            "1. Code Structure Review:",
+            "   - Evaluate overall code organization",
+            "   - Check function and variable naming",
+            "   - Assess code modularity",
+            "2. Best Practices Check:",
+            "   - Identify potential performance issues",
+            "   - Suggest code improvements",
+            "   - Check error handling",
+            "3. Security Analysis:",
+            "   - Look for security vulnerabilities",
+            "   - Check for sensitive data exposure",
+            "4. Improvement Suggestions:",
+            "   - Provide specific recommendations",
+            "   - Suggest alternative approaches",
+          ].join("\n");
 
-              logger.info(`Попытка анализа ${attempt}/${maxRetries}...`);
-              const aiAnalysis = await Promise.race([analysisPromise, timeoutPromise]);
+          logger.info("Ожидание ответа от AI...");
+          const aiAnalysis = await provider.analyze(prompt);
 
-              // Успешный анализ
-              logger.info('-'.repeat(80));
-              logger.info('Результат анализа:');
-              logger.info(aiAnalysis);
-              logger.info('-'.repeat(80));
-              allAnalysis.push(`Файл: ${file}\n${aiAnalysis}`); // Добавлено в массив итогового отчета
-              break;
-
-            } catch (error) {
-              if (attempt === maxRetries) {
-                throw error;
-              }
-              logger.warn(`Ошибка попытки ${attempt}, повтор через 2 секунды...`);
-              await new Promise(resolve => setTimeout(resolve, 2000));
-            }
+          if (aiAnalysis) {
+            logger.success(`\nУспешный анализ файла: ${stat.path}`);
+            console.log("-".repeat(100));
+            console.log(aiAnalysis.trim());
+            console.log("-".repeat(100));
           }
 
+          // Сбрасываем счетчик ошибок при успешном анализе
+          failedAttempts = 0;
+          await new Promise((resolve) => setTimeout(resolve, 2000));
         } catch (error) {
-          logger.error(`Ошибка анализа файла ${file}:`, error.message);
-          if (error.response?.data) {
-            logger.error("Детали ошибки API:", JSON.stringify(error.response.data, null, 2));
+          logger.error(`Ошибка AI анализа для ${stat.path}:`, error);
+          failedAttempts++;
+
+          // Если 3 ошибки подряд - прекращаем AI анализ
+          if (failedAttempts >= 3) {
+            logger.error(
+              "Слишком много ошибок AI анализа подряд, продолжаем без AI",
+            );
+            break;
           }
-          continue; // Продолжаем со следующим файлом
+
+          await new Promise((resolve) => setTimeout(resolve, 5000));
+          continue;
         }
       }
 
-      // Финальное суммарное обращение к AI
-      if (allAnalysis.length > 0) {
-        logger.info("Создание сводного отчета AI...");
-        const combinedAnalysis = allAnalysis.join("\n\n");
-
-        // Итоговый отчет на русском языке с оформлением
-        const summaryPromptRu = `
-        Пожалуйста, подведите итоги следующих анализов в один связный отчет, красиво оформленный в цветах, тонах и с пиктограммами для четабельного представления. Итоговый отчет должен быть на русском языке:
-        
-        **Итоговый отчет анализа кода**
-
-        **Цветовая схема:**
-
-        * Зеленый: Положительные результаты
-        * Желтый: Требуется внимание
-        * Красный: Ошибки
-
-        **Пиктограммы:**
-
-        * ✅ Успешно
-        * ⚠️ Требуется внимание
-        * ❌ Ошибка
-
-        **Анализ с использованием искусственного интеллекта**
-
-        **Анализируемые файлы:**
-
-        ${combinedAnalysis}
-
-        **Итоговый отчет:**
-
-        **Файл 1**
-
-        - Отчет для файла 1
-        - Проблемы:
-          - Предупреждения: <Список предупреждений>
-          - Ошибки: <Список ошибок>
-        - Рекомендации: <Список рекомендаций AI>
-
-        **Файл 2**
-
-        - Отчет для файла 2
-        - Проблемы:
-          - Предупреждения: <Список предупреждений>
-          - Ошибки: <Список ошибок>
-        - Рекомендации: <Список рекомендаций AI>
-
-        **Сводный отчет**
-
-        **Проблемы:**
-
-        * **Предупреждения:**
-          * Общее количество: <Число предупреждений>
-          * Наиболее распространенные: <Список наиболее распространенных предупреждений>
-        * **Ошибки:**
-          * Общее количество: <Число ошибок>
-          * Наиболее распространенные: <Список наиболее распространенных ошибок>
-
-        **Рекомендации**
-
-        * Общие рекомендации: <Список общих рекомендаций AI>
-        * Рекомендации по стилю: <Список рекомендаций AI по стилю>
-        * Рекомендации по производительности: <Список рекомендаций AI по производительности>
-
-        **Заключение**
-
-        Анализ кода завершен. Обнаружены следующие проблемы:
-
-        * Предупреждения: <Число предупреждений>
-        * Ошибки: <Число ошибок>
-
-        Рекомендуется обратить внимание на рекомендации ИИ, чтобы улучшить качество кода.
-        `;
-        const finalReportRu = await provider.analyze(summaryPromptRu);
-        logger.info("Итоговый отчет по анализу (Русский):\n" + finalReportRu);
-      }
-
-      logger.info(`\nАнализ завершен. Обработано файлов: ${analyzedFiles}`);
+      logger.success(`\nАнализ завершен. Обработано файлов: ${analyzedFiles}`);
     }
 
-    if (options.fix) {
+    if (options.fix && stats.fixable > 0) {
+      logger.info("Применение автоматических исправлений...");
       await ESLint.outputFixes(results);
     }
+
     const formatter = await eslint.loadFormatter("stylish");
-    logger.info(formatter.format(results));
+    logger.info("\nРезультаты анализа:");
+    console.log(formatter.format(results));
+
+    logger.info("\nСтатистика анализа:");
+    logger.info(`- Всего файлов: ${stats.files}`);
+    logger.info(`- Всего строк кода: ${stats.lines}`);
+    logger.info(`- Ошибок: ${stats.errors}`);
+    logger.info(`- Предупреждений: ${stats.warnings}`);
+    logger.info(`- Исправимых проблем: ${stats.fixable}`);
+
+    if (stats.errors === 0 && stats.warnings === 0) {
+      logger.success("\n✓ Код соответствует всем правилам");
+    }
   } catch (error) {
+    if (error.messageTemplate === 'all-matched-files-ignored') {
+      logger.warn(`Пропущены игнорируемые файлы в ${error.messageData.pattern}`);
+      return;
+    }
     logger.error("Ошибка анализа:", error);
     process.exit(1);
   }

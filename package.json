@@ -11,19 +11,20 @@
     "analyze": "node src/cli/index.js analyze",
     "format": "node src/cli/index.js format --write",
     "fix": "node src/cli/index.js fix",
-    "analyze-format": "node src/cli/index.js analyze-format"
+    "analyze-format": "node src/cli/index.js analyze-format",
+    "lint": "npx eslint ."
   },
   "dependencies": {
-    "@google/generative-ai": "^0.1.3",
-    "axios": "^1.4.0",
+    "@google/generative-ai": "^0.2.0",
     "commander": "^11.0.0",
     "dotenv": "^16.4.7",
-    "eslint": "^9.17.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.0.0",
     "express": "^4.20.0",
-    "globby": "^13.2.2",
-    "openai": "^4.77.3"
+    "glob": "^10.3.10",
+    "openai": "^4.24.1",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.2",
+    "globby": "^14.0.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
@@ -37,7 +38,15 @@
       "eslint --fix",
       "prettier --write"
     ],
-    "*.{json,md}": "prettier --write"
+    "*.{json,md}": "prettier --write",
+    "*.py": [
+      "black",
+      "isort"
+    ],
+    "*.{css,html}": "prettier --write",
+    "*.sh": [
+      "echo 'Для .sh файлов используем форматирование через AI или пропустить'"
+    ]
   },
   "directories": {
     "doc": "docs"

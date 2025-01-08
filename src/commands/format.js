@@ -1,29 +1,68 @@
 import prettier from "prettier";
-// import { glob } from "glob"; // Удалите этот импорт
-import { globby } from "globby"; // Добавьте импорт globby
+import { globby } from "globby"; // Заменяем glob на globby
+import path from "path";
 import { readFile, writeFile } from "fs/promises";
 import logger from "../utils/logger.js";
+import { DeepSeekProvider } from "../services/providers/deepseek.js"; // Импортируем провайдера AI
+
+const formatters = {
+  '.json': async (content, filepath) => {
+    return prettier.format(content, { parser: 'json', filepath });
+  },
+  '.jsonc': async (content, filepath) => {
+    return prettier.format(content, { parser: 'json', filepath });
+  },
+  '.sh': async (content, filepath, provider) => {
+    // Используем AI для форматирования shell скриптов
+    logger.info(`AI-форматирование для shell-файла: ${filepath}`);
+    const prompt = `Форматируй следующий shell-скрипт:\n\n${content}`;
+    const aiFormatted = await provider.analyze(prompt);
+    return aiFormatted || content;
+  },
+  '.txt': async (content) => {
+    // Для txt файлов просто возвращаем контент
+    return content;
+  },
+  'Dockerfile': async (content, filepath, provider) => {
+    // Используем AI для форматирования Dockerfile
+    logger.info(`AI-форматирование для Dockerfile: ${filepath}`);
+    const prompt = `Форматируй следующий Dockerfile:\n\n${content}`;
+    const aiFormatted = await provider.analyze(prompt);
+    return aiFormatted || content;
+  }
+};
 
 export default async function format(options) {
   try {
-    const patterns = options.paths
-      ? options.paths.map((p) => `${p}/**/*.{js,json,md}`)
-      : ["src/**/*.{js,json,md}"];
-    logger.info("Форматируем файлы по паттернам:", patterns);
+    const paths = Array.isArray(options.paths) 
+      ? options.paths 
+      : typeof options.paths === 'string'
+        ? options.paths.split(',')
+        : ["src/**/*.{js,json,md,py,css,html,sh,ts,tsx}"];
 
-    const files = await globby(patterns); // Замените glob на globby
+    logger.info("Форматирование файлов по путям:", paths);
+
+    const files = await globby(paths);
+
+    // Инициализация провайдера AI
+    const provider = new DeepSeekProvider(process.env.DEEPSEEK_API_KEY);
 
     for (const file of files) {
-      const content = await readFile(file, "utf8");
-      const formatted = await prettier.format(content, {
-        filepath: file,
-      });
+      try {
+        const ext = path.extname(file);
+        const basename = path.basename(file);
+        const formatter = formatters[ext] || formatters[basename] || formatters['.txt'];
+        
+        const content = await readFile(file, "utf8");
+        const formatted = await formatter(content, file, provider);
 
-      if (options.write) {
-        await writeFile(file, formatted);
-        logger.success(`Отформатирован: ${file}`);
-      } else {
-        logger.info(formatted);
+        if (options.write) {
+          await writeFile(file, formatted);
+          logger.success(`Обработан: ${file}`);
+        }
+      } catch (error) {
+        logger.warn(`Пропущен ${file}: ${error.message}`);
+        continue;
       }
     }
   } catch (error) {

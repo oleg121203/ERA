@@ -1,5 +1,5 @@
-import { FlatCompat } from "@eslint/eslintrc";
-import js from "@eslint/js";
+import { FlatCompat } from '@eslint/eslintrc';
+import js from '@eslint/js';
 
 const compat = new FlatCompat({
   baseDirectory: import.meta.url,
@@ -8,17 +8,24 @@ const compat = new FlatCompat({
 
 export default [
   {
-    files: ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx"],
+    files: ['**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx'],
     languageOptions: {
-      ecmaVersion: "latest",
-      sourceType: "module",
+      ecmaVersion: 'latest',
+      sourceType: 'module',
       globals: {
-        process: "readonly",
-        module: "readonly",
-        __dirname: "readonly",
-        __filename: "readonly",
-        require: "readonly",
+        process: 'readonly',
+        module: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        require: 'readonly',
       },
     },
+    rules: {
+      'no-console': 'off',
+      'prettier/prettier': 'error',
+    },
   },
+  ...compat.config({
+    extends: ['plugin:prettier/recommended'],
+  }),
 ];
