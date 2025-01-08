@@ -6,4 +6,9 @@ export default {
   // Добавляем настройки для Mistral
   mistralApiKey: process.env.CODESTRAL_API_KEY,
   mistralApiBase: process.env.CODESTRAL_API_BASE || 'https://codestral.mistral.ai/v1',
+  reports: {
+    enabled: true,
+    outputPath: process.env.REPORT_OUTPUT_PATH || './reports',
+    format: process.env.REPORT_FORMAT || 'text',
+  },
 };

@@ -9,6 +9,7 @@ import { DeepSeekProvider } from '../services/providers/deepseek.js';
 import { GeminiProvider } from '../services/providers/gemini.js';
 import { MistralProvider } from '../services/providers/mistral.js';
 import logger from '../utils/logger.js';
+import { generateAnalysisReport } from '../utils/metrics-collector.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -396,6 +397,15 @@ export default async function analyze(options) {
     }
 
     logger.info(generateReport(fileStats));
+
+    // Добавляем вывод отчета в конце анализа
+    const report = generateAnalysisReport(results);
+
+    logger.info('\n=== Результаты анализа ===');
+    console.log(report);
+    logger.info('=== Конец анализа ===\n');
+
+    return results;
   } catch (error) {
     if (error.messageTemplate === 'all-matched-files-ignored') {
       logger.warn(`Skipped ignored files in ${error.messageData.pattern}`);

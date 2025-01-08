@@ -8,6 +8,7 @@ import fix from '../commands/fix.js';
 import format from '../commands/format.js';
 import Environment from '../utils/environment.js';
 import logger from '../utils/logger.js';
+import { generateAnalysisReport } from '../utils/metrics-collector.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -71,6 +72,23 @@ async function main() {
           });
         } catch (error) {
           logger.error('Ошибка при выполнении analyze-format:', error);
+          process.exit(1);
+        }
+      });
+
+    program
+      .command('report')
+      .description('Генерация отчета по анализу кода')
+      .option('-o, --output <path>', 'Путь для сохранения отчета')
+      .option('-f, --format <format>', 'Формат отчета (text/json)')
+      .action(async (options) => {
+        try {
+          const results = await analyze({ provider: 'none' });
+          const report = generateAnalysisReport(results);
+          logger.success('Отчет сгенерирован успешно');
+          console.log(report);
+        } catch (error) {
+          logger.error('Ошибка при генерации отчета:', error);
           process.exit(1);
         }
       });
