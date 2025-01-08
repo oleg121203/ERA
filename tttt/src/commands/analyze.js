@@ -1,13 +1,15 @@
 import dotenv from 'dotenv';
 import { ESLint } from 'eslint';
 import { globby } from 'globby';
-import { readFile, stat } from 'node:fs/promises';
+import { readFile, stat, writeFile } from 'node:fs/promises';
 import path, { dirname } from 'path';
+import readline from 'readline';
 import { fileURLToPath } from 'url';
 import { DeepSeekProvider } from '../services/providers/deepseek.js';
 import { GeminiProvider } from '../services/providers/gemini.js';
 import { MistralProvider } from '../services/providers/mistral.js';
 import logger from '../utils/logger.js';
+import { generateAnalysisReport } from '../utils/metrics-collector.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -15,12 +17,108 @@ const projectRoot = path.resolve(__dirname, '../../');
 
 dotenv.config({ path: path.resolve(projectRoot, '.env') });
 
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
+
+function promptUser(question) {
+  return new Promise((resolve) => {
+    rl.question(question, (answer) => {
+      resolve(answer);
+    });
+  });
+}
+
+let fixesApplied = 0;
+let filesChanged = 0;
+let totalSuggestions = 0;
+
+// Пример конфигурации для типов анализа
+const defaultAnalysisConfig = {
+  security: { confidence: 70, risk: 30, necessity: 80 },
+  syntax: { confidence: 70, risk: 30, necessity: 80 },
+  import: { confidence: 70, risk: 30, necessity: 80 },
+  style: { confidence: 70, risk: 30, necessity: 80 },
+  performance: { confidence: 70, risk: 30, necessity: 80 },
+  // ...можно добавить другие типы анализа...
+};
+
+// Дефолтные промпты для каждого типа анализа
+const defaultPrompts = {
+  security: 'Проверка на уязвимости и безопасный код',
+  syntax: 'Проверка синтаксиса и целостности',
+  import: 'Анализ импортов и зависимостей',
+  style: 'Проверка кодстайла',
+  performance: 'Оптимизация производительности',
+  // ...можно добавить другие...
+};
+
+// Функция для сборки кастомного или дефолтного промпта
+function buildPrompt(filePath, fileContent, analysisType, userPrompts, eslintResult) {
+  const currentPrompt = userPrompts?.[analysisType] || defaultPrompts[analysisType] || '';
+  return [
+    '# Code Analysis Request',
+    `## File: ${filePath}`,
+    `## Analysis type: ${analysisType}`,
+    `## Prompt: ${currentPrompt}`,
+    '## Code:',
+    fileContent,
+    '## Current Issues:',
+    eslintResult?.messages?.length
+      ? JSON.stringify(eslintResult.messages, null, 2)
+      : 'No ESLint issues found',
+    '## Analysis Instructions:',
+    '1. Provide specific code changes in the following format:',
+    '```suggestion',
+    'old code',
+    '```',
+    '```fix',
+    'new code',
+    '```',
+    '2. Each suggestion should include:',
+    '   - Clear explanation of the change',
+    '   - Code block with old and new code',
+  ].join('\n');
+}
+
+// Функция проверки, удовлетворяют ли предложенные изменения нужным параметрам
+function validateSuggestion(suggestion, analysisType, userConfig = {}) {
+  const config = userConfig[analysisType] || defaultAnalysisConfig[analysisType];
+  if (!config) return true; // Если нет конфигурации - пропускаем
+
+  // "условные" значения для примера, реальная логика может быть иная
+  const { confidence = 70, risk = 30, necessity = 80 } = config;
+
+  // Допустим, suggestion содержит поля: suggestion.confidence, suggestion.risk, suggestion.necessity
+  // Если хотя бы один из параметров не проходит установленный порог, не вносим изменения
+  if (suggestion.confidence < confidence) return false;
+  if (suggestion.risk > risk) return false;
+  if (suggestion.necessity < necessity) return false;
+
+  return true;
+}
+
+function buildAgentRequest(analysisType, fileContent) {
+  return `Агентный запрос для типа анализа "${analysisType}":\n\n${fileContent}`;
+}
+
+function collectProjectStats(files) {
+  const stats = {
+    components: files.filter((f) => f.includes('/components/')).length,
+    services: files.filter((f) => f.includes('/services/')).length,
+    utils: files.filter((f) => f.includes('/utils/')).length,
+    commands: files.filter((f) => f.includes('/commands/')).length,
+  };
+  return stats;
+}
+
 export default async function analyze(options) {
   try {
     logger.info('Starting code analysis...');
 
     const eslint = new ESLint({
-      fix: options.fix,
+      fix: options.fix || options.autoFix,
       cwd: projectRoot,
       baseConfig: {
         extends: ['eslint:recommended', 'plugin:import/errors', 'plugin:import/warnings'],
@@ -108,10 +206,10 @@ export default async function analyze(options) {
     for (const filePath of filePaths) {
       try {
         const fileStat = await stat(filePath);
-        if (fileStat.isDirectory()) {
-          patterns.push(options.recursive ? path.join(filePath, '**/*') : path.join(filePath, '*'));
-        } else if (fileStat.isFile()) {
+        if (fileStat.isFile()) {
           patterns.push(filePath);
+        } else if (fileStat.isDirectory()) {
+          patterns.push(options.recursive ? path.join(filePath, '**/*') : path.join(filePath, '*'));
         }
       } catch (error) {
         logger.warn(`Error processing path ${filePath}: ${error.message}`);
@@ -174,40 +272,83 @@ export default async function analyze(options) {
         );
         try {
           const eslintResult = results.find((r) => r.filePath.endsWith(stat.path));
-          const prompt = [
-            '# Code Analysis Request',
-            `## File: ${stat.path}`,
-            '## Code:',
+          const analysisType = options.analysisType || 'import';
+          const agentPrompt = buildAgentRequest(analysisType, stat.content);
+          // При необходимости можно дополнительно использовать agentPrompt для агентирования модели
+
+          const prompt = buildPrompt(
+            stat.path,
             stat.content,
-            '## Current Issues:',
-            eslintResult?.messages?.length
-              ? JSON.stringify(eslintResult.messages, null, 2)
-              : 'No ESLint issues found',
-            '## Analysis Instructions:',
-            '1. Code Structure Review:',
-            '   - Evaluate overall code organization',
-            '   - Check function and variable naming',
-            '   - Assess code modularity',
-            '2. Best Practices Check:',
-            '   - Identify potential performance issues',
-            '   - Suggest code improvements',
-            '   - Check error handling',
-            '3. Security Analysis:',
-            '   - Look for security vulnerabilities',
-            '   - Check for sensitive data exposure',
-            '4. Improvement Suggestions:',
-            '   - Provide specific recommendations',
-            '   - Suggest alternative approaches',
-          ].join('\n');
+            analysisType,
+            options.prompts,
+            eslintResult
+          );
 
           logger.info('Waiting for AI response...');
           const aiAnalysis = await provider.analyze(prompt);
 
           if (aiAnalysis) {
-            logger.success(`\nSuccessfully analyzed file: ${stat.path}`);
-            console.log('-'.repeat(100));
-            console.log(aiAnalysis.trim());
-            console.log('-'.repeat(100));
+            // Извлекаем предложенные изменения
+            const suggestions = extractSuggestions(aiAnalysis);
+
+            if (suggestions.length > 0) {
+              totalSuggestions += suggestions.length;
+              let fileWasChanged = false;
+
+              logger.info(`\nFound ${suggestions.length} suggestions for ${stat.path}`);
+
+              let pendingCascadeSuggestions = [];
+
+              for (const suggestion of suggestions) {
+                console.log('\nПредлагаемое изменение:');
+                console.log('-'.repeat(80));
+                console.log(suggestion.explanation);
+                console.log('Старый код:', suggestion.oldCode);
+                console.log('Новый код:', suggestion.newCode);
+                console.log('-'.repeat(80));
+
+                // Определяем тип анализа "import", "syntax", "security" и т.д.
+                const analysisType = 'import'; // пример, реальная логика может быть иной
+
+                // Проверяем, удовлетворяет ли предложение заданным параметрам
+                const isValid = validateSuggestion(
+                  suggestion,
+                  analysisType,
+                  options.analysisConfig
+                );
+                if (!isValid) {
+                  pendingCascadeSuggestions.push(suggestion);
+                  continue;
+                }
+
+                if (options.fix) {
+                  if (options.autoFix) {
+                    const changed = await applyChange(stat.path, suggestion);
+                    if (changed) fileWasChanged = true;
+                    logger.success('Изменение применено автоматически');
+                  } else {
+                    const answer = await promptUser('Применить это изменение? (y/N): ');
+                    if (answer.toLowerCase() === 'y') {
+                      const changed = await applyChange(stat.path, suggestion);
+                      if (changed) fileWasChanged = true;
+                      logger.success('Изменение применено');
+                    }
+                  }
+                }
+              }
+
+              // Предполагаем, что если есть каскадные изменения (pendingCascadeSuggestions) — спрашиваем у пользователя
+              if (pendingCascadeSuggestions.length) {
+                const answer = await promptUser(
+                  'Есть зависимые изменения, применить их все сразу? (y/N): '
+                );
+                if (answer.toLowerCase() === 'y') {
+                  // ...реализовать принятие или отклонение всех...
+                }
+              }
+
+              if (fileWasChanged) filesChanged++;
+            }
           }
 
           failedAttempts = 0;
@@ -229,9 +370,25 @@ export default async function analyze(options) {
       logger.success(`\nAnalysis completed. Processed files: ${fileStats.length}`);
     }
 
-    if (options.fix && stats.fixable > 0) {
-      logger.info('Applying automatic fixes...');
+    if (options.autoFix) {
+      logger.info('Applying all fixes automatically...');
       await ESLint.outputFixes(results);
+      logger.success('All fixes applied');
+    } else if (options.fix) {
+      logger.info('Предлагаемые исправления:');
+      for (const result of results) {
+        if (result.output && result.output !== result.source) {
+          console.log(`\nФайл: ${result.filePath}`);
+          console.log('Изменения:');
+          console.log(result.output);
+
+          const answer = await promptUser('Применить исправления? (y/N): ');
+          if (answer.toLowerCase() === 'y') {
+            await ESLint.outputFixes([result]);
+            logger.success('Исправления применены');
+          }
+        }
+      }
     }
 
     const formatter = await eslint.loadFormatter('stylish');
@@ -248,6 +405,48 @@ export default async function analyze(options) {
     if (stats.errors === 0 && stats.warnings === 0) {
       logger.success('\n✓ Code meets all rules');
     }
+
+    logger.info(generateReport(fileStats));
+
+    const projectStats = collectProjectStats(files);
+    const totalLines = fileStats.reduce((acc, file) => acc + file.lines, 0);
+
+    const analysisResults = {
+      summary: {
+        totalFiles: files.length,
+        totalLines: totalLines,
+        totalComponents: projectStats.components,
+        totalServices: projectStats.services,
+        totalUtils: projectStats.utils,
+        totalCommands: projectStats.commands,
+      },
+      quality: {
+        errors: stats.errors,
+        warnings: stats.warnings,
+        fixableIssues: stats.fixable,
+        coverage: '0%',
+        complexity: {
+          high: fileStats.filter((f) => f.errors > 20).length,
+          medium: fileStats.filter((f) => f.errors > 10 && f.errors <= 20).length,
+          low: fileStats.filter((f) => f.errors <= 10).length,
+        },
+      },
+      suggestions: {
+        critical: [], // Добавьте реальные значения
+        important: [], // Добавьте реальные значения
+        minor: [], // Добавьте реальные значения
+      },
+      fixes: {
+        applied: fixesApplied,
+        pending: stats.fixable - fixesApplied,
+        failed: 0,
+      },
+    };
+
+    const report = generateAnalysisReport(analysisResults);
+    logger.info(report);
+
+    return analysisResults;
   } catch (error) {
     if (error.messageTemplate === 'all-matched-files-ignored') {
       logger.warn(`Skipped ignored files in ${error.messageData.pattern}`);
@@ -255,5 +454,60 @@ export default async function analyze(options) {
     }
     logger.error('Analysis error:', error);
     process.exit(1);
+  } finally {
+    rl.close();
   }
 }
+
+function generateReport(fileStats) {
+  const report = [
+    '\n=== Итоговый отчет ===',
+    `Проанализировано файлов: ${fileStats.length}`,
+    `Найдено предложений: ${totalSuggestions}`,
+    `Применено исправлений: ${fixesApplied}`,
+    `Изменено файлов: ${filesChanged}`,
+    '\nДетали изменений:',
+    '----------------',
+  ];
+
+  if (fixesApplied > 0) {
+    report.push('✓ Успешно применены исправления');
+  } else {
+    report.push('ℹ Изменения не требовались');
+  }
+
+  return report.join('\n');
+}
+
+function extractSuggestions(aiAnalysis) {
+  const suggestions = [];
+  const regex = /```suggestion\n([\s\S]*?)```\n```fix\n([\s\S]*?)```/g;
+
+  let match;
+  while ((match = regex.exec(aiAnalysis)) !== null) {
+    suggestions.push({
+      oldCode: match[1].trim(),
+      newCode: match[2].trim(),
+      explanation: aiAnalysis.substring(0, match.index).split('\n').pop(),
+    });
+  }
+
+  return suggestions;
+}
+
+async function applyChange(filePath, suggestion) {
+  const content = await readFile(filePath, 'utf-8');
+  const newContent = content.replace(suggestion.oldCode, suggestion.newCode);
+
+  if (content !== newContent) {
+    await writeFile(filePath, newContent);
+    fixesApplied++;
+    return true;
+  }
+  return false;
+}
+
+// Закрытие интерфейса readline при завершении процесса
+process.on('exit', () => {
+  rl.close();
+});
