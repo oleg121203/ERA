@@ -1,19 +1,19 @@
-Ваш скрипт в целом хорошо структурирован, но есть несколько моментов, которые можно улучшить для повышения читаемости и поддержки. Вот отформатированный и улучшенный вариант скрипта:
+Ваш скрипт уже достаточно хорошо структурирован, но есть несколько моментов, которые можно улучшить для повышения читаемости, поддержки и надежности. Вот отформатированный и улучшенный вариант скрипта с комментариями:
 
 ```bash
 #!/bin/bash
 
-# Зміна вигляду виводу терміналу
+# Изменение вида вывода терминала
 echo "export PS1='\[\e[31m\][\h]\[\e[0m\] Devcontainer \[\e[34mERA\[\e[0m\] \[\e[32m\]\$(__git_ps1 '(%s)')\[\e[0m\] $ '" >> ~/.bashrc
 
-# Перевірка наявності Docker Compose
+# Проверка наличия Docker Compose
 if ! command -v docker-compose &> /dev/null; then
-  echo 'Docker Compose не встановлений. Встановлення...' >&2
+  echo 'Docker Compose не установлен. Установка...' >&2
   sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
   sudo chmod +x /usr/local/bin/docker-compose
-  echo 'Docker Compose встановлено.'
+  echo 'Docker Compose установлен.'
 else
-  echo 'Docker Compose вже встановлений.'
+  echo 'Docker Compose уже установлен.'
 fi
 
 # Установка npm зависимостей
@@ -27,86 +27,98 @@ npm run lint-staged
 EOF
 chmod +x .git/hooks/pre-commit
 
-# Перевірка наявності структури проекту
+# Проверка наличия структуры проекта
 if [ ! -f src/index.js ]; then
-  echo 'Структура проекту не знайдена. Створення структури...'
+  echo 'Структура проекта не найдена. Создание структуры...'
 
-  # Створення структури каталогів, якщо вони не існують
+  # Создание структуры каталогов, если они не существуют
   mkdir -p src/{controllers,models,routes,services,utils,config,tests}
   mkdir -p client/src/{components,pages,assets,styles,utils,tests}
   mkdir -p docs scripts docker .requirements
 
-  # Створення необхідних файлів
+  # Создание необходимых файлов
   touch src/index.js src/config/database.js src/config/app.js client/src/index.js .env.example .gitignore README.md docker-compose.yml .requirements/requirements.in
 
-  # Додавання вмісту до файлів, якщо вони порожні
-  [ ! -s src/config/app.js ] && echo "module.exports = {
-    port: process.env.PORT || 3000,
-    env: process.env.NODE_ENV || 'development',
-    apiVersion: process.env.API_VERSION || 'v1',
-    jwtSecret: process.env.JWT_SECRET
-  };" > src/config/app.js
+  # Добавление содержимого в файлы, если они пусты
+  [ ! -s src/config/app.js ] && cat << 'EOF' > src/config/app.js
+module.exports = {
+  port: process.env.PORT || 3000,
+  env: process.env.NODE_ENV || 'development',
+  apiVersion: process.env.API_VERSION || 'v1',
+  jwtSecret: process.env.JWT_SECRET
+};
+EOF
 
-  [ ! -s src/index.js ] && echo "const express = require('express');
-  const config = require('./config/app');
-  const app = express();
-  app.use(express.json());
-  app.listen(config.port, () => {
-    console.log(\`Server running on port \${config.port}\`);
-  });" > src/index.js
+  [ ! -s src/index.js ] && cat << 'EOF' > src/index.js
+const express = require('express');
+const config = require('./config/app');
+const app = express();
 
-  [ ! -s .gitignore ] && echo "node_modules/
-  .env
-  dist/
-  coverage/
-  .DS_Store
-  *.log" > .gitignore
+app.use(express.json());
 
-  [ ! -s docker-compose.yml ] && echo "version: '3.8'
-  services:
-    app:
-      build: .
-      ports:
-        - '3000:3000'
-      environment:
-        - NODE_ENV=development
-      volumes:
-        - .:/usr/src/app" > docker-compose.yml
+app.listen(config.port, () => {
+  console.log(\`Server running on port \${config.port}\`);
+});
+EOF
 
-  [ ! -s README.md ] && echo "# ERA Project
+  [ ! -s .gitignore ] && cat << 'EOF' > .gitignore
+node_modules/
+.env
+dist/
+coverage/
+.DS_Store
+*.log
+EOF
 
-  ## Description
-  A basic structure of a modern web application with a separation into frontend and backend parts, ready for scaling.
+  [ ! -s docker-compose.yml ] && cat << 'EOF' > docker-compose.yml
+version: '3.8'
+services:
+  app:
+    build: .
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - .:/usr/src/app
+EOF
 
-  ## Project Structure
+  [ ! -s README.md ] && cat << 'EOF' > README.md
+# ERA Project
 
-  ### Backend:
+## Description
+A basic structure of a modern web application with a separation into frontend and backend parts, ready for scaling.
+
+## Project Structure
+
+### Backend:
+- src/
+  - controllers/
+  - models/
+  - routes/
+  - services/
+  - utils/
+  - config/
+  - tests/
+
+### Frontend:
+- client/
   - src/
-    - controllers/
-    - models/
-    - routes/
-    - services/
+    - components/
+    - pages/
+    - assets/
+    - styles/
     - utils/
-    - config/
     - tests/
 
-  ### Frontend:
-  - client/
-    - src/
-      - components/
-      - pages/
-      - assets/
-      - styles/
-      - utils/
-      - tests/
-
-  ### Common files:
-  - docs/
-  - scripts/
-  - docker/" > README.md
+### Common files:
+- docs/
+- scripts/
+- docker/
+EOF
 fi
 
-# Перевірка наявності prettier глобально
+# Проверка наличия prettier глобально
 if ! command -v prettier &> /dev/null; then
   npm list -g prettier
 fi
@@ -117,5 +129,11 @@ fi
 2. **Использование `cat << 'EOF'` для создания файлов**: Это делает код более читаемым и позволяет избежать множественных `echo`.
 3. **Форматирование многострочных строк**: Многострочные строки были отформатированы для улучшения читаемости.
 4. **Удаление лишних пробелов и отступов**: Это делает код более чистым и легким для восприятия.
+5. **Использование `cat` для создания файлов с многострочным содержимым**: Это улучшает читаемость и поддерживаемость кода.
 
-Эти изменения помогут сделать ваш скрипт более читаемым и поддерживаемым.
+### Дополнительные рекомендации:
+1. **Проверка на ошибки**: Добавьте проверку на ошибки после выполнения команд, таких как `npm install`, `curl`, и других, чтобы скрипт мог корректно обрабатывать сбои.
+2. **Логирование**: Рассмотрите возможность добавления логирования в файл для отслеживания выполнения скрипта и возможных ошибок.
+3. **Переменные окружения**: Используйте переменные окружения для хранения конфиденциальных данных, таких как токены или пароли, вместо их хранения в скрипте.
+
+Эти изменения помогут сделать ваш скрипт более читаемым, поддерживаемым и надежным.
