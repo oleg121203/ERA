@@ -1,6 +1,6 @@
 import analyze from "./analyze.js";
 import format from "./format.js";
-import logger from "../utils/logger.js";
+import logger from "./logger.js";  // Assuming logger.js is moved to the same directory
 
 export default async function fix() {
   try {
@@ -20,6 +20,7 @@ export default async function fix() {
     logger.success("✓ Код успешно исправлен и отформатирован");
   } catch (error) {
     logger.error("Ошибка при исправлении кода:", error);
-    process.exit(1);
+    import process from "node:process";  // Explicitly import the process module
+process.exit(1);
   }
 }

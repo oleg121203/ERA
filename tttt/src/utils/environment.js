@@ -13,7 +13,7 @@ class Environment {
   async isActive() {
     try {
       await fs.access(this.envPath);
-      const env = dotenv.config({ path: this.envPath });
+      dotenv.config({ path: this.envPath });
       return this.requiredVars.every((key) => !!process.env[key]);
     } catch (error) {
       return false;

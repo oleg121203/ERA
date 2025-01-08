@@ -1,6 +1,7 @@
 import { DeepSeekProvider } from './deepseek.js';
 import { GeminiProvider } from './gemini.js';
 import { MistralProvider } from './mistral.js';
+import process from 'process'; // Explicitly import process
 
 export class ProviderFactory {
   static getAvailableProviders() {

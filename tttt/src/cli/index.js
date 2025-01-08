@@ -3,12 +3,12 @@ import { Command } from 'commander';
 import dotenv from 'dotenv';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
-import analyze from '../commands/analyze.js';
-import fix from '../commands/fix.js';
-import format from '../commands/format.js';
-import Environment from '../utils/environment.js';
-import logger from '../utils/logger.js';
-import { generateAnalysisReport } from '../utils/metrics-collector.js';
+import analyze from '@tttt/commands/analyze';
+import fix from '@tttt/commands/fix';
+import format from '@tttt/commands/format';
+import Environment from '@tttt/utils/environment';
+import logger from '@tttt/utils/logger';
+import { generateAnalysisReport } from '@tttt/utils/metrics-collector';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -63,7 +63,7 @@ async function main() {
       .option('-p, --provider <provider>', 'AI провайдер')
       .option('--paths <paths>', 'Пути для анализа и форматирования', (val) => val.split(','))
       .option('--delay <delay>', 'Задержка в мс', parseInt)
-      .action(async (options) => {
+      .action(async () => {
         try {
           await analyze({
             ...options,
@@ -72,7 +72,8 @@ async function main() {
           });
         } catch (error) {
           logger.error('Ошибка при выполнении analyze-format:', error);
-          process.exit(1);
+          import { exit } from 'process';
+exit(1);
         }
       });
 
@@ -86,7 +87,8 @@ async function main() {
           const results = await analyze({ provider: 'none' });
           const report = generateAnalysisReport(results);
           logger.success('Отчет сгенерирован успешно');
-          console.log(report);
+          import { log } from 'console';
+log(report);
         } catch (error) {
           logger.error('Ошибка при генерации отчета:', error);
           process.exit(1);

@@ -1,4 +1,4 @@
-import OpenAI from 'openai';
+import { MistralClient } from 'mistral-client'; // Assuming a Mistral-specific client exists
 
 export class MistralProvider {
   constructor(apiKey) {
@@ -22,14 +22,15 @@ export class MistralProvider {
           },
           { role: 'user', content },
         ],
-        model: 'codestral-latest',
+        model: process.env.MISTRAL_MODEL || 'codestral-latest',
         temperature: 0.7,
         max_tokens: 2048,
       });
 
       return completion.choices[0].message.content;
     } catch (error) {
-      throw new Error(`Mistral API error: ${error.message}`);
+      console.error('Mistral API error:', error);
+throw new Error(`Mistral API error: ${error.message}`);
     }
   }
 }
