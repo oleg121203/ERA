@@ -1,6 +1,6 @@
-import { DeepSeekProvider } from './deepseek.js';
-import { GeminiProvider } from './gemini.js';
-import { MistralProvider } from './mistral.js';
+import { GeminiProvider } from "./gemini.js";
+import { DeepSeekProvider } from "./deepseek.js";
+import { MistralProvider } from "./mistral.js";
 
 export class ProviderFactory {
   static getAvailableProviders() {
@@ -8,7 +8,7 @@ export class ProviderFactory {
 
     if (process.env.GEMINI_API_KEY) {
       providers.push({
-        name: 'gemini',
+        name: "gemini",
         key: process.env.GEMINI_API_KEY,
         provider: GeminiProvider,
       });
@@ -16,7 +16,7 @@ export class ProviderFactory {
 
     if (process.env.DEEPSEEK_API_KEY) {
       providers.push({
-        name: 'deepseek',
+        name: "deepseek",
         key: process.env.DEEPSEEK_API_KEY,
         provider: DeepSeekProvider,
       });
@@ -24,7 +24,7 @@ export class ProviderFactory {
 
     if (process.env.MISTRAL_API_KEY) {
       providers.push({
-        name: 'mistral',
+        name: "mistral",
         key: process.env.MISTRAL_API_KEY,
         provider: MistralProvider,
       });

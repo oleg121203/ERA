@@ -56,23 +56,14 @@ async function main() {
     program
       .command('analyze-format')
       .description('Анализ и форматирование кода')
-      .option('-f, --fix', 'Интерактивное исправление')
-      .option('--auto-fix', 'Автоматическое применение всех исправлений')
+      .option('-f, --fix', 'Автоисправление')
       .option('-r, --recursive', 'Рекурсивный анализ')
       .option('-p, --provider <provider>', 'AI провайдер')
       .option('--paths <paths>', 'Пути для анализа и форматирования', (val) => val.split(','))
       .option('--delay <delay>', 'Задержка в мс', parseInt)
       .action(async (options) => {
-        try {
-          await analyze({
-            ...options,
-            autoFix: options.autoFix,
-            fix: options.fix || options.autoFix,
-          });
-        } catch (error) {
-          logger.error('Ошибка при выполнении analyze-format:', error);
-          process.exit(1);
-        }
+        await analyze(options);
+        await format({ write: true, paths: options.paths });
       });
 
     program.parse(process.argv);

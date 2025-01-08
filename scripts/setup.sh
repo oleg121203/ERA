@@ -1,139 +1,99 @@
-Ваш скрипт уже достаточно хорошо структурирован, но есть несколько моментов, которые можно улучшить для повышения читаемости, поддержки и надежности. Вот отформатированный и улучшенный вариант скрипта с комментариями:
-
-```bash
 #!/bin/bash
 
-# Изменение вида вывода терминала
-echo "export PS1='\[\e[31m\][\h]\[\e[0m\] Devcontainer \[\e[34mERA\[\e[0m\] \[\e[32m\]\$(__git_ps1 '(%s)')\[\e[0m\] $ '" >> ~/.bashrc
+# Функция создания файла если он не существует или force=true
+create_config_file() {
+    local file=$1
+    local force=$2
+    local content=$3
+    
+    if [ ! -f "$file" ] || [ "$force" = true ]; then
+        echo "$content" > "$file"
+        echo "✓ Создан файл: $file"
+    else
+        echo "⏺ Пропущен существующий файл: $file"
+    fi
+}
 
-# Проверка наличия Docker Compose
-if ! command -v docker-compose &> /dev/null; then
-  echo 'Docker Compose не установлен. Установка...' >&2
-  sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-  sudo chmod +x /usr/local/bin/docker-compose
-  echo 'Docker Compose установлен.'
+# Получаем параметр force из аргументов
+force=${1:-false}
+
+# Создаем конфигурационные файлы
+create_config_file ".prettierrc" "$force" '{
+  "semi": true,
+  "trailingComma": "es5",
+  "singleQuote": true,
+  "printWidth": 100,
+  "tabWidth": 2,
+  "useTabs": false,
+  "arrowParens": "always",
+  "endOfLine": "lf",
+  "bracketSpacing": true,
+  "jsxBracketSameLine": false
+}'
+
+create_config_file "jest.config.js" "$force" 'module.exports = {
+  testEnvironment: "node",
+  setupFilesAfterEnv: ["<rootDir>/era-code-analyzer-test/src/utils/__tests__/setup.js"],
+  testMatch: ["**/__tests__/**/*.test.js", "**/__tests__/**/*.test.ts"],
+  transform: {
+    "^.+\\.ts$": "ts-jest",
+  },
+};'
+
+create_config_file "eslint.config.js" "$force" 'import { FlatCompat } from "@eslint/eslintrc";
+import js from "@eslint/js";
+
+const compat = new FlatCompat({
+  baseDirectory: import.meta.url,
+  recommendedConfig: js.configs.recommended,
+});
+
+export default [
+  {
+    files: ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      globals: {
+        process: "readonly",
+        module: "readonly",
+        __dirname: "readonly",
+        __filename: "readonly",
+        require: "readonly",
+      },
+    },
+    rules: {
+      "no-console": "off",
+      "prettier/prettier": "error",
+    },
+  },
+  ...compat.config({
+    extends: ["plugin:prettier/recommended"],
+  }),
+];'
+
+# Создаем структуру проекта если force=true или директории не существуют
+if [ "$force" = true ] || [ ! -d "src" ]; then
+    mkdir -p src/{controllers,models,routes,services,utils,config,tests}
+    mkdir -p client/src/{components,pages,assets,styles,utils,tests}
+    mkdir -p docs scripts docker .requirements
+    echo "✓ Создана структура проекта"
 else
-  echo 'Docker Compose уже установлен.'
+    echo "⏺ Структура проекта уже существует"
 fi
 
-# Установка npm зависимостей
+# Установка зависимостей
 npm install
 
-# Установка Git hooks
-mkdir -p .git/hooks
-cat << 'EOF' > .git/hooks/pre-commit
-#!/bin/sh
-npm run lint-staged
-EOF
-chmod +x .git/hooks/pre-commit
-
-# Проверка наличия структуры проекта
-if [ ! -f src/index.js ]; then
-  echo 'Структура проекта не найдена. Создание структуры...'
-
-  # Создание структуры каталогов, если они не существуют
-  mkdir -p src/{controllers,models,routes,services,utils,config,tests}
-  mkdir -p client/src/{components,pages,assets,styles,utils,tests}
-  mkdir -p docs scripts docker .requirements
-
-  # Создание необходимых файлов
-  touch src/index.js src/config/database.js src/config/app.js client/src/index.js .env.example .gitignore README.md docker-compose.yml .requirements/requirements.in
-
-  # Добавление содержимого в файлы, если они пусты
-  [ ! -s src/config/app.js ] && cat << 'EOF' > src/config/app.js
-module.exports = {
-  port: process.env.PORT || 3000,
-  env: process.env.NODE_ENV || 'development',
-  apiVersion: process.env.API_VERSION || 'v1',
-  jwtSecret: process.env.JWT_SECRET
-};
-EOF
-
-  [ ! -s src/index.js ] && cat << 'EOF' > src/index.js
-const express = require('express');
-const config = require('./config/app');
-const app = express();
-
-app.use(express.json());
-
-app.listen(config.port, () => {
-  console.log(\`Server running on port \${config.port}\`);
-});
-EOF
-
-  [ ! -s .gitignore ] && cat << 'EOF' > .gitignore
-node_modules/
-.env
-dist/
-coverage/
-.DS_Store
-*.log
-EOF
-
-  [ ! -s docker-compose.yml ] && cat << 'EOF' > docker-compose.yml
-version: '3.8'
-services:
-  app:
-    build: .
-    ports:
-      - '3000:3000'
-    environment:
-      - NODE_ENV=development
-    volumes:
-      - .:/usr/src/app
-EOF
-
-  [ ! -s README.md ] && cat << 'EOF' > README.md
-# ERA Project
-
-## Description
-A basic structure of a modern web application with a separation into frontend and backend parts, ready for scaling.
-
-## Project Structure
-
-### Backend:
-- src/
-  - controllers/
-  - models/
-  - routes/
-  - services/
-  - utils/
-  - config/
-  - tests/
-
-### Frontend:
-- client/
-  - src/
-    - components/
-    - pages/
-    - assets/
-    - styles/
-    - utils/
-    - tests/
-
-### Common files:
-- docs/
-- scripts/
-- docker/
-EOF
+# Инициализация Git hooks
+if [ "$force" = true ] || [ ! -f ".git/hooks/pre-commit" ]; then
+    mkdir -p .git/hooks
+    echo '#!/bin/sh
+npm run lint-staged' > .git/hooks/pre-commit
+    chmod +x .git/hooks/pre-commit
+    echo "✓ Git hooks установлены"
+else
+    echo "⏺ Git hooks уже настроены"
 fi
 
-# Проверка наличия prettier глобально
-if ! command -v prettier &> /dev/null; then
-  npm list -g prettier
-fi
-```
-
-### Основные улучшения:
-1. **Использование `command -v` для проверки наличия команд**: Это более надежный способ проверки наличия команд в системе.
-2. **Использование `cat << 'EOF'` для создания файлов**: Это делает код более читаемым и позволяет избежать множественных `echo`.
-3. **Форматирование многострочных строк**: Многострочные строки были отформатированы для улучшения читаемости.
-4. **Удаление лишних пробелов и отступов**: Это делает код более чистым и легким для восприятия.
-5. **Использование `cat` для создания файлов с многострочным содержимым**: Это улучшает читаемость и поддерживаемость кода.
-
-### Дополнительные рекомендации:
-1. **Проверка на ошибки**: Добавьте проверку на ошибки после выполнения команд, таких как `npm install`, `curl`, и других, чтобы скрипт мог корректно обрабатывать сбои.
-2. **Логирование**: Рассмотрите возможность добавления логирования в файл для отслеживания выполнения скрипта и возможных ошибок.
-3. **Переменные окружения**: Используйте переменные окружения для хранения конфиденциальных данных, таких как токены или пароли, вместо их хранения в скрипте.
-
-Эти изменения помогут сделать ваш скрипт более читаемым, поддерживаемым и надежным.
+echo "✓ Настройка проекта завершена"

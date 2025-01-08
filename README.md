@@ -2,34 +2,44 @@
 
 ## Описание
 
-Базовая структура современного веб-приложения с разделением на frontend и backend части, готовая к масштабированию.
+ERA (Enhanced Review Assistant) - это инструмент для автоматизированного анализа и форматирования кода с поддержкой нескольких AI провайдеров. Проект предоставляет CLI интерфейс для анализа качества кода, автоматического форматирования и исправления типовых ошибок.
+
+## Возможности
+
+- Анализ кода с использованием ESLint
+- Автоматическое форматирование кода (Prettier)
+- AI-powered анализ кода через различных провайдеров:
+  - Google Gemini
+  - DeepSeek
+  - Mistral
+- Автоматическое исправление типовых ошибок
+- Поддержка различных типов файлов (JS, JSON, MD, SH, Dockerfile)
+- Рекурсивный анализ директорий
+- Подробная статистика и отчеты
 
 ## Структура проекта
 
-### Backend:
+### CLI (src/cli/)
+- `index.js` - Точка входа CLI, настройка команд
 
-- src/
-  - controllers/
-  - models/
-  - routes/
-  - services/
-  - utils/
-  - config/
-  - tests/
+### Команды (src/commands/)
+- `analyze.js` - Анализ кода с AI поддержкой
+- `format.js` - Форматирование кода
+- `fix.js` - Автоисправление ошибок
+- `validate.js` - Комплексная проверка кода
 
-### Frontend:
+### Сервисы (src/services/)
+- `providers/` - AI провайдеры
+  - `gemini.js` - Google Gemini интеграция
+  - `deepseek.js` - DeepSeek интеграция
+  - `mistral.js` - Mistral интеграция
+  - `factory.js` - Фабрика провайдеров
 
-- client/
-  - src/
-    - components/
-    - pages/
-    - assets/
-    - styles/
-    - utils/
-    - tests/
+### Утилиты (src/utils/)
+- `environment.js` - Управление окружением
+- `logger.js` - Логирование
 
-### Общие файлы:
+## Установка
 
-- docs/
-- scripts/
-- docker/
+```bash
+npm install

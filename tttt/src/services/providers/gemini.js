@@ -7,7 +7,7 @@ export class GeminiProvider {
       throw new Error('GEMINI_API_KEY is not set in environment variables');
     }
     this.genAI = new GoogleGenerativeAI(apiKey);
-    this.model = this.genAI.getGenerativeModel({ model });
+    this.model = this.genAI.getGenerativePrompt({ model });
   }
 
   async analyze(content) {

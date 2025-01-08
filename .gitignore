@@ -333,7 +333,8 @@ ASALocalRun/
 
 out
 
-# Arhive files
+# Arhive files and others
+docs/
 *.7z
 *.rar
 *.tar.gz

@@ -1,12 +1,12 @@
-import OpenAI from 'openai';
+import OpenAI from "openai";
 
 export class MistralProvider {
   constructor(apiKey) {
     if (!apiKey) {
-      throw new Error('MISTRAL_API_KEY is not set in environment variables');
+      throw new Error("MISTRAL_API_KEY is not set in environment variables");
     }
     this.client = new OpenAI({
-      baseURL: 'https://codestral.mistral.ai/v1',
+      baseURL: "https://codestral.mistral.ai/v1",
       apiKey: apiKey,
     });
   }
@@ -16,13 +16,13 @@ export class MistralProvider {
       const completion = await this.client.chat.completions.create({
         messages: [
           {
-            role: 'system',
+            role: "system",
             content:
-              'You are a code analysis expert specialized in identifying code patterns, best practices, and potential improvements.',
+              "You are a code analysis expert specialized in identifying code patterns, best practices, and potential improvements.",
           },
-          { role: 'user', content },
+          { role: "user", content },
         ],
-        model: 'codestral-latest',
+        model: "codestral-latest",
         temperature: 0.7,
         max_tokens: 2048,
       });
