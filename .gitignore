@@ -333,6 +333,12 @@ ASALocalRun/
 
 out
 
+# Arhive files
+*.7z
+*.rar
+*.tar.gz
+*.zip
+
 # Node.js
 node_modules/
 .env
