@@ -20,7 +20,6 @@ export default async function fix() {
     logger.success("✓ Код успешно исправлен и отформатирован");
   } catch (error) {
     logger.error("Ошибка при исправлении кода:", error);
-    import process from "node:process";  // Explicitly import the process module
-process.exit(1);
+    process.exit(1);
   }
 }

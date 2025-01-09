@@ -1,4 +1,4 @@
-import { console } from 'some-console-utility'; // Optional: Replace with actual utility if needed
+// import { console } from 'some-console-utility'; // Optional: Replace with actual utility if needed
 
 export default {
   info: (...args) => console.log('\x1b[36m%s\x1b[0m', ...args),

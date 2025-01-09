@@ -5,17 +5,5 @@ const app = express();
 app.use(express.json());
 
 app.listen(config.port, () => {
-  // Option 1: Add 'console' to ESLint globals in your .eslintrc file
-{
-  "globals": {
-    "console": "readonly"
-  }
-}
-
-// Option 2: Configure the environment in your .eslintrc file
-{
-  "env": {
-    "node": true
-  }
-}
+  console.log(`Server is running on port ${config.port}`);
 });

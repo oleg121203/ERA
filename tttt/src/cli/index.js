@@ -69,11 +69,11 @@ async function main() {
             ...options,
             autoFix: options.autoFix,
             fix: options.fix || options.autoFix,
-          });
+          };
+          await analyze(analyzeOptions);
         } catch (error) {
           logger.error('Ошибка при выполнении analyze-format:', error);
-          import { exit } from 'process';
-exit(1);
+          throw error;
         }
       });
 
@@ -85,13 +85,17 @@ exit(1);
       .action(async (options) => {
         try {
           const results = await analyze({ provider: 'none' });
-          const report = generateAnalysisReport(results);
-          logger.success('Отчет сгенерирован успешно');
-          import { log } from 'console';
-log(report);
+          try {
+            const report = generateAnalysisReport(results);
+            logger.success('Отчет сгенерирован успешно');
+            console.log(report);
+          } catch (reportError) {
+            logger.error('Ошибка при генерации отчета:', reportError);
+            throw reportError;
+          }
         } catch (error) {
           logger.error('Ошибка при генерации отчета:', error);
-          process.exit(1);
+          throw error;
         }
       });
 

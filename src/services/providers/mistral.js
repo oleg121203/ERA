@@ -1,12 +1,38 @@
+import { config } from 'dotenv';
+import { OpenAI } from 'openai';
+import logger from '../../utils/logger.js';
 import { OpenAIBaseProvider } from './base-provider.js';
+
+// Загружаем переменные окружения
+config();
 
 /* global process, console */
 
 const MODELS = {
-  DEFAULT: 'codestral-latest',
+  DEFAULT: 'codestral-latest', // Updated to use Codestral model
+  CHAT: 'codestral-latest',
+  COMPLETION: 'codestral-latest',
 };
 
-const MISTRAL_PROMPTS = {
+const API_CONFIG = {
+  CHAT_ENDPOINT: 'https://codestral.mistral.ai/v1/chat/completions',
+  COMPLETION_ENDPOINT: 'https://codestral.mistral.ai/v1/fim/completions',
+  BASE_URL: 'https://codestral.mistral.ai/v1',
+};
+
+const PROMPTS = {
+  ANALYSIS: `You are a code analysis expert. Your task is to:
+1. Analyze the code for potential issues including:
+   - ESLint errors (high priority)
+   - Missing imports
+   - Undefined variables
+   - Unused declarations
+2. Always provide fixes for ESLint errors in format:
+   OLD: <exact code with error>
+   NEW: <fixed code>
+3. Each fix must be specific and include all required imports
+4. If found ESLint errors, always provide fixes
+5. If no issues found, respond with "No issues found"`,
   CODE_ANALYSIS: ({
     fix,
   }) => `You are a code analysis expert specialized in JavaScript and TypeScript. Your task is to analyze the provided code and ${
@@ -47,51 +73,60 @@ If no improvements are possible, state "No issues found."`
 
 export class MistralProvider extends OpenAIBaseProvider {
   constructor(apiKey) {
+    if (!apiKey) {
+      throw new Error('MISTRAL_API_KEY is not set in environment variables');
+    }
     const customConfig = {
       OPENAI: {
-        temperature: 0.5,
+        temperature: 0.7,
         max_tokens: 2048,
       },
     };
 
-    super('MISTRAL', apiKey, 'https://codestral.mistral.ai/v1', MISTRAL_PROMPTS, customConfig);
-    const models = this.getModelConfig('MISTRAL');
-    this.defaultModel = process.env.MISTRAL_MODEL || models.DEFAULT;
+    super('MISTRAL', apiKey, API_CONFIG.BASE_URL, PROMPTS, customConfig);
+    this.defaultModel = process.env.MISTRAL_MODEL || MODELS.DEFAULT;
+    this.client = new OpenAI({
+      baseURL: API_CONFIG.BASE_URL,
+      apiKey: apiKey,
+      defaultHeaders: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+    });
   }
 
   async analyze(content) {
     try {
-      const config = this.getConfig('OPENAI');
-      const analysis = await this.client.chat.completions.create({
+      // Limit content length to avoid 400 errors
+      const truncatedContent = content.slice(0, 4000);
+
+      const completion = await this.client.chat.completions.create({
         messages: [
           {
             role: 'system',
-            content: this.getPrompt('CODE_ANALYSIS', { fix: content.includes('--fix') }),
+            content: PROMPTS.ANALYSIS,
           },
-          { role: 'user', content: content.replace('--fix', '').trim() },
+          {
+            role: 'user',
+            content: truncatedContent,
+          },
         ],
-        model: this.defaultModel,
-        ...config,
+        model: MODELS.CHAT,
+        temperature: 0.7,
+        max_tokens: 2048,
       });
 
-      const suggestions = analysis.choices[0].message.content;
-
-      if (suggestions.includes('No issues found')) {
-        this.logInfo('Анализ завершен: изменения не требуются');
-        return suggestions;
-      }
-
-      if (content.includes('--fix')) {
-        const fixes = this.parseSuggestions(suggestions);
-        const verifiedFixes = await Promise.all(fixes.map((fix) => this.verifyFix(fix)));
-
-        return verifiedFixes.filter((fix) => fix !== 'SKIP').join('\n\n');
-      }
-
-      this.logInfo('Анализ успешно завершен');
-      return suggestions;
+      return completion.choices[0].message.content;
     } catch (error) {
-      await this.handleAPIError(error);
+      logger.error('Mistral API error:', error.message);
+      if (error.response) {
+        logger.error('Response details:', {
+          status: error.response.status,
+          statusText: error.response.statusText,
+          data: error.response.data,
+        });
+      }
+      throw new Error(`Mistral API error: ${error.message}`);
     }
   }
 

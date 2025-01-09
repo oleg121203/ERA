@@ -44,7 +44,7 @@ export class MetricsCollector {
     });
   }
 
-  recordError(error) {
+  recordError() {
     this.analysisResults.set({ type: 'error', metric: 'count' }, 1);
   }
 
@@ -69,6 +69,11 @@ export class MetricsCollector {
   }
 }
 
+/**
+ * Generates a formatted analysis report.
+ * @param {object} results - An object containing analysis results with 'summary', 'quality', 'suggestions', and 'fixes' properties.
+ * @throws {Error} If the results object does not contain a 'summary' property.
+ */
 export function generateAnalysisReport(results) {
   if (!results?.summary) {
     throw new Error('Invalid analysis results structure');
