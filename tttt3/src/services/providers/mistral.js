@@ -1,20 +1,4 @@
-import { MistralClient } from 'mistral-client'; // Assuming a Mistral-specific client exists
-
-const PROMPTS = {
-  ANALYSIS: `You are a code analysis expert. Your task is to:
-1. Analyze the code for potential issues including:
-   - ESLint errors (high priority)
-   - Missing imports
-   - Undefined variables
-   - Unused declarations
-2. Always provide fixes for ESLint errors in format:
-   OLD: <exact code with error>
-   NEW: <fixed code>
-3. Each fix must be specific and include all required imports
-4. If found ESLint errors, always provide fixes
-5. If no issues found, respond with "No issues found"`,
-  // ...existing code...
-};
+import OpenAI from 'openai';
 
 export class MistralProvider {
   constructor(apiKey) {
@@ -38,15 +22,14 @@ export class MistralProvider {
           },
           { role: 'user', content },
         ],
-        model: process.env.MISTRAL_MODEL || 'codestral-latest',
+        model: 'codestral-latest',
         temperature: 0.7,
         max_tokens: 2048,
       });
 
       return completion.choices[0].message.content;
     } catch (error) {
-      console.error('Mistral API error:', error);
-throw new Error(`Mistral API error: ${error.message}`);
+      throw new Error(`Mistral API error: ${error.message}`);
     }
   }
 }

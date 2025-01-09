@@ -7,8 +7,20 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
-            "program": "${workspaceFolder}/server.js"
+            "name": "Launch Analyze Format",
+            "program": "${workspaceFolder}/src/cli/index.js",
+            "args": ["analyze-format"],
+            "envFile": "${workspaceFolder}/.env",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Server",
+            "program": "${workspaceFolder}/server.js",
+            "envFile": "${workspaceFolder}/.env",
+            "runtimeArgs": ["--experimental-modules"]
         }
     ]
 }
