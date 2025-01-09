@@ -1,4 +1,4 @@
-import { MistralClient } from 'mistral-client'; // Assuming a Mistral-specific client exists
+// Remove the unused import statement // Assuming a Mistral-specific client exists
 
 const PROMPTS = {
   ANALYSIS: `You are a code analysis expert. Your task is to:
@@ -38,14 +38,25 @@ export class MistralProvider {
           },
           { role: 'user', content },
         ],
-        model: process.env.MISTRAL_MODEL || 'codestral-latest',
+        model: // Use a different method to access the environment variables
+import { config } from 'dotenv';
+config();
+
+process.env.MISTRAL_MODEL || 'mistral-latest',
         temperature: 0.7,
         max_tokens: 2048,
       });
 
       return completion.choices[0].message.content;
     } catch (error) {
-      console.error('Mistral API error:', error);
+      // Import the console object or use a different method to log errors
+import { createLogger, format, transports } from 'winston';
+const logger = createLogger({
+  format: format.combine(format.timestamp(), format.json()),
+  transports: [new transports.Console()],
+});
+
+logger.error('Mistral API error:', error);
 throw new Error(`Mistral API error: ${error.message}`);
     }
   }

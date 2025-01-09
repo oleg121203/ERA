@@ -6,17 +6,43 @@ const MODELS = {
   DEFAULT: 'codestral-latest',
 };
 
-// Кастомные промпты для Mistral
 const MISTRAL_PROMPTS = {
-  CODE_ANALYSIS: `You are a code analysis expert specialized in JavaScript and TypeScript. Your task is to:
-1. Focus on critical ESLint errors first
-2. Check imports and module structure
-3. Verify variable declarations and usage
-4. Suggest type improvements
-5. Format response as:
-   OLD: <exact code with issue>
-   NEW: <fixed code>
-   WHY: <brief explanation>`,
+  CODE_ANALYSIS: ({
+    fix,
+  }) => `You are a code analysis expert specialized in JavaScript and TypeScript. Your task is to analyze the provided code and ${
+    fix ? 'suggest fixes' : 'identify potential issues'
+  }.
+
+Concentrate on the following aspects in order of priority:
+1. **Critical Errors**: Syntax errors, runtime errors, and logical flaws.
+2. **Code Structure**: Module imports, exports, and dependencies. Ensure that the code follows a modular and maintainable structure.
+3. **Best Practices**: Follow industry best practices for JavaScript/TypeScript, including proper variable declarations, function usage, and error handling.
+4. **Code Style**: Ensure the code adheres to consistent formatting, naming conventions, and readability standards.
+5. **Security**: Identify potential security vulnerabilities such as XSS, SQL injection, or insecure API usage.
+6. **Performance**: Suggest optimizations for performance, such as reducing unnecessary computations or improving algorithm efficiency.
+7. **Compatibility**: Ensure the code is compatible with the latest versions of Node.js, browsers, and other relevant environments.
+8. **Documentation**: Suggest improvements to inline comments and documentation to enhance code readability and maintainability.
+
+${
+  fix
+    ? `For each suggested fix, adhere to this format:
+
+\`\`\`suggestion
+OLD: <exact code with the issue>
+NEW: <corrected code>
+WHY: <brief explanation of the change, including any dependencies or structural impacts>
+\`\`\`
+If no improvements are possible, state "No issues found."`
+    : 'Provide a clear and concise description of each issue found, along with the relevant code snippet and potential impact on the overall structure.'
+}
+
+**Additional Guidelines**:
+- Always consider the context of the code within the larger application.
+- Ensure that fixes do not introduce new dependencies or break existing functionality.
+- If the code is part of a larger module, analyze how changes might affect other parts of the application.
+- Prioritize fixes that improve maintainability and reduce technical debt.
+- Provide detailed explanations for each suggested change, including potential risks and benefits.
+`,
 };
 
 export class MistralProvider extends OpenAIBaseProvider {
@@ -40,9 +66,9 @@ export class MistralProvider extends OpenAIBaseProvider {
         messages: [
           {
             role: 'system',
-            content: this.getPrompt('CODE_ANALYSIS'),
+            content: this.getPrompt('CODE_ANALYSIS', { fix: content.includes('--fix') }),
           },
-          { role: 'user', content },
+          { role: 'user', content: content.replace('--fix', '').trim() },
         ],
         model: this.defaultModel,
         ...config,
@@ -50,13 +76,11 @@ export class MistralProvider extends OpenAIBaseProvider {
 
       const suggestions = analysis.choices[0].message.content;
 
-      // Если нет предложений по улучшению, завершаем
       if (suggestions.includes('No issues found')) {
         this.logInfo('Анализ завершен: изменения не требуются');
         return suggestions;
       }
 
-      // Если есть autofix флаг, проверяем каждое изменение
       if (content.includes('--fix')) {
         const fixes = this.parseSuggestions(suggestions);
         const verifiedFixes = await Promise.all(fixes.map((fix) => this.verifyFix(fix)));
@@ -84,12 +108,12 @@ export class MistralProvider extends OpenAIBaseProvider {
         messages: [
           {
             role: 'system',
-            content: PROMPTS.AUTOFIX,
+            content: this.getPrompt('AUTOFIX'),
           },
           { role: 'user', content: fix },
         ],
         model: this.defaultModel,
-        temperature: 0.1, // Очень консервативно для проверки
+        temperature: 0.1,
         max_tokens: 1024,
       });
 

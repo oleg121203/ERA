@@ -69,48 +69,53 @@ export class MetricsCollector {
   }
 }
 
-export function generateAnalysisReport(results) {
-  if (!results?.summary) {
-    throw new Error('Invalid analysis results structure');
-  }
+export function generateAnalysisReport(results, suggestions) {
+  const { summary, quality, fixes } = results;
 
-  const { summary, quality, suggestions, fixes } = results;
+  const report = [
+    '\n=== Unified Analysis Report ===',
+    '\nProject Summary:',
+    `- Files analyzed: ${summary.totalFiles}`,
+    `- Total lines of code: ${summary.totalLines}`,
+    `- Components: ${summary.totalComponents}`,
+    `- Services: ${summary.totalServices}`,
+    `- Utilities: ${summary.totalUtils}`,
+    `- Commands: ${summary.totalCommands}`,
+    `- Coverage: ${quality.coverage}`,
 
-  return `
-${'\x1b[36m'}=== Отчет по анализу кода ERA ===${'\x1b[0m'}
+    '\nCode Quality:',
+    `- Errors: ${quality.errors}`,
+    `- Warnings: ${quality.warnings}`,
+    `- Fixable issues: ${quality.fixableIssues}`,
+    `- Complexity Distribution:`,
+    `  - High: ${quality.complexity.high}`,
+    `  - Medium: ${quality.complexity.medium}`,
+    `  - Low: ${quality.complexity.low}`,
 
-${'\x1b[32m'}📊 Общая статистика:${'\x1b[0m'}
-- Всего файлов: ${summary.totalFiles}
-- Строк кода: ${summary.totalLines}
-- Компонентов: ${summary.totalComponents}
-- Сервисов: ${summary.totalServices}
-- Утилит: ${summary.totalUtils}
-- Команд: ${summary.totalCommands}
+    '\nAI Analysis Results:',
+    `- Total suggestions: ${suggestions.length}`,
+    `- Suggestions applied: ${fixes.applied}`,
+    `- Files changed: ${fixes.filesChanged}`,
 
-${'\x1b[33m'}🔍 Качество кода:${'\x1b[0m'}
-- Ошибки: ${quality.errors}
-- Предупреждения: ${quality.warnings}
-- Исправимые проблемы: ${quality.fixableIssues}
-- Покрытие тестами: ${quality.coverage}
+    '\nFixes Status:',
+    `- Applied: ${fixes.applied}`,
+    `- Pending: ${fixes.pending}`,
+    `- Failed: ${fixes.failed}`,
 
-${'\x1b[33m'}Сложность:${'\x1b[0m'}
-- Высокая: ${quality.complexity.high} файлов
-- Средняя: ${quality.complexity.medium} файлов
-- Низкая: ${quality.complexity.low} файлов
+    '\nInteractive Suggestions:',
+  ];
 
-${'\x1b[31m'}❗️ Критичные проблемы:${'\x1b[0m'}
-${(suggestions.critical || []).map((s) => `- ${s}`).join('\n')}
+  suggestions.forEach((suggestion, index) => {
+    report.push(
+      `${index + 1}. Suggestion ${index + 1}:`,
+      `   - Explanation: ${suggestion.explanation}`,
+      `   - Old Code: ${suggestion.oldCode}`,
+      `   - New Code: ${suggestion.newCode}`,
+      `   - Apply this change? (y/N): `
+    );
+  });
 
-${'\x1b[33m'}⚠️ Важные улучшения:${'\x1b[0m'}
-${(suggestions.important || []).map((s) => `- ${s}`).join('\n')}
+  report.push('\n=== End of Report ===');
 
-${'\x1b[33m'}📝 Незначительные замечания:${'\x1b[0m'}
-${(suggestions.minor || []).map((s) => `- ${s}`).join('\n')}
-
-${'\x1b[33m'}🔧 Статус исправлений:${'\x1b[0m'}
-- Применено: ${fixes.applied}
-- Ожидает: ${fixes.pending}
-- Не удалось: ${fixes.failed}
-
-${'\x1b[36m'}=== Конец отчета ===${'\x1b[0m'}`;
+  return report.join('\n');
 }

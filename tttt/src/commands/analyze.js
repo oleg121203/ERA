@@ -5,7 +5,7 @@ import { readFile, stat, writeFile } from 'node:fs/promises';
 import path, { dirname } from 'path';
 import readline from 'readline';
 import { fileURLToPath } from 'url';
-import { DeepSeekProvider } from '../services/providers/deepseek.js';
+import { DeepSeekProvider } from 'path/to/deepseek.js';
 import { GeminiProvider } from '../services/providers/gemini.js';
 import { MistralProvider } from '../services/providers/mistral.js';
 import logger from '../utils/logger.js';

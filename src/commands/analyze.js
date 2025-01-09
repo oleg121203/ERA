@@ -36,6 +36,7 @@ let totalSuggestions = 0;
 
 // Пример конфигурации для типов анализа
 const defaultAnalysisConfig = {
+  full: { confidence: 80, risk: 20, necessity: 90 },
   security: { confidence: 70, risk: 30, necessity: 80 },
   syntax: { confidence: 70, risk: 30, necessity: 80 },
   import: { confidence: 70, risk: 30, necessity: 80 },
@@ -113,6 +114,26 @@ function collectProjectStats(files) {
   return stats;
 }
 
+async function initializeProvider(options) {
+  const providers = {
+    gemini: { key: 'GEMINI_API_KEY', class: GeminiProvider },
+    deepseek: { key: 'DEEPSEEK_API_KEY', class: DeepSeekProvider },
+    mistral: { key: 'MISTRAL_API_KEY', class: MistralProvider },
+  };
+
+  const providerConfig = providers[options.provider];
+  if (!providerConfig) {
+    throw new Error(`Unsupported provider: ${options.provider}`);
+  }
+
+  const apiKey = process.env[providerConfig.key];
+  if (!apiKey) {
+    throw new Error(`${providerConfig.key} not found in environment variables`);
+  }
+
+  return new providerConfig.class(apiKey);
+}
+
 export default async function analyze(options) {
   try {
     logger.info('Starting code analysis...');
@@ -152,47 +173,12 @@ export default async function analyze(options) {
     });
 
     let provider = null;
-
-    if (options.provider === 'gemini') {
-      logger.info('Initializing AI provider...');
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) {
-        logger.error('GEMINI_API_KEY not found in environment variables');
-        return;
-      }
+    if (options.provider) {
       try {
-        provider = new GeminiProvider(apiKey);
+        provider = await initializeProvider(options);
         logger.success('AI provider successfully initialized');
       } catch (error) {
-        logger.error('Error initializing AI provider:', error);
-        return;
-      }
-    } else if (options.provider === 'deepseek') {
-      logger.info('Initializing DeepSeek provider...');
-      const apiKey = process.env.DeepSeek_API_SECRET || process.env.DEEPSEEK_API_KEY;
-      if (!apiKey) {
-        logger.error('DeepSeek API key not found in environment variables');
-        return;
-      }
-      try {
-        provider = new DeepSeekProvider(apiKey);
-        logger.success('DeepSeek provider successfully initialized');
-      } catch (error) {
-        logger.error('Error initializing DeepSeek provider:', error);
-        return;
-      }
-    } else if (options.provider === 'mistral') {
-      logger.info('Initializing Mistral provider...');
-      const apiKey = process.env.MISTRAL_API_KEY;
-      if (!apiKey) {
-        logger.error('MISTRAL_API_KEY not found in environment variables');
-        return;
-      }
-      try {
-        provider = new MistralProvider(apiKey);
-        logger.success('Mistral provider successfully initialized');
-      } catch (error) {
-        logger.error('Error initializing Mistral provider:', error);
+        logger.error('Provider initialization error:', error.message);
         return;
       }
     }
@@ -265,10 +251,15 @@ export default async function analyze(options) {
     if (provider) {
       logger.info('\nStarting AI analysis...');
       let failedAttempts = 0;
+      const allSuggestions = [];
+
+      // Вычисляем totalLines здесь, перед использованием
+      const totalLines = fileStats.reduce((acc, file) => acc + file.lines, 0);
+      const projectStats = collectProjectStats(files);
 
       for (const stat of fileStats) {
         logger.info(
-          `Analyzing file (${fileStats.indexOf(stat) + 1}/${fileStats.length}): ${stat.path}`
+          `Анализ файла (${fileStats.indexOf(stat) + 1}/${fileStats.length}): ${stat.path}`
         );
         try {
           const eslintResult = results.find((r) => r.filePath.endsWith(stat.path));
@@ -292,10 +283,11 @@ export default async function analyze(options) {
             const suggestions = extractSuggestions(aiAnalysis);
 
             if (suggestions.length > 0) {
+              allSuggestions.push(...suggestions);
               totalSuggestions += suggestions.length;
               let fileWasChanged = false;
 
-              logger.info(`\nFound ${suggestions.length} suggestions for ${stat.path}`);
+              logger.info(`\nНайдено ${suggestions.length} предложений для ${stat.path}`);
 
               let pendingCascadeSuggestions = [];
 
@@ -367,7 +359,41 @@ export default async function analyze(options) {
         }
       }
 
-      logger.success(`\nAnalysis completed. Processed files: ${fileStats.length}`);
+      logger.success(`\nАнализ завершен. Обработано файлов: ${fileStats.length}`);
+
+      const analysisResults = {
+        summary: {
+          totalFiles: files.length,
+          totalLines: totalLines, // Теперь переменная определена
+          totalComponents: projectStats.components,
+          totalServices: projectStats.services,
+          totalUtils: projectStats.utils,
+          totalCommands: projectStats.commands,
+        },
+        quality: {
+          errors: stats.errors,
+          warnings: stats.warnings,
+          fixableIssues: stats.fixable,
+          coverage: '0%',
+          complexity: {
+            high: fileStats.filter((f) => f.errors > 20).length,
+            medium: fileStats.filter((f) => f.errors > 10 && f.errors <= 20).length,
+            low: fileStats.filter((f) => f.errors <= 10).length,
+          },
+        },
+        suggestions: allSuggestions,
+        fixes: {
+          applied: fixesApplied,
+          pending: stats.fixable - fixesApplied,
+          failed: 0,
+          filesChanged: filesChanged,
+        },
+      };
+
+      const report = generateAnalysisReport(analysisResults, allSuggestions);
+      logger.info(report);
+
+      return analysisResults;
     }
 
     if (options.autoFix) {
@@ -502,6 +528,10 @@ async function applyChange(filePath, suggestion) {
   if (content !== newContent) {
     await writeFile(filePath, newContent);
     fixesApplied++;
+    logger.success(`Изменение применено: ${filePath}`);
+    logger.info(`OLD: ${suggestion.oldCode}`);
+    logger.info(`NEW: ${suggestion.newCode}`);
+    logger.info(`WHY: ${suggestion.explanation}`);
     return true;
   }
   return false;
