@@ -1,6 +1,6 @@
 import analyze from "./analyze.js";
 import format from "./format.js";
-import logger from "../shared/logger.js";
+import logger from "../shared/logger";
 
 export default async function validate(options) {
   try {
