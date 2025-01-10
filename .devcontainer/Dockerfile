@@ -1,7 +1,9 @@
 FROM n8nio/n8n:latest
 
 USER root
-
+RUN chown -R node:node /workspaces/ERA && \
+    chmod 755 /workspaces/ERA
+    
 # Установка основных зависимостей
 RUN apk add --no-cache \
     python3 \
