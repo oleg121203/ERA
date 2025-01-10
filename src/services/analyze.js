@@ -7,6 +7,7 @@ import logger from '../utils/logger.js';
 import { DeepSeekProvider } from './providers/deepseek.js';
 import { GeminiProvider } from './providers/gemini.js';
 import { MistralProvider } from './providers/mistral.js';
+import { readFile } from 'fs/promises';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -21,7 +22,6 @@ export default async function analyze(options) {
       cwd: projectRoot,
     });
 
-    // Initialize AI provider if specified
     let provider = null;
     if (options.provider && options.provider !== 'none') {
       const providers = {
@@ -44,37 +44,38 @@ export default async function analyze(options) {
       logger.success('AI provider initialized');
     }
 
-    // Get files to analyze
-    const patterns = options.paths.map((p) =>
-      options.recursive
-        ? `${p}/**/*.{js,jsx,ts,tsx,py,sh,html,css,sql,txt}`
-        : `${p}/*.{js,jsx,ts,tsx,py,sh,html,css,sql,txt}`
-    );
+    const paths = Array.isArray(options.paths)
+      ? options.paths
+      : typeof options.paths === 'string'
+        ? options.paths.split(',')
+        : ['src/**/*.{js,json,md,py,css,html,sh,ts,tsx,sql,txt}'];
 
-    const files = await globby(patterns, { absolute: true });
+    logger.info('Analyzing files by paths:', paths);
+
+    const files = await globby(paths, { absolute: true });
     if (!files.length) {
       logger.warn('No files found for analysis');
       return { summary: { totalFiles: 0 }, quality: { errors: 0 } };
     }
 
-    // Run ESLint
     const results = await eslint.lintFiles(files);
 
     if (options.fix) {
       await ESLint.outputFixes(results);
     }
 
-    // Run AI analysis if provider is available
     const aiSuggestions = [];
     if (provider) {
       for (const file of files) {
         try {
-          const analysis = await provider.analyze(file);
+          const ext = path.extname(file);
+          const content = await readFile(file, 'utf8');
+          const analysis = await provider.analyze(content);
           if (analysis) {
             aiSuggestions.push({ file, suggestions: analysis });
           }
         } catch (error) {
-          logger.warn(`AI analysis failed for ${file}: ${error.message}`);
+          logger.warn(`Skipped ${file}: ${error.message}`);
         }
       }
     }
@@ -99,6 +100,7 @@ export default async function analyze(options) {
     };
   } catch (error) {
     logger.error('Analysis error:', error);
+    process.exitCode = 1;
     throw error;
   }
 }
