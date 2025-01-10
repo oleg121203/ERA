@@ -1,9 +1,7 @@
 FROM n8nio/n8n:latest
 
 USER root
-RUN chown -R node:node /workspaces/ERA && \
-    chmod 755 /workspaces/ERA
-    
+
 # Установка основных зависимостей
 RUN apk add --no-cache \
     python3 \
@@ -15,12 +13,10 @@ RUN apk add --no-cache \
     git \
     curl \
     && python3 -m venv /opt/venv \
-    && rm -rf /var/cache/apk/*
-
-# Установка kubectl
-RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
-    install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl && \
-    rm kubectl
+    && rm -rf /var/cache/apk/* \
+    && curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
+    && install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl \
+    && rm kubectl
 
 # Активация виртуального окружения
 ENV PATH="/opt/venv/bin:$PATH"
