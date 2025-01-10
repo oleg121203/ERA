@@ -4,8 +4,17 @@ import path from 'path';
 import prettier from 'prettier';
 import config from '../config.js';
 import logger from '../utils/logger.js';
+import { formatPython } from './formatters/python.js';
+import { formatShell } from './formatters/shell.js';
+import { formatHTML } from './formatters/html.js';
+import { formatCSS } from './formatters/css.js';
+import { formatSQL } from './formatters/sql.js';
+import { formatText } from './formatters/text.js';
 
-const formatters = {
+const formatters = {const files = await globby(paths);
+
+    // Инициализация провайдера AI
+    const provider = new DeepSeekProvider
   '.js': async (content, filepath) => {
     return prettier.format(content, {
       parser: 'babel',
@@ -20,6 +29,12 @@ const formatters = {
   '.md': async (content, filepath) => {
     return prettier.format(content, { parser: 'markdown', filepath });
   },
+  '.py': formatPython,
+  '.sh': formatShell,
+  '.html': formatHTML,
+  '.css': formatCSS,
+  '.sql': formatSQL,
+  '.txt': formatText,
 };
 
 export default async function format(options) {
@@ -40,7 +55,7 @@ export default async function format(options) {
         const formatter = formatters[ext];
 
         if (!formatter) {
-          logger.warn(`No formatter found for ${file}, skipping...`); // Fixed syntax
+          logger.warn(`No formatter found for ${file}, skipping...`);
           continue;
         }
 
@@ -63,3 +78,5 @@ export default async function format(options) {
     throw error;
   }
 }
+
+

@@ -46,7 +46,9 @@ export default async function analyze(options) {
 
     // Get files to analyze
     const patterns = options.paths.map((p) =>
-      options.recursive ? `${p}/**/*.{js,jsx,ts,tsx}` : `${p}/*.{js,jsx,ts,tsx}`
+      options.recursive
+        ? `${p}/**/*.{js,jsx,ts,tsx,py,sh,html,css,sql,txt}`
+        : `${p}/*.{js,jsx,ts,tsx,py,sh,html,css,sql,txt}`
     );
 
     const files = await globby(patterns, { absolute: true });
