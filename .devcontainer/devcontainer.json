@@ -97,7 +97,7 @@
       "8081": {"label": "n8n Workflow UI", "onAutoForward": "notify"},
       "4500": {"label": "n8n Web UI", "onAutoForward": "openBrowser"}
   },
-  "initializeCommand": "git config --global user.name 'Oleg Kizyma' && git config --global user.email 'oleg1203@gmail.com'",
+  "initializeCommand": "git config --global user.name \"${localEnv:GIT_USER_NAME}\" && git config --global user.email \"${localEnv:GIT_USER_EMAIL}\"",
   "postCreateCommand": "chmod +x scripts/setup.sh && bash scripts/setup.sh",
   "remoteUser": "node",
   "updateRemoteUserUID": true

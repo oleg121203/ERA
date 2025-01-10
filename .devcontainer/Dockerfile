@@ -26,7 +26,8 @@ ENV PATH="/opt/venv/bin:$PATH"
 WORKDIR /workspaces/ERA
 
 # Создание файлов если они отсутствуют
-RUN mkdir -p .requirements && touch .requirements/requirements.in requirements.txt
+COPY .requirements/requirements.in .requirements/requirements.in
+COPY requirements.txt requirements.txt
 
 # Установка Python зависимостей
 COPY .requirements/requirements.in .requirements/

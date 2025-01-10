@@ -65,3 +65,5 @@ async function format(options) {
     process.exitCode = 1;
   }
 }
+
+export default format; // Add default export
