@@ -13,6 +13,7 @@
         "**/settings.json": true,
         "**/.gitignore": true,
         "**/.devcontainer": true,
+        "**/node_modules": true,
         "**/.vscode": true
     },
     "workbench.iconTheme": "material-icon-theme",
@@ -39,6 +40,7 @@
                         "**/settings.json": true,
                         "**/.gitignore": true,
                         "**/.devcontainer": true,
+                        "**/node_modules": true,
                         "**/.vscode": true
                     }
                 },
@@ -57,6 +59,7 @@
                         "**/settings.json": false,
                         "**/.gitignore": false,
                         "**/.devcontainer": false,
+                        "**/node_modules": true,
                         "**/.vscode": false
                     }
                 }
