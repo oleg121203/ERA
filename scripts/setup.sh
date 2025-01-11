@@ -3,6 +3,13 @@
 # Функція для налаштування командного рядка
 setup_prompt() {
     local bashrc_path="$HOME/.bashrc"
+    
+    # Перевіряємо, чи існує .bashrc, якщо ні — створюємо
+    if [ ! -f "$bashrc_path" ]; then
+        touch "$bashrc_path"
+        echo "✓ Створено файл .bashrc"
+    fi
+
     local prompt_config='
 
 # Налаштування командного рядка

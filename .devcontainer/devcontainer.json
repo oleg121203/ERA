@@ -1,5 +1,5 @@
 {
-    "name": "ERA Dev Environment",
+    "name": "ERA",
     "build": {
         "dockerfile": "Dockerfile",
         "context": "..",
