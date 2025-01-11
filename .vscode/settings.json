@@ -1,4 +1,37 @@
 {
-    "continue.pauseCodebaseIndexOnStart": true,
-    "continue.pauseTabAutocompleteOnBattery": true
+    "files.exclude": {
+        "**/.git": true,
+        "**/.requirements": true,
+        "**/.env": true,
+        "**/.DS_Store": true,
+        "**/.idea": true,
+        "**/.cache": true,
+        "**/.npm": true,
+        "**/.yarn": true,
+        "**/.next": true,
+        "**/.nuxt": true,
+        "**/.svelte-kit": true,
+        "**/.angular": true,
+        "**/.terraform": true,
+        "**/.serverless": true,
+        "**/.github": true,
+        "**/.husky": true,
+        "**/.gitignore": true,
+        "**/.eslintrc": true,
+        "**/.prettierrc": true,
+        "**/.babelrc": true,
+        "**/.editorconfig": true,
+        "**/.dockerignore": true,
+        "**/.gitattributes": true,
+        "**/.npmrc": true,
+        "**/.yarnrc": true,
+        "**/.env.*": true,
+        "**/node_modules": true
+    },
+    "workbench.iconTheme": "material-icon-theme",
+    "material-icon-theme.folders.associations": {
+        // Прибрано налаштування для папки src
+    },
+    "material-icon-theme.folders.theme": "specific",
+    "material-icon-theme.hidesExplorerArrows": true
 }
