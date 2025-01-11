@@ -6,7 +6,13 @@ setup_prompt() {
     local prompt_config='
 
 # Налаштування командного рядка
-export PS1="\[\e[1;34m\]DEV (\[\e[1;35m\]\u\[\e[1;34m\])\[\e[0m\] \[\e[1;33m\]/workspaces/ERA \[\e[1;32m\](\$(git branch 2>/dev/null | grep '"'"'^*'"'"' | colrm 1 2))\[\e[0m\] \$ "
+random_color() {
+    local colors=("31" "32" "33" "34" "35" "36" "91" "92" "93" "94" "95" "96")
+    local index=$((RANDOM % ${#colors[@]}))
+    echo "${colors[$index]}"
+}
+
+export PS1="\[\e[1;34m\]DEV (\[\e[1;35m\]\u\[\e[1;34m\])\[\e[0m\] \[\e[1;\$(random_color)m\]ERA \[\e[1;32m\](\$(if git rev-parse --git-dir > /dev/null 2>&1; then git branch 2>/dev/null | sed -n -e '"'"'s/^\* \(.*\)/\1/p'"'"'; fi))\[\e[0m\] \$ "
 '
 
     # Видаляємо старі налаштування PS1, якщо вони існують
