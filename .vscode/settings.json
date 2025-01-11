@@ -25,6 +25,7 @@
         "**/.gitattributes": true,
         "**/.npmrc": true,
         "**/.yarnrc": true,
+        "package-lock.json": true,
         "**/.env.*": true,
         "**/node_modules": true
     },

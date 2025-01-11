@@ -1,6 +1,6 @@
 import analyze from "./analyze.js";
 import format from "./format.js";
-import logger from "./logger.js";  // Assuming logger.js is moved to the same directory
+import logger from "../utils/logger.js";
 
 export default async function fix() {
   try {

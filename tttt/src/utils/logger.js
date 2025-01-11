@@ -1,5 +1,4 @@
-// import { console } from 'some-console-utility'; // Optional: Replace with actual utility if needed
-
+/* global console */
 export default {
   info: (...args) => console.log('\x1b[36m%s\x1b[0m', ...args),
   error: (...args) => console.error('\x1b[31m%s\x1b[0m', ...args),

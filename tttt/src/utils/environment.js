@@ -13,8 +13,8 @@ class Environment {
   async isActive() {
     try {
       await fs.access(this.envPath);
-      dotenv.config({ path: this.envPath });
-      return this.requiredVars.every((key) => typeof process !== 'undefined' && !!process.env[key]);
+      const env = dotenv.config({ path: this.envPath });
+      return this.requiredVars.every((key) => !!process.env[key]);
     } catch (error) {
       return false;
     }
@@ -23,14 +23,14 @@ class Environment {
   async activate() {
     try {
       const template = this.requiredVars
-        .map((key) => `${key}=${typeof process !== 'undefined' ? (process.env[key] || '') : ''}`)
+        .map((key) => `${key}=${process.env[key] || ''}`)
         .join('\n');
 
       await fs.writeFile(this.envPath, template);
       dotenv.config({ path: this.envPath });
       logger.success('Окружение активировано');
 
-      const missing = this.requiredVars.filter((key) => typeof process !== 'undefined' && !process.env[key]);
+      const missing = this.requiredVars.filter((key) => !process.env[key]);
       if (missing.length > 0) {
         logger.warn(`Необходимо установить следующие переменные в .env:\n${missing.join('\n')}`);
       }
