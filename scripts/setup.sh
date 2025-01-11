@@ -19,7 +19,7 @@ random_color() {
     echo "${colors[$index]}"
 }
 
-export PS1="\[\e[1;34m\]DEV (\[\e[1;35m\]\u\[\e[1;34m\])\[\e[0m\] \[\e[1;\$(random_color)m\]ERA \[\e[1;32m\](\$(if git rev-parse --git-dir > /dev/null 2>&1; then git branch 2>/dev/null | sed -n -e '"'"'s/^\* \(.*\)/\1/p'"'"'; fi))\[\e[0m\] \$ "
+export PS1="\[\e[1;34m\]DEV (\[\e[1;31m\]\u\[\e[1;34m\])\[\e[0m\] \[\e[1;\$(random_color)m\]ERA \[\e[1;34;40m\](\$(if git rev-parse --git-dir > /dev/null 2>&1; then git branch 2>/dev/null | sed -n -e '"'"'s/^\* \(.*\)/\1/p'"'"'; fi))\[\e[0m\] \$ "
 '
 
     # Видаляємо старі налаштування PS1, якщо вони існують
