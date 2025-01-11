@@ -80,7 +80,8 @@
                 "redhat.vscode-yaml",
                 "ms-azuretools.vscode-docker",
                 "ms-vscode-remote.remote-containers",
-                "PKief.material-icon-theme"
+                "PKief.material-icon-theme",
+                "hoovercj.vscode-settings-cycler"
             ]
         }
     },

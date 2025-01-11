@@ -1,38 +1,78 @@
 {
     "files.exclude": {
-        "**/.git": true,
-        "**/.requirements": true,
-        "**/.env": true,
-        "**/.DS_Store": true,
-        "**/.idea": true,
-        "**/.cache": true,
-        "**/.npm": true,
-        "**/.yarn": true,
-        "**/.next": true,
-        "**/.nuxt": true,
-        "**/.svelte-kit": true,
-        "**/.angular": true,
-        "**/.terraform": true,
-        "**/.serverless": true,
-        "**/.github": true,
-        "**/.husky": true,
-        "**/.gitignore": true,
-        "**/.eslintrc": true,
         "**/.prettierrc": true,
-        "**/.babelrc": true,
-        "**/.editorconfig": true,
-        "**/.dockerignore": true,
+        "**/jest.config.js": true,
+        "**/eslint.config.js": true,
         "**/.gitattributes": true,
-        "**/.npmrc": true,
-        "**/.yarnrc": true,
-        "package-lock.json": true,
-        "**/.env.*": true,
-        "**/node_modules": true
+        "**/package-lock.json": true,
+        "**/.husky": true,
+        "**/.github": true,
+        "**/devcontainer": true,
+        "**/.requirements": true,
+        "**/scripts": true,
+        "**/settings.json": true,
+        "**/.gitignore": true,
+        "**/.devcontainer": true,
+        "**/.vscode": true
     },
     "workbench.iconTheme": "material-icon-theme",
-    "material-icon-theme.folders.associations": {
-        // Прибрано налаштування для папки src
-    },
+    "material-icon-theme.folders.associations": {},
     "material-icon-theme.folders.theme": "specific",
-    "material-icon-theme.hidesExplorerArrows": true
+    "material-icon-theme.hidesExplorerArrows": true,
+    "settings.cycle": [
+        {
+            "id": "toggleConfigFilesVisibility",
+            "overrideWorkspaceSettings": true,
+            "values": [
+                {
+                    "files.exclude": {
+                        "**/.prettierrc": true,
+                        "**/jest.config.js": true,
+                        "**/eslint.config.js": true,
+                        "**/.gitattributes": true,
+                        "**/package-lock.json": true,
+                        "**/.husky": true,
+                        "**/.github": true,
+                        "**/devcontainer": true,
+                        "**/.requirements": true,
+                        "**/scripts": true,
+                        "**/settings.json": true,
+                        "**/.gitignore": true,
+                        "**/.devcontainer": true,
+                        "**/.vscode": true
+                    }
+                },
+                {
+                    "files.exclude": {
+                        "**/.prettierrc": false,
+                        "**/jest.config.js": false,
+                        "**/eslint.config.js": false,
+                        "**/.gitattributes": false,
+                        "**/package-lock.json": false,
+                        "**/.husky": false,
+                        "**/.github": false,
+                        "**/devcontainer": false,
+                        "**/.requirements": false,
+                        "**/scripts": false,
+                        "**/settings.json": false,
+                        "**/.gitignore": false,
+                        "**/.devcontainer": false,
+                        "**/.vscode": false
+                    }
+                }
+            ]
+        },
+        {
+            "id": "toggleReadOnlyMode",
+            "overrideWorkspaceSettings": true,
+            "values": [
+                {
+                    "files.readonly": true
+                },
+                {
+                    "files.readonly": false
+                }
+            ]
+        }
+    ]
 }
